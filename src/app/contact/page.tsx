@@ -12,11 +12,10 @@ export default function ContactPage() {
 
       <div className="mt-8 card">
         <h2 className="font-semibold text-slate-900">Direct email</h2>
-        <p className="mt-2 text-sm text-slate-700"><strong>General:</strong> hello@jeevanreport.org</p>
-        <p className="mt-1 text-sm text-slate-700"><strong>Press:</strong> press@jeevanreport.org</p>
-        <p className="mt-1 text-sm text-slate-700"><strong>Data corrections:</strong> data@jeevanreport.org</p>
-        <p className="mt-1 text-sm text-slate-700">
-          <strong>Support:</strong>{" "}
+        <p className="mt-2 text-sm text-slate-700">
+          For all inquiries — support, press, data corrections, and partnerships — email us at:
+        </p>
+        <p className="mt-3 text-base font-semibold">
           <a href="mailto:supportjeevanreport@gmail.com" className="text-green-600 hover:underline">
             supportjeevanreport@gmail.com
           </a>
