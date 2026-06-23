@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getPlatformStats } from "@/lib/stats";
+import { getPlatformStats } from "@/lib/server-stats";
 
 const values = [
   { title: "Transparency", desc: "Public data, linkable product pages, and open methodology — no black boxes." },
@@ -8,8 +8,8 @@ const values = [
   { title: "Community-powered", desc: "Anyone can submit shrinkflation photos, price data, and label evidence." },
 ];
 
-export default function AboutPage() {
-  const stats = getPlatformStats();
+export default async function AboutPage() {
+  const stats = await getPlatformStats();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">

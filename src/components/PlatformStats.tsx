@@ -1,7 +1,7 @@
-import { getPlatformStats } from "@/lib/stats";
+import { getPlatformStats } from "@/lib/server-stats";
 
-export default function PlatformStats() {
-  const stats = getPlatformStats();
+export default async function PlatformStats() {
+  const stats = await getPlatformStats();
 
   const items = [
     { value: stats.productCount, label: "Products archived" },
