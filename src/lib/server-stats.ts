@@ -14,8 +14,8 @@ export async function getPlatformStats() {
     console.error("Failed to get product count", e);
   }
 
-  // Fallback to global database capacity if database returns default mock size (<= 15)
-  const productCount = productCountVal > 15 
+  // Fallback to global database capacity if database returns default mock/local sizes (<= 5000)
+  const productCount = productCountVal > 5000 
     ? `${productCountVal.toLocaleString()}+` 
     : "3,000,000+";
 
