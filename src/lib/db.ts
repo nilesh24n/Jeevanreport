@@ -3,6 +3,7 @@ import path from "path";
 import type { Product } from "./types";
 import { products, getProductById, getProductByBarcode, searchProducts } from "./data/products";
 import * as jsonProducts from "./products-json";
+import { fetchProductFromOpenFoodFacts } from "./openfoodfacts";
 
 // Turso Database client initialization (Lazy)
 let tursoClient: any = null;
@@ -108,7 +109,11 @@ export async function dbGetProductById(id: string): Promise<Product | null> {
   const jsonResult = jsonProducts.getProductById(id);
   if (jsonResult) return jsonResult;
 
-  // 5. Fall back to static dataset (15 products)
+  // 5. Try Open Food Facts API (real-time global database fallback)
+  const offResult = await fetchProductFromOpenFoodFacts(id);
+  if (offResult) return offResult;
+
+  // 6. Fall back to static dataset (15 products)
   return getProductById(id) || null;
 }
 
@@ -163,7 +168,11 @@ export async function dbGetProductByBarcode(barcode: string): Promise<Product | 
   const jsonResult = jsonProducts.getProductByBarcode(clean);
   if (jsonResult) return jsonResult;
 
-  // 5. Fall back to static dataset (15 products)
+  // 5. Try Open Food Facts API (real-time global database fallback)
+  const offResult = await fetchProductFromOpenFoodFacts(clean);
+  if (offResult) return offResult;
+
+  // 6. Fall back to static dataset (15 products)
   return getProductByBarcode(clean) || null;
 }
 

@@ -1,11 +1,9 @@
 [build]
   command = "npm run build"
-  functions = "netlify/functions"
-  publish = ".next"
 
 [dev]
   command = "npm run dev"
   port = 3000
 
 [context.production]
-  environment = { NODE_VERSION = "18.17.0" }
+  environment = { NODE_VERSION = "20.0.0" }
