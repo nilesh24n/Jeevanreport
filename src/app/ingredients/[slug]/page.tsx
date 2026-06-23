@@ -30,9 +30,9 @@ export default async function IngredientPage({ params }: { params: Promise<{ slu
         { label: entry.name },
       ]} />
 
-      <Badge label={entry.type} variant="brand" />
+      <Badge label={entry.category} variant="brand" />
       <h1 className="mt-3 text-3xl font-bold text-slate-900">{entry.name}</h1>
-      <p className="mt-4 text-slate-700 leading-relaxed">{entry.summary}</p>
+      <p className="mt-4 text-slate-700 leading-relaxed">{entry.explanation}</p>
 
       <div className="mt-6 card border-amber-200 bg-amber-50">
         <h2 className="font-semibold text-amber-900">Educational note</h2>

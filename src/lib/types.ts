@@ -37,6 +37,17 @@ export interface NutritionFacts {
   dailyValuePercentages: DailyValuePercentages;
 }
 
+export type RecommendedFrequency = "daily" | "few_times_week" | "weekly" | "monthly" | "rarely" | "avoid";
+
+export interface IngredientModel {
+  name: string;
+  insCode?: string;
+  category: "preservative" | "emulsifier" | "flavor-enhancer" | "sweetener" | "colorant" | "natural";
+  explanation: string;
+  concernLevel: "none" | "low" | "moderate" | "high";
+  source: string;
+}
+
 export interface BodyImpactSummary {
   energyDensityLabel: NutritionLevel;
   satietyLabel: SatietyLabel;
@@ -50,6 +61,8 @@ export interface BodyImpactSummary {
   occasionLabel: OccasionLabel;
   summaryText: string;
   disclaimerText: string;
+  recommendedFrequency?: RecommendedFrequency;
+  frequencyReasoning?: string;
 }
 
 export interface ProductVersion {
@@ -68,6 +81,7 @@ export interface ProductVersion {
   versionDate: string;
   nutrition: NutritionFacts;
   bodyImpact: BodyImpactSummary;
+  structuredIngredients?: IngredientModel[];
 }
 
 export interface PriceRecord {

@@ -16,9 +16,9 @@ export default function IngredientsPage() {
             href={`/ingredients/${entry.slug}`}
             className="card hover:border-brand-200 transition"
           >
-            <span className="badge-brand">{entry.type}</span>
+            <span className="badge-brand">{entry.category}</span>
             <h2 className="mt-2 font-semibold text-slate-900">{entry.name}</h2>
-            <p className="mt-2 text-sm text-slate-600">{entry.summary}</p>
+            <p className="mt-2 text-sm text-slate-600">{entry.explanation}</p>
           </Link>
         ))}
       </div>

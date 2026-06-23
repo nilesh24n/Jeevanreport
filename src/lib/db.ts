@@ -4,6 +4,7 @@ import type { Product } from "./types";
 import { products, getProductById, getProductByBarcode, searchProducts } from "./data/products";
 import * as jsonProducts from "./products-json";
 import { fetchProductFromOpenFoodFacts } from "./openfoodfacts";
+import { enrichProduct } from "./product-enricher";
 
 // Turso Database client initialization (Lazy)
 let tursoClient: any = null;
@@ -61,6 +62,11 @@ function initLocalDb() {
 }
 
 export async function dbGetProductById(id: string): Promise<Product | null> {
+  const p = await rawGetProductById(id);
+  return enrichProduct(p);
+}
+
+async function rawGetProductById(id: string): Promise<Product | null> {
   // 1. Try Turso
   if (tursoClient) {
     try {
@@ -118,6 +124,11 @@ export async function dbGetProductById(id: string): Promise<Product | null> {
 }
 
 export async function dbGetProductByBarcode(barcode: string): Promise<Product | null> {
+  const p = await rawGetProductByBarcode(barcode);
+  return enrichProduct(p);
+}
+
+async function rawGetProductByBarcode(barcode: string): Promise<Product | null> {
   const clean = barcode.replace(/\D/g, "");
 
   // 1. Try Turso
@@ -187,6 +198,11 @@ export interface DbSearchFilters {
 }
 
 export async function dbSearchProducts(query: string, filters?: DbSearchFilters): Promise<Product[]> {
+  const list = await rawSearchProducts(query, filters);
+  return list.map((p) => enrichProduct(p)).filter(Boolean) as Product[];
+}
+
+async function rawSearchProducts(query: string, filters?: DbSearchFilters): Promise<Product[]> {
   const q = (query || "").trim();
 
   // 1. Try Turso

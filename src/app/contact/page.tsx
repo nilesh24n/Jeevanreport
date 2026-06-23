@@ -15,6 +15,12 @@ export default function ContactPage() {
         <p className="mt-2 text-sm text-slate-700"><strong>General:</strong> hello@jeevanreport.org</p>
         <p className="mt-1 text-sm text-slate-700"><strong>Press:</strong> press@jeevanreport.org</p>
         <p className="mt-1 text-sm text-slate-700"><strong>Data corrections:</strong> data@jeevanreport.org</p>
+        <p className="mt-1 text-sm text-slate-700">
+          <strong>Support:</strong>{" "}
+          <a href="mailto:supportjeevanreport@gmail.com" className="text-green-600 hover:underline">
+            supportjeevanreport@gmail.com
+          </a>
+        </p>
       </div>
     </div>
   );

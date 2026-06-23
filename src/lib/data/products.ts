@@ -1,5 +1,6 @@
 import type { Product, ProductVersion, ChangeFeedItem, Category } from "../types";
 import { computeBodyImpact, trustLabel } from "../nutrition-engine";
+import { enrichProduct } from "../product-enricher";
 
 function makeNutrition(
   cal: number,
@@ -813,12 +814,14 @@ productsRaw.forEach((p) => {
 export const products: Product[] = productsRaw;
 
 export function getProductById(id: string): Product | undefined {
-  return products.find((p) => p.id === id);
+  const p = products.find((p) => p.id === id);
+  return p ? (enrichProduct(p) as Product) : undefined;
 }
 
 export function getProductByBarcode(barcode: string): Product | undefined {
   const clean = barcode.replace(/\D/g, "");
-  return products.find((p) => p.barcode.replace(/\D/g, "") === clean);
+  const p = products.find((p) => p.barcode.replace(/\D/g, "") === clean);
+  return p ? (enrichProduct(p) as Product) : undefined;
 }
 
 export function getLatestVersion(product: Product): ProductVersion {
@@ -877,11 +880,13 @@ export function searchProducts(query: string, filters?: {
   }
 
   // Sort: Put India-focused results first
-  return [...results].sort((a, b) => {
+  const sorted = [...results].sort((a, b) => {
     const aIn = getLatestVersion(a).country === "India" ? 1 : 0;
     const bIn = getLatestVersion(b).country === "India" ? 1 : 0;
     return bIn - aIn;
   });
+
+  return sorted.map((p) => enrichProduct(p) as Product);
 }
 
 export const categories: Category[] = [
