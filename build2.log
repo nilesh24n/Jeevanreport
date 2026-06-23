@@ -1,0 +1,83 @@
+$ next build
+   ▲ Next.js 15.5.19
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 11.3s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/86) ...
+   Generating static pages (21/86) 
+   Generating static pages (42/86) 
+   Generating static pages (64/86) 
+ ✓ Generating static pages (86/86)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                     Size  First Load JS
+┌ ○ /                                        1.01 kB         112 kB
+├ ○ /_not-found                                178 B         103 kB
+├ ○ /about                                     183 B         106 kB
+├ ○ /api-docs                                  178 B         103 kB
+├ ƒ /api/contact                               178 B         103 kB
+├ ƒ /api/products                              178 B         103 kB
+├ ƒ /api/products/[id]                         178 B         103 kB
+├ ○ /brands                                    183 B         106 kB
+├ ● /brands/[slug]                             181 B         111 kB
+├   ├ /brands/oreo
+├   ├ /brands/cheerios
+├   ├ /brands/coca-cola
+├   └ [+12 more paths]
+├ ○ /categories                                183 B         106 kB
+├ ● /categories/[slug]                       2.24 kB         124 kB
+├   ├ /categories/snacks
+├   ├ /categories/cereal
+├   ├ /categories/drinks
+├   └ [+6 more paths]
+├ ○ /community-guidelines                      178 B         103 kB
+├ ○ /compare                                 2.93 kB         223 kB
+├ ○ /contact                                 1.16 kB         104 kB
+├ ○ /countries                                 183 B         106 kB
+├ ● /countries/[country]                       181 B         111 kB
+├   ├ /countries/USA
+├   ├ /countries/UK
+├   ├ /countries/Canada
+├   └ [+2 more paths]
+├ ○ /dashboard                                3.7 kB         125 kB
+├ ○ /data-sources                              178 B         103 kB
+├ ○ /disclaimer                                178 B         103 kB
+├ ○ /faq                                       527 B         103 kB
+├ ○ /icon                                      178 B         103 kB
+├ ○ /ingredients                               183 B         106 kB
+├ ● /ingredients/[slug]                        181 B         111 kB
+├   ├ /ingredients/high-fructose-corn-syrup
+├   ├ /ingredients/monosodium-glutamate
+├   ├ /ingredients/palm-oil
+├   └ [+7 more paths]
+├ ○ /latest-changes                          1.25 kB         123 kB
+├ ○ /leaderboard                               176 B         111 kB
+├ ○ /manifest.webmanifest                      178 B         103 kB
+├ ○ /methodology                               178 B         103 kB
+├ ○ /privacy                                   178 B         103 kB
+├ ○ /products                                2.34 kB         124 kB
+├ ● /products/[id]                             12 kB         240 kB
+├   ├ /products/oreo-original-us
+├   ├ /products/cheerios-original-us
+├   ├ /products/coca-cola-classic-us
+├   └ [+12 more paths]
+├ ƒ /products/[id]/opengraph-image             178 B         103 kB
+├ ○ /robots.txt                                178 B         103 kB
+├ ○ /scan                                    6.86 kB         133 kB
+├ ○ /search                                  2.67 kB         124 kB
+├ ○ /sitemap.xml                               178 B         103 kB
+├ ○ /submit                                   2.2 kB         115 kB
+└ ○ /terms                                     178 B         103 kB
++ First Load JS shared by all                 103 kB
+  ├ chunks/1255-b8cf77ab14370e57.js          46.2 kB
+  ├ chunks/4bd1b696-100b9d70ed4e49c1.js      54.4 kB
+  └ other shared chunks (total)              2.08 kB
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-slate-50/60 text-slate-800 antialiased selection:bg-brand-100 selection:text-brand-900;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:bg-brand-700 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-300 hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+  }
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-success-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:bg-success-700 hover:shadow-md hover:scale-[1.01] active:scale-[0.99];
+  }
+  .card {
+    @apply rounded-2xl border border-slate-100 bg-white p-6 shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-slate-200/60;
+  }
+  .card-premium {
+    @apply rounded-3xl border border-brand-100/50 bg-gradient-to-br from-white to-brand-50/20 p-8 shadow-premium transition-all duration-300 hover:shadow-xl hover:border-brand-200/50;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide;
+  }
+  .badge-warning {
+    @apply badge bg-warning-50 text-warning-700 ring-1 ring-warning-500/10;
+  }
+  .badge-success {
+    @apply badge bg-success-50 text-success-700 ring-1 ring-success-500/10;
+  }
+  .badge-danger {
+    @apply badge bg-danger-50 text-danger-700 ring-1 ring-danger-500/10;
+  }
+  .badge-neutral {
+    @apply badge bg-slate-100 text-slate-700 ring-1 ring-slate-200;
+  }
+  .badge-brand {
+    @apply badge bg-brand-50 text-brand-700 ring-1 ring-brand-500/10;
+  }
+  .badge-saffron {
+    @apply badge bg-saffron-50 text-saffron-700 ring-1 ring-saffron-500/10;
+  }
+  .badge-rating-green {
+    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-extrabold bg-emerald-50 text-emerald-700 ring-2 ring-emerald-500/20 shadow-sm;
+  }
+  .badge-rating-yellow {
+    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-extrabold bg-amber-50 text-amber-700 ring-2 ring-amber-500/20 shadow-sm;
+  }
+  .badge-rating-orange {
+    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-extrabold bg-orange-50 text-orange-700 ring-2 ring-orange-500/20 shadow-sm;
+  }
+  .badge-rating-red {
+    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-extrabold bg-rose-50 text-rose-700 ring-2 ring-rose-500/20 shadow-sm;
+  }
+  .section-title {
+    @apply text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl;
+  }
+  .section-subtitle {
+    @apply mt-3 text-base sm:text-lg text-slate-500 max-w-2xl mx-auto;
+  }
+  .input-field {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 transition-all duration-300;
+  }
+  .tab-active {
+    @apply border-b-2 border-brand-600 text-brand-700 font-semibold px-4 py-3;
+  }
+  .tab-inactive {
+    @apply border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 px-4 py-3 transition-all duration-200;
+  }
+}
+
+@media print {
+  header,
+  footer,
+  .fixed,
+  nav,
+  button,
+  .btn-primary,
+  .btn-secondary,
+  .btn-accent {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+  }
+  .card {
+    break-inside: avoid;
+    box-shadow: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+}
