@@ -1,135 +1,218 @@
+import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import ScanInput from "@/components/ScanInput";
-import Badge from "@/components/Badge";
-import ShrinkflationComparison from "@/components/ShrinkflationComparison";
-import PlatformStats from "@/components/PlatformStats";
-import DemoBarcodes from "@/components/DemoBarcodes";
-import BrowseHub from "@/components/BrowseHub";
-import { products, changeFeed, getProductById } from "@/lib/data/products";
+import TabbedBrowseHubClient from "@/components/TabbedBrowseHub";
+import FloatingScanButton from "@/components/FloatingScanButton";
+import { products, changeFeed } from "@/lib/data/products";
+
+// ── Static data ────────────────────────────────────────────────────────────
+const tickerItems = [
+  "Maggi 2-Minute Noodles", "Amul Butter", "Dettol Handwash",
+  "Kurkure Masala Munch", "Britannia Good Day", "Parle-G Biscuits",
+  "Lay's Classic Salted", "Nestle KitKat", "Bournvita", "Horlicks",
+  "Colgate MaxFresh", "Surf Excel", "Tata Salt", "Aavin Milk",
+  "Amul Cheese Slices",
+];
+
+const learnItems = [
+  "Full ingredient logs with simplified breakdowns",
+  "Calories per serving and per full pack context",
+  "Sugar, Fat, Protein, and Salt colour flags",
+  "Vitamins and minerals vs Indian daily values",
+  "Overall choice rating: Better, Average, or Limit",
+  "Pack size reduction tracking over time",
+  "Formula and ingredient modification history",
+  "Shrinkflation alerts with photo proof",
+];
 
 export default function HomePage() {
-  const featuredProduct = getProductById("maggi-masala-noodles")!;
-  const comparisons = products.filter((p) => p.packSizeChanges.length > 0).slice(0, 3);
-
-  const explainerCards = [
-    { icon: "🧪", title: "Ingredients simplified", desc: "Instantly see additives, complex preservatives, and allergens in clear wording." },
-    { icon: "🎨", title: "Clear color codes", desc: "Green, yellow, and red color tags guide you without complex chemical names." },
-    { icon: "📝", title: "Easy summaries", desc: "Short, non-technical points explain whether a product is best for daily use or occasionally." },
-    { icon: "📉", title: "Shrinkflation alerts", desc: "Track size changes, skimpflation formula tweaks, and unit price hikes on store shelves." },
-  ];
-
-  const learnItems = [
-    "Full ingredient logs with simplified break-downs",
-    "Calories per serving and per full pack context",
-    "Easy Sugar, Fat, Protein, and Salt color flags",
-    "Vitamins and minerals mapped to Indian daily values",
-    "Clear overall choice rating: Better, Average, or Limit",
-    "Ayurvedic and modern consumer satiety indexes",
-    "Pack size reduction tracking over time (Shrinkflation)",
-    "Formula and ingredient modifications history",
-  ];
+  const recentActivity = changeFeed.slice(0, 4);
+  const featuredProduct = products.find((p) => p.id === "maggi-masala-noodles")!;
 
   return (
     <>
-      {/* Hero Section — White and Clean */}
-      <section className="bg-white py-16 sm:py-24 border-b border-slate-100">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 border border-brand-100 text-brand-700 text-xs font-bold animate-pulse">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-500"></span>
-            {"India's Product Transparency Platform"}
-          </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl leading-[1.15]">
-            Scan products. <br className="sm:hidden" />
-            <span className="text-brand-600">Know the truth.</span>
-          </h1>
-          <p className="mt-4 text-base text-slate-500 sm:text-lg leading-relaxed max-w-xl mx-auto font-medium">
-            Jeevanreport helps you understand packaged food ingredients, nutrition flags, and shrinkflation changes in simple, clear color codes.
-          </p>
+      {/* ── HERO ────────────────────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-canvas border-b border-latte">
+        {/* Warm radial backdrop */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{
+            background:
+              "radial-gradient(ellipse 80% 60% at 70% 50%, #e8ddd0 0%, transparent 70%)",
+          }}
+        />
 
-          {/* Premium Mobile App-Like Search/Scan Box Container */}
-          <div className="mt-8 max-w-lg mx-auto bg-slate-50 p-4 rounded-3xl border border-slate-200/60 shadow-premium">
-            <ScanInput autoFocus />
-            <div className="mt-4 flex flex-col sm:flex-row gap-2">
-              <Link href="/scan" className="flex-1 btn-primary text-xs py-3 font-bold">⚡ Scan Barcode</Link>
-              <Link href="/search" className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border-2 border-brand-600 bg-white px-6 py-3 text-xs font-bold text-brand-700 shadow-sm transition-all duration-300 hover:bg-brand-50/50 hover:scale-[1.01] active:scale-[0.99]">🔍 Search Database</Link>
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left — copy */}
+            <div className="space-y-7">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-200/60 border border-brand-300/60 text-brand-700 text-xs font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-600 animate-pulse" />
+                India&apos;s Product Transparency Platform
+              </div>
+
+              <h1
+                className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-espresso leading-[1.1]"
+                style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
+              >
+                Scan any product.{" "}
+                <span className="text-brand-600">
+                  Know what&apos;s really inside.
+                </span>
+              </h1>
+
+              <p className="text-lg text-espresso/60 leading-relaxed max-w-lg">
+                Trusted by lakhs of Indians who read labels before buying.
+              </p>
+
+              {/* Search box */}
+              <div className="max-w-md bg-white rounded-2xl border border-latte shadow-mocha p-3">
+                <ScanInput autoFocus />
+              </div>
+
+              {/* CTA buttons */}
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  href="/scan"
+                  id="hero-scan-btn"
+                  className="btn-primary !px-7 !py-3.5 !text-sm !font-semibold"
+                >
+                  ⚡ Scan Barcode
+                </Link>
+                <Link
+                  href="/search"
+                  id="hero-search-btn"
+                  className="btn-secondary !px-7 !py-3.5 !text-sm"
+                >
+                  🔍 Search a Product
+                </Link>
+              </div>
+            </div>
+
+            {/* Right — animated CSS barcode */}
+            <div className="flex justify-center lg:justify-end">
+              <div className="relative w-56 sm:w-64">
+                <div className="relative overflow-hidden rounded-2xl bg-white border-2 border-latte shadow-premium p-6">
+                  {/* Bars */}
+                  <div className="flex items-end gap-[3px] h-36 mb-3">
+                    {[3,7,2,5,8,3,6,4,7,2,8,5,3,7,4,6,2,8,4,6,3,7,5,2,8,6,3,7,2,5,8].map((w, i) => (
+                      <div
+                        key={i}
+                        className="flex-shrink-0 bg-espresso rounded-sm"
+                        style={{ width: `${w * 1.5}px`, height: `${60 + (i % 4) * 10}%` }}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-center font-mono text-[11px] text-espresso/40 tracking-[0.3em]">
+                    8901058002478
+                  </p>
+                  {/* Laser sweep */}
+                  <div className="laser-line absolute left-4 right-4 h-0.5 rounded-full bg-brand-600/70 shadow-[0_0_8px_2px_rgba(155,118,83,0.5)]" />
+                </div>
+
+                {/* Floating result chip */}
+                <div className="absolute -bottom-4 -right-4 bg-white rounded-2xl border-2 border-emerald-200 shadow-premium p-3 w-40">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
+                    <span className="text-[10px] font-bold text-emerald-700">🟢 Good Choice</span>
+                  </div>
+                  <p className="text-[10px] text-espresso/50 leading-snug">
+                    Low sugar · Decent protein · Safe to eat daily
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-
-          <div className="mt-6">
-            <DemoBarcodes />
-          </div>
         </div>
-      </section>
 
-      <PlatformStats />
-
-      {/* Explainer Cards with premium rounded corners and startup visuals */}
-      <section className="py-20 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <h2 className="section-title text-center">How Jeevanreport works</h2>
-          <p className="section-subtitle text-center font-medium">Instant transparency in plain English</p>
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {explainerCards.map((card) => (
-              <div key={card.title} className="card group hover:-translate-y-1 transition-all duration-300">
-                <div className="text-4xl group-hover:scale-110 transition-transform duration-300">{card.icon}</div>
-                <h3 className="mt-4 font-extrabold text-lg text-slate-900">{card.title}</h3>
-                <p className="mt-2 text-sm text-slate-500 leading-relaxed font-medium">{card.desc}</p>
-              </div>
+        {/* ── Ticker ─────────────────────────────────────────────────────── */}
+        <div className="border-t border-latte overflow-hidden py-3 bg-brand-600">
+          <div className="ticker-track">
+            {[...tickerItems, ...tickerItems].map((item, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-3 px-6 text-sm font-medium text-white/80 flex-shrink-0"
+              >
+                <span className="w-1 h-1 rounded-full bg-white/40 flex-shrink-0" />
+                {item}
+              </span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Featured scan preview - Updated to reflect simplified rating banners */}
-      <section className="bg-slate-50/60 py-20 border-y border-slate-100">
+      {/* ── FEATURED SCAN PREVIEW ─────────────────────────────────────────── */}
+      <section className="py-16 sm:py-20 bg-latte/30 border-b border-latte">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <h2 className="section-title text-center">Featured scan preview</h2>
-          <p className="section-subtitle text-center font-medium">This is what you see immediately after scanning a product</p>
-          <div className="mx-auto mt-12 max-w-md">
-            <div className="overflow-hidden rounded-3xl border-2 border-rose-200 bg-rose-50/10 shadow-premium transition-all duration-300 hover:shadow-2xl">
-              <div className="bg-brand-600 px-4 py-2.5 text-center text-xs font-bold uppercase tracking-wider text-white">
-                Scan Result Preview
-              </div>
-              <div className="p-6 space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="relative h-16 w-16 overflow-hidden rounded-xl bg-white border border-slate-100 flex-shrink-0 shadow-sm">
-                    <Image src={featuredProduct.imageUrl} alt="" fill className="object-cover" sizes="64px" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-extrabold text-slate-900 text-lg leading-tight">{featuredProduct.name}</h3>
-                    <p className="text-xs text-slate-550 font-semibold font-mono mt-0.5">{featuredProduct.barcode}</p>
-                  </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left — copy */}
+            <div className="space-y-5">
+              <h2 className="section-title">See what scanning really shows you</h2>
+              <p className="mt-3 text-base text-espresso/60 leading-relaxed">
+                Every scan delivers a full breakdown — ingredients, nutrition flags, shrinkflation history, and a trust score.
+              </p>
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {learnItems.map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm font-medium text-espresso/70">
+                    <span className="mt-0.5 text-brand-600 font-bold text-base leading-none">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/products/maggi-masala-noodles" className="inline-block btn-primary mt-2">
+                See a full scan →
+              </Link>
+            </div>
+
+            {/* Right — real result card (no placeholder) */}
+            <div className="mx-auto max-w-sm w-full">
+              <div className="rounded-3xl border-2 border-rose-200 bg-white shadow-premium overflow-hidden">
+                <div className="bg-brand-600 px-4 py-2.5 flex items-center justify-between">
+                  <span className="text-xs font-bold text-white/80 uppercase tracking-wider">Scan Result</span>
+                  <span className="text-[10px] font-mono text-white/50">8901058002478</span>
                 </div>
 
-                <div className="flex items-center justify-between pt-1 border-t border-slate-150 pt-3">
-                  <span className="badge-rating-red">
-                    🔴 Be Careful
-                  </span>
-                  <div className="text-right">
-                    <span className="text-[9px] font-bold uppercase text-slate-400 block">Choice Level</span>
-                    <span className="text-xs font-black text-rose-600">Limit Often</span>
+                <div className="p-5 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-2xl flex-shrink-0">
+                      🍜
+                    </div>
+                    <div>
+                      <span className="category-pill-food mb-1">🍽️ Food</span>
+                      <h3 className="font-bold text-espresso text-base leading-tight mt-1">
+                        {featuredProduct.name}
+                      </h3>
+                      <p className="text-xs text-espresso/40 font-medium">{featuredProduct.brand}</p>
+                    </div>
                   </div>
-                </div>
 
-                {/* 3 simple preview points */}
-                <div className="space-y-1.5 pt-2">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-xl border border-slate-100 shadow-sm">
-                    <span>⚠️</span>
-                    <span>High sugar — not best for regular use</span>
+                  <div className="flex items-center justify-between pt-2 border-t border-latte">
+                    <span className="badge-rating-red">🔴 Be Careful</span>
+                    <span className="text-xs font-bold text-rose-600">Limit Often</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-xl border border-slate-100 shadow-sm">
-                    <span>⚠️</span>
-                    <span>Low protein — may not keep you full</span>
+
+                  <div className="space-y-1.5">
+                    {[
+                      { icon: "⚠️", text: "High sodium — 38% of daily intake per serving" },
+                      { icon: "⚠️", text: "Low protein — won't keep you full" },
+                      { icon: "✅", text: "Fine as an occasional treat" },
+                    ].map((point, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-2 text-xs font-semibold text-espresso/70 bg-brand-50/30 p-2.5 rounded-xl border border-latte"
+                      >
+                        <span>{point.icon}</span>
+                        <span>{point.text}</span>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 bg-white p-2.5 rounded-xl border border-slate-100 shadow-sm">
-                    <span>✅</span>
-                    <span>Better as an occasional treat</span>
-                  </div>
-                </div>
-                
-                <div className="pt-2 text-center">
-                  <span className="text-xs font-bold text-brand-600 hover:underline">View full analysis →</span>
+
+                  <Link
+                    href="/products/maggi-masala-noodles"
+                    className="block text-center text-xs font-bold text-brand-600 hover:text-brand-700 pt-1"
+                  >
+                    View full analysis →
+                  </Link>
                 </div>
               </div>
             </div>
@@ -137,43 +220,51 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* What you learn list */}
-      <section className="py-20 bg-white">
+      {/* ── RECENT ACTIVITY ───────────────────────────────────────────────── */}
+      <section className="py-16 sm:py-20 bg-white border-b border-latte">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="section-title">What you learn after scanning</h2>
-              <p className="section-subtitle font-medium">Everything you need to make an informed choice in the store aisle</p>
+              <h2 className="section-title">Recent Activity</h2>
+              <p className="mt-1 text-sm text-espresso/50 font-medium">
+                Verified product changes across Indian retail shelves
+              </p>
             </div>
-            <ul className="grid gap-4 sm:grid-cols-2">
-              {learnItems.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm font-semibold text-slate-600">
-                  <span className="mt-0.5 text-brand-600 font-black">✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
+            <Link
+              href="/latest-changes"
+              className="text-sm font-bold text-brand-600 hover:text-brand-700 transition-colors"
+            >
+              See all changes →
+            </Link>
           </div>
-        </div>
-      </section>
 
-      {/* Featured comparisons */}
-      <section className="bg-slate-50/60 py-20 border-y border-slate-100">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <h2 className="section-title text-center">Featured Indian comparisons</h2>
-          <p className="section-subtitle text-center font-medium">Old vs new — with photo proof and trust scores</p>
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {comparisons.map((product) => {
-              const change = product.packSizeChanges[0];
-              if (!change) return null;
+          <div className="space-y-3">
+            {recentActivity.map((item) => {
+              const typeConfig =
+                item.type === "shrinkflation"
+                  ? { pill: "badge-warning", label: "Shrinkflation" }
+                  : item.type === "formula"
+                  ? { pill: "badge-brand", label: "Formula Change" }
+                  : { pill: "badge-neutral", label: "Update" };
               return (
-                <Link key={product.id} href={`/products/${product.id}`} className="block hover:scale-[1.01] transition-transform duration-300">
-                  <ShrinkflationComparison
-                    productName={product.name}
-                    imageUrl={product.imageUrl}
-                    change={change}
-                    trustScore={product.trustScore}
-                  />
+                <Link
+                  key={item.id}
+                  href={`/products/${item.productId}`}
+                  className="card flex items-center justify-between hover:border-brand-300 hover:scale-[1.003] transition-all duration-300"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={typeConfig.pill}>{typeConfig.label}</span>
+                      <span className="font-bold text-espresso truncate">{item.productName}</span>
+                    </div>
+                    <p className="text-sm text-espresso/60 font-medium">{item.summary}</p>
+                    <p className="text-xs text-espresso/30 font-bold mt-0.5">
+                      {item.country} · {item.date}
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0 ml-4 text-sm font-bold text-brand-700 bg-brand-50 px-3 py-1.5 rounded-xl border border-brand-100">
+                    {item.trustScore}%
+                  </div>
                 </Link>
               );
             })}
@@ -181,59 +272,52 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Latest changes feed */}
-      <section className="py-20 bg-white">
+      {/* ── BROWSE HUB — Tabbed ────────────────────────────────────────────── */}
+      <section className="py-16 sm:py-20 bg-canvas border-b border-latte">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-            <div>
-              <h2 className="section-title">Latest reported changes</h2>
-              <p className="text-sm text-slate-500 mt-1 font-medium">Verified modifications across retail shelves in India</p>
-            </div>
-            <Link href="/latest-changes" className="text-sm font-bold text-brand-600 hover:text-brand-700 transition-colors">View all →</Link>
+          <div className="text-center mb-8">
+            <h2 className="section-title">Browse the archive</h2>
+            <p className="section-subtitle text-espresso/50">
+              Explore by country, brand, or category
+            </p>
           </div>
-          <div className="mt-8 space-y-4">
-            {changeFeed.slice(0, 6).map((item) => (
-              <Link key={item.id} href={`/products/${item.productId}`} className="card flex items-center justify-between hover:border-brand-200/60 hover:scale-[1.005] transition-all duration-300">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Badge label={item.type.replace("_", " ")} variant={item.type === "shrinkflation" ? "warning" : "brand"} />
-                    <span className="font-extrabold text-slate-900">{item.productName}</span>
-                  </div>
-                  <p className="mt-2 text-sm text-slate-550 font-semibold">{item.summary}</p>
-                  <p className="text-xs text-slate-400 font-bold mt-1">{item.country} · {item.date}</p>
-                </div>
-                <div className="text-base font-extrabold text-brand-700 bg-brand-50 px-3 py-1.5 rounded-xl border border-brand-100">{item.trustScore}%</div>
-              </Link>
-            ))}
-          </div>
+          <Suspense fallback={<div className="h-48 shimmer rounded-2xl" />}>
+            <TabbedBrowseHubClient />
+          </Suspense>
         </div>
       </section>
 
-      <BrowseHub />
-
-      {/* Trust section */}
-      <section className="bg-brand-50/20 py-20 border-y border-brand-100/30">
-        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 space-y-6">
-          <h2 className="section-title">Built on evidence, not guesses</h2>
-          <p className="text-slate-500 font-semibold leading-relaxed max-w-2xl mx-auto">
-            Every product earns a trust score from barcode matches, user-submitted photos, date and store metadata, community confirmations, and moderator review. Multiple independent reports with readable label photos increase confidence.
+      {/* ── TRUST SECTION ─────────────────────────────────────────────────── */}
+      <section className="py-16 sm:py-20 bg-brand-950 text-white">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 text-center space-y-6">
+          <h2
+            className="text-3xl sm:text-4xl font-bold tracking-tight text-white"
+            style={{ fontFamily: "var(--font-fraunces), Georgia, serif" }}
+          >
+            Built on evidence, not guesses
+          </h2>
+          <p className="text-white/60 leading-relaxed max-w-2xl mx-auto text-base">
+            Every product earns a trust score from barcode matches, community-submitted photos, and moderator review. Multiple independent reports with readable label photos increase confidence.
           </p>
-          <Link href="/methodology" className="inline-block btn-primary">Read our methodology</Link>
-        </div>
-      </section>
-
-      {/* Watchlist CTA */}
-      <section className="py-20 bg-white">
-        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 space-y-6">
-          <h2 className="section-title">Follow products. Get alerts.</h2>
-          <p className="text-slate-500 font-medium leading-relaxed">
-            Add products to your watchlist and receive alerts when pack sizes shrink, formulas change, or unit prices increase.
-          </p>
-          <div className="pt-2">
-            <Link href="/dashboard" className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-50 border border-brand-100 text-brand-700 px-8 py-3.5 text-sm font-bold shadow-sm transition-all duration-300 hover:bg-brand-100 hover:scale-[1.01] active:scale-[0.99]">Go to Dashboard</Link>
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+            <Link
+              href="/methodology"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3 text-sm font-semibold text-espresso shadow-sm hover:bg-brand-50 transition-all"
+            >
+              Read our methodology
+            </Link>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 px-7 py-3 text-sm font-semibold text-white hover:bg-white/10 transition-all"
+            >
+              Go to Dashboard
+            </Link>
           </div>
         </div>
       </section>
+
+      {/* ── Mobile floating scan button ───────────────────────────────────── */}
+      <FloatingScanButton />
     </>
   );
 }

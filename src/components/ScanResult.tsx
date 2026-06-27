@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { Product, ProductVersion } from "@/lib/types";
 import { getLatestVersion } from "@/lib/data/products";
 import { getProductStatus } from "@/lib/nutrition-engine";
+import { classifyProduct } from "@/lib/product-classifier";
 import Badge from "./Badge";
 import BodyImpactPanel from "./BodyImpactPanel";
 import FullPackPanel from "./FullPackPanel";
@@ -17,6 +18,11 @@ import ShrinkflationComparison from "./ShrinkflationComparison";
 import SimilarProducts from "./SimilarProducts";
 import ShareButton from "./ShareButton";
 import HighlightedIngredient from "./HighlightedIngredient";
+import GymModePanel from "./GymModePanel";
+import EverydayModePanel from "./EverydayModePanel";
+import PersonalCarePanel from "./PersonalCarePanel";
+import HouseholdPanel from "./HouseholdPanel";
+import BabyCarePanel from "./BabyCarePanel";
 
 function getRatingCardClass(color: string) {
   switch (color) {
@@ -74,8 +80,20 @@ export default function ScanResult({ product }: { product: Product }) {
     ? `${latestPrice.currency === "INR" ? "₹" : latestPrice.currency + " "}${latestPrice.unitPrice}/${v.unit}`
     : null;
 
-  // Rating and status calculations
+  // Product category classification
+  const catMeta = classifyProduct({
+    name: product.name,
+    brand: product.brand,
+    categorySlug: product.category,
+    description: product.baseDescription,
+  });
+  const isFood = catMeta.showNutrition;
+
+  // Rating and status calculations (only meaningful for food)
   const status = getProductStatus(body);
+
+  // Mode Toggle: "gym" | "everyday"
+  const [scanMode, setScanMode] = useState<"gym" | "everyday">("everyday");
 
   // Accordion Toggles for detailed layers (for mobile friendliness)
   const [showNutrition, setShowNutrition] = useState(false);
@@ -84,6 +102,33 @@ export default function ScanResult({ product }: { product: Product }) {
 
   return (
     <div className="space-y-6">
+      {/* ── Sticky Mode Toggle ── */}
+      <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 backdrop-blur-xl bg-white/80 border-b border-slate-200/60 shadow-sm">
+        <div className="flex items-center gap-2 max-w-xs">
+          <button
+            id="scan-mode-gym"
+            onClick={() => setScanMode("gym")}
+            className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
+              scanMode === "gym"
+                ? "bg-brand-600 text-white shadow-md scale-[1.02]"
+                : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+            }`}
+          >
+            <span>💪</span> Gym Mode
+          </button>
+          <button
+            id="scan-mode-everyday"
+            onClick={() => setScanMode("everyday")}
+            className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
+              scanMode === "everyday"
+                ? "bg-brand-600 text-white shadow-md scale-[1.02]"
+                : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+            }`}
+          >
+            <span>🥗</span> Everyday
+          </button>
+        </div>
+      </div>
       <ScanTracker productId={product.id} name={product.name} barcode={product.barcode} />
 
       {/* 1. Simple, Color-Coded Verdict Banner */}
@@ -93,97 +138,151 @@ export default function ScanResult({ product }: { product: Product }) {
         </div>
         
         <div className="flex-1 text-center md:text-left space-y-2">
-          <h1 className="text-2xl font-black text-slate-900 leading-tight">{product.name}</h1>
-          <p className="text-sm font-semibold text-slate-500">{product.brand} · {product.manufacturer}</p>
+          <div className="flex flex-wrap justify-center md:justify-start items-center gap-2 mb-1">
+            {/* Category badge */}
+            <span className={catMeta.pillClass}>
+              {catMeta.emoji} {catMeta.label}
+            </span>
+          </div>
+          <h1 className="text-2xl font-bold text-espresso leading-tight">{product.name}</h1>
+          <p className="text-sm font-semibold text-espresso/50">{product.brand} · {product.manufacturer}</p>
           
           <div className="flex flex-wrap justify-center md:justify-start items-center gap-3 pt-1">
-            <span className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-extrabold shadow-sm ring-2 ${
-              status.color === "green" ? "bg-emerald-50 text-emerald-700 ring-emerald-500/20" :
-              status.color === "yellow" ? "bg-amber-50 text-amber-700 ring-amber-500/20" :
-              status.color === "orange" ? "bg-orange-50 text-orange-700 ring-orange-500/20" :
-              "bg-rose-50 text-rose-700 ring-rose-500/20"
-            }`}>
-              {getRatingBadgeText(status.rating, status.color)}
-            </span>
-            <span className="text-xs font-bold text-slate-400 font-mono">Barcode: {product.barcode}</span>
+            {isFood && (
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold shadow-sm ring-2 ${
+                status.color === "green" ? "bg-emerald-50 text-emerald-700 ring-emerald-500/20" :
+                status.color === "yellow" ? "bg-amber-50 text-amber-700 ring-amber-500/20" :
+                status.color === "orange" ? "bg-orange-50 text-orange-700 ring-orange-500/20" :
+                "bg-rose-50 text-rose-700 ring-rose-500/20"
+              }`}>
+                {getRatingBadgeText(status.rating, status.color)}
+              </span>
+            )}
+            <span className="text-xs font-bold text-espresso/30 font-mono">Barcode: {product.barcode}</span>
           </div>
         </div>
 
-        {/* Big Overall Product Choice Status Label */}
-        <div className="flex flex-col items-center justify-center p-3.5 rounded-2xl bg-white border border-slate-100 shadow-sm w-36 mx-auto md:mx-0">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Choice Level</span>
-          <span className={`text-base font-black mt-1 ${
-            status.color === "green" ? "text-emerald-600" :
-            status.color === "yellow" ? "text-amber-600" :
-            status.color === "orange" ? "text-orange-500" :
-            "text-rose-600"
-          }`}>{status.label}</span>
-        </div>
+        {/* Choice level — food only */}
+        {isFood && (
+          <div className="flex flex-col items-center justify-center p-3.5 rounded-2xl bg-white border border-latte shadow-sm w-36 mx-auto md:mx-0">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-espresso/40">Choice Level</span>
+            <span className={`text-base font-bold mt-1 ${
+              status.color === "green" ? "text-emerald-600" :
+              status.color === "yellow" ? "text-amber-600" :
+              status.color === "orange" ? "text-orange-500" :
+              "text-rose-600"
+            }`}>{status.label}</span>
+          </div>
+        )}
       </section>
 
-      {/* 2. Visual Assessment Points (3-5 points only) */}
+      {/* ── Dual Mode Panel (food/supplement only) ── */}
+      {isFood && (
+        <section>
+          {scanMode === "gym" ? (
+            <GymModePanel version={v} />
+          ) : (
+            <EverydayModePanel version={v} />
+          )}
+        </section>
+      )}
+
+      {/* ── Non-food category panels ── */}
+      {!isFood && catMeta.category === "PERSONAL_CARE" && (
+        <section>
+          <PersonalCarePanel version={v} productName={product.name} />
+        </section>
+      )}
+      {!isFood && catMeta.category === "HOUSEHOLD" && (
+        <section>
+          <HouseholdPanel version={v} productName={product.name} />
+        </section>
+      )}
+      {!isFood && catMeta.category === "BABY_CARE" && (
+        <section>
+          <BabyCarePanel version={v} productName={product.name} />
+        </section>
+      )}
+      {!isFood && catMeta.category === "UNKNOWN" && (
+        <section className="card border-dashed border-2 border-latte p-5 space-y-3">
+          <p className="text-sm font-semibold text-espresso/60">
+            We found this product but couldn&apos;t fully classify it yet. Here&apos;s what we know:
+          </p>
+          {v.ingredientsText && (
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-espresso/30 mb-1">Ingredients</p>
+              <p className="text-xs text-espresso/70 leading-relaxed">{v.ingredientsText.slice(0, 300)}{v.ingredientsText.length > 300 ? "…" : ""}</p>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* 2. Visual Assessment Points — food only */}
+      {isFood && (
       <section className="card space-y-4">
-        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+        <h2 className="text-lg font-bold text-espresso flex items-center gap-2">
           <span>⚡</span> Quick Assessment
         </h2>
         <ul className="grid gap-2 sm:grid-cols-2">
           {status.points.map((p, idx) => (
-            <li key={idx} className="flex items-start gap-2.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <li key={idx} className="flex items-start gap-2.5 bg-brand-50/30 p-3 rounded-xl border border-latte">
               <span className="text-base mt-0.5">{getPointIcon(p)}</span>
-              <span className="text-sm font-semibold text-slate-700 leading-snug">{p}</span>
+              <span className="text-sm font-semibold text-espresso/80 leading-snug">{p}</span>
             </li>
           ))}
         </ul>
       </section>
+      )}
 
-      {/* 3. Easy Summary Card (No medical/jargon terms) */}
+      {/* 3. Easy Summary Card — food only */}
+      {isFood && (
       <section className="card space-y-4">
-        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+        <h2 className="text-lg font-bold text-espresso flex items-center gap-2">
           <span>📝</span> Easy Summary
         </h2>
-        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 space-y-4">
-          <p className="text-base font-semibold leading-relaxed text-slate-800">
+        <div className="bg-brand-50/20 border border-latte rounded-2xl p-5 space-y-4">
+          <p className="text-base font-semibold leading-relaxed text-espresso/80">
             {status.rating === 'Good' ? "This product is a good choice for daily or regular use. It has balanced nutrients and no high warning signs." :
              status.rating === 'Okay' ? "This product is okay for daily use in moderate quantities. Keep an eye on portions." :
              status.color === 'orange' ? "Caution: This product has moderate warning signs. It is best to limit consumption or use occasionally." :
              "Be Careful: This product has high sugar, high salt, or high fat. It is best to limit consumption and treat it as an occasional treat."}
           </p>
           
-          <div className="grid gap-3.5 sm:grid-cols-2 text-sm pt-4 border-t border-slate-200/60">
-            <div className="flex justify-between py-1.5 border-b border-slate-100">
-              <span className="font-semibold text-slate-500">Regular use suitability:</span>
-              <span className="font-extrabold text-slate-800">
+          <div className="grid gap-3.5 sm:grid-cols-2 text-sm pt-4 border-t border-latte">
+            <div className="flex justify-between py-1.5 border-b border-latte">
+              <span className="font-semibold text-espresso/50">Regular use suitability:</span>
+              <span className="font-bold text-espresso">
                 {body.occasionLabel === "Better staple candidate" ? "Suitable for daily use" : 
                  body.occasionLabel === "Moderate frequency" ? "Eat in moderation" : "Limit often"}
               </span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-slate-100">
-              <span className="font-semibold text-slate-500">Sugar level:</span>
-              <span className={`font-extrabold ${body.sugarFlag === 'High' ? 'text-rose-600' : 'text-slate-800'}`}>
+            <div className="flex justify-between py-1.5 border-b border-latte">
+              <span className="font-semibold text-espresso/50">Sugar level:</span>
+              <span className={`font-bold ${body.sugarFlag === 'High' ? 'text-rose-600' : 'text-espresso'}`}>
                 {body.sugarFlag === 'High' ? "High sugar" : body.sugarFlag === 'Moderate' ? "Medium sugar" : "Low sugar"}
               </span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-slate-100">
-              <span className="font-semibold text-slate-500">Salt / Sodium:</span>
-              <span className={`font-extrabold ${body.sodiumFlag === 'High' ? 'text-rose-600' : 'text-slate-800'}`}>
+            <div className="flex justify-between py-1.5 border-b border-latte">
+              <span className="font-semibold text-espresso/50">Salt / Sodium:</span>
+              <span className={`font-bold ${body.sodiumFlag === 'High' ? 'text-rose-600' : 'text-espresso'}`}>
                 {body.sodiumFlag === 'High' ? "High salt" : body.sodiumFlag === 'Moderate' ? "Medium salt" : "Low salt"}
               </span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-slate-100">
-              <span className="font-semibold text-slate-500">Fat content:</span>
-              <span className={`font-extrabold ${body.saturatedFatFlag === 'High' ? 'text-rose-600' : 'text-slate-800'}`}>
+            <div className="flex justify-between py-1.5 border-b border-latte">
+              <span className="font-semibold text-espresso/50">Fat content:</span>
+              <span className={`font-bold ${body.saturatedFatFlag === 'High' ? 'text-rose-600' : 'text-espresso'}`}>
                 {body.saturatedFatFlag === 'High' ? "High fat" : body.saturatedFatFlag === 'Moderate' ? "Medium fat" : "Low fat"}
               </span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-slate-100">
-              <span className="font-semibold text-slate-500">Protein:</span>
-              <span className={`font-extrabold ${body.proteinFlag === 'Low' ? 'text-rose-500' : 'text-slate-800'}`}>
+            <div className="flex justify-between py-1.5 border-b border-latte">
+              <span className="font-semibold text-espresso/50">Protein:</span>
+              <span className={`font-bold ${body.proteinFlag === 'Low' ? 'text-rose-500' : 'text-espresso'}`}>
                 {body.proteinFlag === 'High' ? "High protein" : body.proteinFlag === 'Moderate' ? "Medium protein" : "Low protein"}
               </span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-slate-100">
-              <span className="font-semibold text-slate-500">Likely filling:</span>
-              <span className="font-extrabold text-slate-800">
+            <div className="flex justify-between py-1.5 border-b border-latte">
+              <span className="font-semibold text-espresso/50">Likely filling:</span>
+              <span className="font-bold text-espresso">
                 {body.satietyLabel === 'More filling' ? "More filling" : 
                  body.satietyLabel === 'Moderately filling' ? "Moderately filling" : "Less filling"}
               </span>
@@ -191,14 +290,15 @@ export default function ScanResult({ product }: { product: Product }) {
           </div>
         </div>
       </section>
+      )}
 
-      {/* 4. Layer 1: Nutrition Highlights (Simple Visual Grid) */}
+      {/* 4. Nutrition Highlights — food only */}
+      {isFood && (
       <section className="card space-y-4">
-        <div className="border-b border-slate-100 pb-3">
-          <h2 className="text-lg font-bold text-slate-900">Nutrition Highlights</h2>
-          <p className="text-xs text-slate-400 font-medium">Layer 1: Simple visual summary</p>
+        <div className="border-b border-latte pb-3">
+          <h2 className="text-lg font-bold text-espresso">Nutrition Highlights</h2>
+          <p className="text-xs text-espresso/30 font-medium">Per serving — key nutrient levels at a glance</p>
         </div>
-
         <div className="grid gap-3 grid-cols-2 sm:grid-cols-3">
           {[
             { label: "Sugar", val: body.sugarFlag, icon: "🍬" },
@@ -208,28 +308,30 @@ export default function ScanResult({ product }: { product: Product }) {
             { label: "Salt/Sodium", val: body.sodiumFlag, icon: "🧂" },
             { label: "Calories", val: body.energyDensityLabel, icon: "🔋" },
           ].map((item) => (
-            <div key={item.label} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50">
+            <div key={item.label} className="flex items-center justify-between p-3 rounded-xl border border-latte bg-brand-50/20">
               <div className="flex items-center gap-2">
                 <span className="text-base">{item.icon}</span>
-                <span className="text-xs font-bold text-slate-600">{item.label}</span>
+                <span className="text-xs font-bold text-espresso/70">{item.label}</span>
               </div>
-              <span className={`text-xs font-black px-2 py-0.5 rounded-md border ${getNutrientTagColor(item.label, item.val)}`}>
+              <span className={`text-xs font-bold px-2 py-0.5 rounded-md border ${getNutrientTagColor(item.label, item.val)}`}>
                 {item.val}
               </span>
             </div>
           ))}
         </div>
       </section>
+      )}
 
-      {/* 5. Detailed Core Metrics Accordion (Layer 2) */}
-      <section className="card p-0 overflow-hidden border border-slate-100 shadow-card">
+      {/* 5. Detailed Core Metrics Accordion — food only */}
+      {isFood && (
+      <section className="card p-0 overflow-hidden border border-latte shadow-card">
         <button 
           onClick={() => setShowNutrition(!showNutrition)}
-          className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50/50 transition-colors focus:outline-none"
+          className="w-full flex items-center justify-between p-6 text-left hover:bg-brand-50/10 transition-colors focus:outline-none"
         >
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Detailed Nutrition Facts</h2>
-            <p className="text-xs text-slate-400 font-medium mt-0.5">Layer 2: Detailed values, serving sizes, and RDA %</p>
+            <h2 className="text-lg font-bold text-espresso">Detailed Nutrition Facts</h2>
+            <p className="text-xs text-espresso/30 font-medium mt-0.5">Serving sizes, macros and % daily values</p>
           </div>
           <span className="text-base text-brand-600 font-bold transition-transform duration-300 flex items-center gap-1">
             {showNutrition ? "Hide ▴" : "Show ▾"}
@@ -237,22 +339,22 @@ export default function ScanResult({ product }: { product: Product }) {
         </button>
 
         {showNutrition && (
-          <div className="p-6 border-t border-slate-100 space-y-6 bg-slate-50/10">
+          <div className="p-6 border-t border-latte space-y-6 bg-brand-50/5">
             <div className="flex flex-col md:flex-row gap-6 justify-center items-start">
               <div className="w-full max-w-xs mx-auto md:mx-0 flex-shrink-0">
                 <NutritionLabel nutrition={n} version={v} />
               </div>
               <div className="flex-1 w-full space-y-4">
-                <div className="rounded-xl bg-slate-50 border border-slate-100 p-4 space-y-3">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Serving Size Reality</h3>
+                <div className="rounded-xl bg-brand-50/20 border border-latte p-4 space-y-3">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-espresso/30">Serving Size Reality</h3>
                   <div className="grid grid-cols-2 gap-2.5 text-center text-xs">
-                    <div className="rounded-xl bg-white border border-slate-150 p-2.5 shadow-sm">
-                      <div className="font-semibold text-slate-400">Calories / Serving</div>
-                      <div className="mt-1 text-base font-extrabold text-slate-950">{n.caloriesPerServing} cal</div>
+                    <div className="rounded-xl bg-white border border-latte p-2.5 shadow-sm">
+                      <div className="font-semibold text-espresso/40">Calories / Serving</div>
+                      <div className="mt-1 text-base font-bold text-espresso">{n.caloriesPerServing} cal</div>
                     </div>
-                    <div className="rounded-xl bg-white border border-slate-150 p-2.5 shadow-sm">
-                      <div className="font-semibold text-slate-400">Calories / Full Pack</div>
-                      <div className="mt-1 text-base font-extrabold text-slate-950">{n.caloriesPerPack} cal</div>
+                    <div className="rounded-xl bg-white border border-latte p-2.5 shadow-sm">
+                      <div className="font-semibold text-espresso/40">Calories / Full Pack</div>
+                      <div className="mt-1 text-base font-bold text-espresso">{n.caloriesPerPack} cal</div>
                     </div>
                   </div>
                 </div>
@@ -262,6 +364,7 @@ export default function ScanResult({ product }: { product: Product }) {
           </div>
         )}
       </section>
+      )}
 
       {/* 6. Ingredients & Additives Accordion */}
       <section className="card p-0 overflow-hidden border border-slate-100 shadow-card">

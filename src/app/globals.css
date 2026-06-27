@@ -2,100 +2,185 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Google Fonts ─────────────────────────────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600&display=swap");
+
+/* ── CSS Custom Properties — Mocha Mousse 2025 ─────────────────────── */
+:root {
+  --color-mocha:   #9b7653;
+  --color-canvas:  #faf7f2;
+  --color-espresso:#2c1a0e;
+  --color-latte:   #e8ddd0;
+  --color-success: #3b6d11;
+  --color-warning: #854f0b;
+  --color-danger:  #a32d2d;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-slate-50/60 text-slate-800 antialiased selection:bg-brand-100 selection:text-brand-900;
+    @apply bg-canvas text-espresso antialiased selection:bg-brand-200 selection:text-brand-950;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-fraunces), Georgia, serif;
+    color: var(--color-espresso);
   }
 }
 
+/* ── Component Library ─────────────────────────────────────────────── */
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:bg-brand-700 hover:shadow-md hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:bg-brand-700 hover:shadow-mocha hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-300 hover:bg-slate-50 hover:border-slate-300 hover:shadow-sm active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border-2 border-brand-600 bg-transparent px-6 py-3 text-sm font-semibold text-brand-700 shadow-sm transition-all duration-300 hover:bg-brand-50 hover:shadow-sm active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
   }
   .btn-accent {
     @apply inline-flex items-center justify-center gap-2 rounded-xl bg-success-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:bg-success-700 hover:shadow-md hover:scale-[1.01] active:scale-[0.99];
   }
   .card {
-    @apply rounded-2xl border border-slate-100 bg-white p-6 shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-slate-200/60;
+    @apply rounded-2xl border border-latte bg-white p-6 shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-brand-200;
   }
   .card-premium {
-    @apply rounded-3xl border border-brand-100/50 bg-gradient-to-br from-white to-brand-50/20 p-8 shadow-premium transition-all duration-300 hover:shadow-xl hover:border-brand-200/50;
+    @apply rounded-3xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-8 shadow-premium transition-all duration-300 hover:shadow-xl hover:border-brand-300;
   }
   .badge {
     @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide;
   }
   .badge-warning {
-    @apply badge bg-warning-50 text-warning-700 ring-1 ring-warning-500/10;
+    @apply badge bg-warning-50 text-warning-600 ring-1 ring-warning-500/20;
   }
   .badge-success {
-    @apply badge bg-success-50 text-success-700 ring-1 ring-success-500/10;
+    @apply badge bg-success-50 text-success-600 ring-1 ring-success-500/20;
   }
   .badge-danger {
-    @apply badge bg-danger-50 text-danger-700 ring-1 ring-danger-500/10;
+    @apply badge bg-danger-50 text-danger-600 ring-1 ring-danger-500/20;
   }
   .badge-neutral {
-    @apply badge bg-slate-100 text-slate-700 ring-1 ring-slate-200;
+    @apply badge bg-latte text-espresso ring-1 ring-brand-200;
   }
   .badge-brand {
-    @apply badge bg-brand-50 text-brand-700 ring-1 ring-brand-500/10;
+    @apply badge bg-brand-50 text-brand-700 ring-1 ring-brand-500/20;
   }
   .badge-saffron {
-    @apply badge bg-saffron-50 text-saffron-700 ring-1 ring-saffron-500/10;
+    @apply badge bg-saffron-50 text-saffron-700 ring-1 ring-saffron-500/20;
   }
   .badge-rating-green {
-    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-extrabold bg-emerald-50 text-emerald-700 ring-2 ring-emerald-500/20 shadow-sm;
+    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold bg-emerald-50 text-emerald-700 ring-2 ring-emerald-500/20 shadow-sm;
   }
   .badge-rating-yellow {
-    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-extrabold bg-amber-50 text-amber-700 ring-2 ring-amber-500/20 shadow-sm;
+    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold bg-amber-50 text-amber-700 ring-2 ring-amber-500/20 shadow-sm;
   }
   .badge-rating-orange {
-    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-extrabold bg-orange-50 text-orange-700 ring-2 ring-orange-500/20 shadow-sm;
+    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold bg-orange-50 text-orange-700 ring-2 ring-orange-500/20 shadow-sm;
   }
   .badge-rating-red {
-    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-extrabold bg-rose-50 text-rose-700 ring-2 ring-rose-500/20 shadow-sm;
+    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold bg-rose-50 text-rose-700 ring-2 ring-rose-500/20 shadow-sm;
   }
   .section-title {
-    @apply text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl;
+    @apply text-3xl font-bold tracking-tight text-espresso sm:text-4xl;
+    font-family: var(--font-fraunces), Georgia, serif;
   }
   .section-subtitle {
-    @apply mt-3 text-base sm:text-lg text-slate-500 max-w-2xl mx-auto;
+    @apply mt-3 text-base sm:text-lg text-brand-900/60 max-w-2xl mx-auto;
   }
   .input-field {
-    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 transition-all duration-300;
+    @apply w-full rounded-xl border border-latte bg-white px-4 py-3.5 text-sm shadow-sm placeholder:text-brand-900/30 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 transition-all duration-300;
   }
   .tab-active {
     @apply border-b-2 border-brand-600 text-brand-700 font-semibold px-4 py-3;
   }
   .tab-inactive {
-    @apply border-b-2 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 px-4 py-3 transition-all duration-200;
+    @apply border-b-2 border-transparent text-brand-900/50 hover:text-espresso hover:border-brand-300 px-4 py-3 transition-all duration-200;
   }
+
+  /* Category pill badges for product classification */
+  .category-pill {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border;
+  }
+  .category-pill-food        { @apply category-pill bg-emerald-50 text-emerald-800 border-emerald-200; }
+  .category-pill-care        { @apply category-pill bg-sky-50 text-sky-800 border-sky-200; }
+  .category-pill-household   { @apply category-pill bg-amber-50 text-amber-800 border-amber-200; }
+  .category-pill-supplement  { @apply category-pill bg-violet-50 text-violet-800 border-violet-200; }
+  .category-pill-baby        { @apply category-pill bg-pink-50 text-pink-800 border-pink-200; }
+  .category-pill-unknown     { @apply category-pill bg-latte text-espresso border-brand-200; }
+}
+
+/* ── Ticker / Marquee Animation ────────────────────────────────────── */
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker 28s linear infinite;
+}
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+/* ── Animated CSS Barcode ───────────────────────────────────────────── */
+@keyframes laser-sweep {
+  0%   { top: 8%; opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { top: 88%; opacity: 0; }
+}
+.laser-line {
+  animation: laser-sweep 2s ease-in-out infinite;
+}
+
+/* ── Subtle shimmer for skeleton loading ───────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, var(--color-latte) 25%, #f5ede4 50%, var(--color-latte) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* ── Floating scan button (mobile) ────────────────────────────────── */
+.fab-scan {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  height: 56px;
+  padding: 0 2rem;
+  border-radius: 9999px;
+  background: var(--color-mocha);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgb(155 118 83 / 0.35);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.fab-scan:hover {
+  transform: translateX(-50%) scale(1.03);
+  box-shadow: 0 12px 32px rgb(155 118 83 / 0.45);
+}
+.fab-scan:active {
+  transform: translateX(-50%) scale(0.98);
+}
+@media (min-width: 768px) {
+  .fab-scan { display: none; }
 }
 
 @media print {
-  header,
-  footer,
-  .fixed,
-  nav,
-  button,
-  .btn-primary,
-  .btn-secondary,
-  .btn-accent {
+  header, footer, .fixed, nav, button, .btn-primary, .btn-secondary, .btn-accent {
     display: none !important;
   }
-  body {
-    background: white !important;
-  }
-  .card {
-    break-inside: avoid;
-    box-shadow: none !important;
-  }
-  main {
-    padding: 0 !important;
-  }
+  body { background: white !important; }
+  .card { break-inside: avoid; box-shadow: none !important; }
+  main { padding: 0 !important; }
 }

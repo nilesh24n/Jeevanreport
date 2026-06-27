@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Fraunces } from "next/font/google";
 import Script from "next/script";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -12,6 +12,11 @@ import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  axes: ["opsz"],
+});
 
 export const metadata: Metadata = {
   title: "Jeevanreport — Scan products. Know the truth.",
@@ -28,7 +33,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans`}>
+      <body className={`${inter.variable} ${fraunces.variable} font-sans bg-canvas text-espresso`}>
         <ToastProvider>
           <Header />
           <FirstVisitBanner />

@@ -9,46 +9,52 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Deep trustworthy navy-blue as primary brand
+        // ── Pantone 2025 Mocha Mousse colour system ─────────────────────────
         brand: {
-          50: "#eef3ff",
-          100: "#dce6ff",
-          200: "#b3ccff",
-          300: "#7aa7ff",
-          400: "#3d7eff",
-          500: "#1a5bdb",
-          600: "#1246b5",
-          700: "#0d3490",
-          800: "#0a2470",
-          900: "#071a52",
+          50:  "#f7f1eb",
+          100: "#eedde9", // re-mapped to latte range
+          200: "#e8ddd0", // Latte surface
+          300: "#d4bea6",
+          400: "#bf9f7c",
+          500: "#a98566",
+          600: "#9b7653", // Mocha Mousse — primary accent
+          700: "#7d5e40",
+          800: "#5e4530",
+          900: "#3f2d1f",
+          950: "#2c1a0e", // Espresso — deep text
         },
-        // Refined green for positive nutrition
+        // Warm off-white background
+        canvas: "#faf7f2",
+        // Espresso text
+        espresso: "#2c1a0e",
+        // Latte surface
+        latte: "#e8ddd0",
+        // Semantic colours
         success: {
-          50: "#f0fdf4",
-          100: "#dcfce7",
-          500: "#16a34a",
-          600: "#15803d",
-          700: "#166534",
+          50:  "#ecf4e5",
+          100: "#d2e7be",
+          500: "#3b6d11",
+          600: "#3b6d11",
+          700: "#2d5409",
         },
-        // Premium orange/saffron for warnings (India warmth)
         warning: {
-          50: "#fff8f1",
-          100: "#ffedd5",
-          500: "#f97316",
-          600: "#ea580c",
-          700: "#c2410c",
+          50:  "#fdf3e7",
+          100: "#f9e0bc",
+          500: "#854f0b",
+          600: "#854f0b",
+          700: "#6b3f08",
+          800: "#854f0b",
         },
-        // Clear red for danger/alerts
         danger: {
-          50: "#fff1f2",
-          100: "#ffe4e6",
-          500: "#ef4444",
-          600: "#dc2626",
-          700: "#b91c1c",
+          50:  "#faeaea",
+          100: "#f3cece",
+          500: "#a32d2d",
+          600: "#a32d2d",
+          700: "#832424",
         },
-        // India saffron accent
+        // India saffron accent kept
         saffron: {
-          50: "#fffbeb",
+          50:  "#fffbeb",
           100: "#fef3c7",
           200: "#fde68a",
           300: "#fcd34d",
@@ -59,24 +65,25 @@ const config: Config = {
           800: "#78350f",
           900: "#451a03",
         },
-        // India green accent
         india: {
-          green: "#138808",
-          greenLight: "#e8f5e9",
-          saffron: "#FF9933",
+          green:        "#138808",
+          greenLight:   "#e8f5e9",
+          saffron:      "#FF9933",
           saffronLight: "#fff3e0",
         },
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        sans:    ["var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["var(--font-fraunces)", "Georgia", "serif"],
       },
       boxShadow: {
-        card: "0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04)",
-        "card-hover": "0 4px 12px 0 rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04)",
-        premium: "0 8px 32px 0 rgb(10 36 112 / 0.10), 0 2px 8px 0 rgb(10 36 112 / 0.06)",
+        card:       "0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04)",
+        "card-hover": "0 4px 12px 0 rgb(155 118 83 / 0.12), 0 2px 4px -2px rgb(155 118 83 / 0.06)",
+        premium:    "0 8px 32px 0 rgb(44 26 14 / 0.10), 0 2px 8px 0 rgb(44 26 14 / 0.06)",
+        mocha:      "0 4px 24px 0 rgb(155 118 83 / 0.18)",
       },
       borderRadius: {
-        xl: "0.875rem",
+        xl:   "0.875rem",
         "2xl": "1.25rem",
         "3xl": "1.5rem",
       },
