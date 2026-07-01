@@ -5,6 +5,7 @@ import { products, getProductById, getProductByBarcode, searchProducts } from ".
 import * as jsonProducts from "./products-json";
 import { fetchProductFromOpenFoodFacts } from "./openfoodfacts";
 import { enrichProduct } from "./product-enricher";
+import { isConsumableProduct } from "./consumable-filter";
 
 // Turso Database client initialization (Lazy)
 let tursoClient: any = null;
@@ -247,7 +248,10 @@ async function rawSearchProducts(query: string, filters?: DbSearchFilters): Prom
           if (filters?.onlyChanged) {
             if ((p.packSizeChanges?.length || 0) === 0 && (p.formulaChanges?.length || 0) === 0) continue;
           }
-          results.push(p);
+          // Only include consumable products
+          if (isConsumableProduct(p)) {
+            results.push(p);
+          }
         } catch (_) {}
       }
       return sortResults(results, filters?.sort);
@@ -289,7 +293,10 @@ async function rawSearchProducts(query: string, filters?: DbSearchFilters): Prom
             if (filters?.onlyChanged) {
               if ((p.packSizeChanges?.length || 0) === 0 && (p.formulaChanges?.length || 0) === 0) continue;
             }
-            results.push(p);
+            // Only include consumable products
+            if (isConsumableProduct(p)) {
+              results.push(p);
+            }
           } catch (_) {}
         }
         return sortResults(results, filters?.sort);
@@ -342,7 +349,10 @@ async function rawSearchProducts(query: string, filters?: DbSearchFilters): Prom
           if (filters?.onlyChanged) {
             if ((p.packSizeChanges?.length || 0) === 0 && (p.formulaChanges?.length || 0) === 0) continue;
           }
-          results.push(p);
+          // Only include consumable products
+          if (isConsumableProduct(p)) {
+            results.push(p);
+          }
         } catch (_) {}
       }
       return sortResults(results, filters?.sort);
@@ -352,13 +362,15 @@ async function rawSearchProducts(query: string, filters?: DbSearchFilters): Prom
   }
 
   // 4. Try JSON products search (5000+ products)
-  const jsonResults = jsonProducts.searchProducts(q || "", 150);
+  let jsonResults = jsonProducts.searchProducts(q || "", 150);
+  // Filter to only consumable products
+  jsonResults = jsonResults.filter(p => isConsumableProduct(p));
   if (jsonResults.length > 0) {
     return jsonResults;
   }
 
   // 5. Static fallback (15 products)
-  const staticResults = searchProducts(q || "", {
+  let staticResults = searchProducts(q || "", {
     country: filters?.country,
     category: filters?.category,
     nutritionFlag: filters?.nutritionFlag,
@@ -366,6 +378,8 @@ async function rawSearchProducts(query: string, filters?: DbSearchFilters): Prom
     brand: filters?.brand,
     minTrustScore: filters?.minTrustScore,
   });
+  // Filter to only consumable products
+  staticResults = staticResults.filter(p => isConsumableProduct(p));
   return sortResults(staticResults, filters?.sort);
 }
 
