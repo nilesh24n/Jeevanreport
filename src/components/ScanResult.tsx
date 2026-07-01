@@ -7,7 +7,7 @@ import type { Product, ProductVersion } from "@/lib/types";
 import { getLatestVersion } from "@/lib/data/products";
 import { getProductStatus } from "@/lib/nutrition-engine";
 import { classifyProduct } from "@/lib/product-classifier";
-import { isConsumableProduct, getConsumableMessage } from "@/lib/consumable-filter";
+import { isConsumableProduct } from "@/lib/consumable-filter";
 import BodyImpactPanel from "./BodyImpactPanel";
 import FullPackPanel from "./FullPackPanel";
 import ScanTracker from "./ScanTracker";
@@ -19,9 +19,6 @@ import ShareButton from "./ShareButton";
 import HighlightedIngredient from "./HighlightedIngredient";
 import GymModePanel from "./GymModePanel";
 import EverydayModePanel from "./EverydayModePanel";
-import PersonalCarePanel from "./PersonalCarePanel";
-import HouseholdPanel from "./HouseholdPanel";
-import BabyCarePanel from "./BabyCarePanel";
 import ShrinkflationApiPanel from "./ShrinkflationApiPanel";
 
 function getRatingCardClass(color: string) {
@@ -71,17 +68,16 @@ export default function ScanResult({ product }: { product: Product }) {
   const n = v.nutrition;
   const body = v.bodyImpact;
 
+  // Check if this is a consumable product FIRST
+  const isFood = isConsumableProduct(product);
 
-
-
-  // Product category classification
+  // Product category classification (for reference only, but we override based on consumable check)
   const catMeta = classifyProduct({
     name: product.name,
     brand: product.brand,
     categorySlug: product.category,
     description: product.baseDescription,
   });
-  const isFood = catMeta.showNutrition;
 
   // Rating and status calculations (only meaningful for food)
   const status = getProductStatus(body);
@@ -94,26 +90,36 @@ export default function ScanResult({ product }: { product: Product }) {
   const [showIngredients, setShowIngredients] = useState(false);
 
 
-  return (
-    <div className="space-y-6">
-      {/* ── Warning Banner for Non-Consumable Products ── */}
-      {!isConsumableProduct(product) && (
-        <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-5 space-y-3">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">⚠️</span>
-            <div className="flex-1">
-              <h3 className="font-bold text-amber-900 text-base">Not for Consumption</h3>
-              <p className="text-sm text-amber-800 mt-1 leading-relaxed">
-                {getConsumableMessage()}
+  if (!isFood) {
+    // Non-consumable product - show only warning
+    return (
+      <div className="space-y-6">
+        <div className="bg-rose-50 border-4 border-rose-400 rounded-3xl p-8 space-y-5 text-center">
+          <div className="flex flex-col items-center gap-4">
+            <span className="text-6xl">🛑</span>
+            <div>
+              <h2 className="font-bold text-rose-900 text-2xl">Not for Consumption</h2>
+              <p className="text-base text-rose-800 mt-3 leading-relaxed max-w-md">
+                This platform is designed <strong>exclusively for edible and consumable products</strong>.
               </p>
-              <p className="text-xs text-amber-700 mt-2 font-semibold">
-                💡 Jeevanreport is designed specifically for edible and consumable products. Please scan a food or beverage item instead.
-              </p>
+              <div className="bg-white/60 rounded-2xl p-4 mt-4 border border-rose-200">
+                <p className="text-lg font-bold text-rose-900">
+                  📱 Please scan a food or beverage product instead
+                </p>
+                <p className="text-sm text-rose-700 mt-2">
+                  Examples: Food items, Beverages, Snacks, Dairy products, Grains, etc.
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
+    );
+  }
 
+  // For consumable products - show full content
+  return (
+    <div className="space-y-6">
       {/* ── Sticky Mode Toggle ── */}
       <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 backdrop-blur-xl bg-white/80 border-b border-slate-200/60 shadow-sm">
         <div className="flex items-center gap-2 max-w-xs">
@@ -189,48 +195,15 @@ export default function ScanResult({ product }: { product: Product }) {
       </section>
 
       {/* ── Dual Mode Panel (food/supplement only) ── */}
-      {isFood && (
-        <section>
-          {scanMode === "gym" ? (
-            <GymModePanel version={v} />
-          ) : (
-            <EverydayModePanel version={v} />
-          )}
-        </section>
-      )}
-
-      {/* ── Non-food category panels ── */}
-      {!isFood && catMeta.category === "PERSONAL_CARE" && (
-        <section>
-          <PersonalCarePanel version={v} productName={product.name} />
-        </section>
-      )}
-      {!isFood && catMeta.category === "HOUSEHOLD" && (
-        <section>
-          <HouseholdPanel version={v} productName={product.name} />
-        </section>
-      )}
-      {!isFood && catMeta.category === "BABY_CARE" && (
-        <section>
-          <BabyCarePanel version={v} productName={product.name} />
-        </section>
-      )}
-      {!isFood && catMeta.category === "UNKNOWN" && (
-        <section className="card border-dashed border-2 border-latte p-5 space-y-3">
-          <p className="text-sm font-semibold text-espresso/60">
-            We found this product but couldn&apos;t fully classify it yet. Here&apos;s what we know:
-          </p>
-          {v.ingredientsText && (
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-espresso/30 mb-1">Ingredients</p>
-              <p className="text-xs text-espresso/70 leading-relaxed">{v.ingredientsText.slice(0, 300)}{v.ingredientsText.length > 300 ? "…" : ""}</p>
-            </div>
-          )}
-        </section>
-      )}
+      <section>
+        {scanMode === "gym" ? (
+          <GymModePanel version={v} />
+        ) : (
+          <EverydayModePanel version={v} />
+        )}
+      </section>
 
       {/* 2. Visual Assessment Points — food only */}
-      {isFood && (
       <section className="card space-y-4">
         <h2 className="text-lg font-bold text-espresso flex items-center gap-2">
           <span>⚡</span> Quick Assessment
@@ -244,10 +217,8 @@ export default function ScanResult({ product }: { product: Product }) {
           ))}
         </ul>
       </section>
-      )}
 
       {/* 3. Easy Summary Card — food only */}
-      {isFood && (
       <section className="card space-y-4">
         <h2 className="text-lg font-bold text-espresso flex items-center gap-2">
           <span>📝</span> Easy Summary
@@ -302,10 +273,8 @@ export default function ScanResult({ product }: { product: Product }) {
           </div>
         </div>
       </section>
-      )}
 
-      {/* 4. Nutrition Highlights — food only */}
-      {isFood && (
+      {/* 4. Nutrition Highlights */}
       <section className="card space-y-4">
         <div className="border-b border-latte pb-3">
           <h2 className="text-lg font-bold text-espresso">Nutrition Highlights</h2>
@@ -332,10 +301,8 @@ export default function ScanResult({ product }: { product: Product }) {
           ))}
         </div>
       </section>
-      )}
 
-      {/* 5. Detailed Core Metrics Accordion — food only */}
-      {isFood && (
+      {/* 5. Detailed Core Metrics Accordion */}
       <section className="card p-0 overflow-hidden border border-latte shadow-card">
         <button 
           onClick={() => setShowNutrition(!showNutrition)}
@@ -376,7 +343,6 @@ export default function ScanResult({ product }: { product: Product }) {
           </div>
         )}
       </section>
-      )}
 
       {/* 6. Ingredients & Additives Accordion */}
       <section className="card p-0 overflow-hidden border border-slate-100 shadow-card">
