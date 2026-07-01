@@ -1,4 +1,4 @@
-import { Database } from "bun:sqlite";
+import { Database } from "bun-sqlite";
 import { createClient } from "@libsql/client";
 
 const TURSO_URL = process.env.TURSO_DATABASE_URL;
@@ -17,7 +17,7 @@ const turso = createClient({
 
 async function main() {
   console.log("Connecting to Turso database...");
-  
+
   // 1. Create table and indexes
   await turso.execute(`
     CREATE TABLE IF NOT EXISTS products (
@@ -34,12 +34,12 @@ async function main() {
       data TEXT
     )
   `);
-  
+
   await turso.execute("CREATE INDEX IF NOT EXISTS idx_products_barcode ON products(barcode)");
   await turso.execute("CREATE INDEX IF NOT EXISTS idx_products_name ON products(name)");
   await turso.execute("CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand)");
   await turso.execute("CREATE INDEX IF NOT EXISTS idx_products_category ON products(category)");
-  
+
   console.log("Table and indexes verified on Turso.");
 
   // Get total count

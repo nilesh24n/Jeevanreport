@@ -7,14 +7,12 @@ import type { Product, ProductVersion } from "@/lib/types";
 import { getLatestVersion } from "@/lib/data/products";
 import { getProductStatus } from "@/lib/nutrition-engine";
 import { classifyProduct } from "@/lib/product-classifier";
-import Badge from "./Badge";
 import BodyImpactPanel from "./BodyImpactPanel";
 import FullPackPanel from "./FullPackPanel";
 import ScanTracker from "./ScanTracker";
 import WatchlistButton from "./WatchlistButton";
 import IngredientComplexity from "./IngredientComplexity";
 import NutritionLabel from "./NutritionLabel";
-import ShrinkflationComparison from "./ShrinkflationComparison";
 import SimilarProducts from "./SimilarProducts";
 import ShareButton from "./ShareButton";
 import HighlightedIngredient from "./HighlightedIngredient";
@@ -71,14 +69,8 @@ export default function ScanResult({ product }: { product: Product }) {
   const n = v.nutrition;
   const body = v.bodyImpact;
 
-  // Pricing context in INR
-  const latestPrice = product.prices[product.prices.length - 1];
-  const priceString = latestPrice
-    ? `${latestPrice.currency === "INR" ? "₹" : latestPrice.currency + " "}${latestPrice.price}`
-    : null;
-  const unitPriceString = latestPrice
-    ? `${latestPrice.currency === "INR" ? "₹" : latestPrice.currency + " "}${latestPrice.unitPrice}/${v.unit}`
-    : null;
+
+
 
   // Product category classification
   const catMeta = classifyProduct({
@@ -98,7 +90,7 @@ export default function ScanResult({ product }: { product: Product }) {
   // Accordion Toggles for detailed layers (for mobile friendliness)
   const [showNutrition, setShowNutrition] = useState(false);
   const [showIngredients, setShowIngredients] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
+
 
   return (
     <div className="space-y-6">
@@ -417,121 +409,6 @@ export default function ScanResult({ product }: { product: Product }) {
                   Contains allergens: {v.allergens.join(", ")}
                 </div>
               )}
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* 7. Detailed Body Impact Accordion */}
-      <section className="card p-0 overflow-hidden border border-slate-100 shadow-card">
-        <div className="bg-gradient-to-br from-white to-brand-50/5">
-          <button 
-            onClick={() => setShowHistory(!showHistory)}
-            className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50/50 transition-colors focus:outline-none"
-          >
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">Historical TIMELINE & Evidence</h2>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">Track size reduction, formula changes, and photo proof</p>
-            </div>
-            <span className="text-base text-brand-600 font-bold transition-transform duration-300 flex items-center gap-1">
-              {showHistory ? "Hide ▴" : "Show ▾"}
-            </span>
-          </button>
-        </div>
-
-        {showHistory && (
-          <div className="p-6 border-t border-slate-100 space-y-6 bg-slate-50/10">
-            {/* Price retail check */}
-            {latestPrice && (
-              <div className="inline-flex flex-wrap items-center gap-2 bg-white border border-slate-150 rounded-xl px-4 py-2.5 text-sm shadow-sm">
-                <span className="text-slate-500 font-medium">Store Price:</span>
-                <span className="text-slate-900 font-extrabold">{priceString}</span>
-                <span className="text-slate-300">|</span>
-                <span className="text-slate-500 font-medium">Unit Cost:</span>
-                <span className="text-slate-900 font-semibold">{unitPriceString}</span>
-                <span className="text-xs text-slate-400 font-medium">({latestPrice.store})</span>
-              </div>
-            )}
-
-            <div className="grid gap-6 md:grid-cols-2 pt-2">
-              {/* Left side of history: Timeline comparison */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Timeline Changes</h3>
-                {product.packSizeChanges.length > 0 || product.formulaChanges.length > 0 ? (
-                  <>
-                    {product.packSizeChanges.map((c) => (
-                      <div key={c.date} className="rounded-xl border border-slate-150 p-2 bg-white shadow-sm">
-                        <ShrinkflationComparison
-                          productName={product.name}
-                          imageUrl={product.imageUrl}
-                          change={c}
-                          trustScore={product.trustScore}
-                        />
-                      </div>
-                    ))}
-
-                    {product.formulaChanges.map((c) => (
-                      <div key={c.date} className="rounded-xl border border-brand-100 bg-white p-4 space-y-2 shadow-sm">
-                        <div className="flex items-center justify-between">
-                          <Badge label="Formula changed" variant="brand" />
-                          <span className="text-[10px] text-slate-400 font-mono">{c.date}</span>
-                        </div>
-                        <p className="text-sm text-slate-700 font-semibold">{c.summary}</p>
-                      </div>
-                    ))}
-                  </>
-                ) : (
-                  <p className="text-xs text-slate-400 italic">No shrinkflation or size changes reported for this product.</p>
-                )}
-              </div>
-
-              {/* Right side of history: Price trends & photos */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Unit Price Trend</h3>
-                {product.prices.length >= 2 ? (
-                  <div className="rounded-xl border border-slate-200/60 p-4 bg-white text-sm space-y-2 shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <Badge label="Price trend" variant="warning" />
-                      <span className="text-[10px] text-slate-400 font-semibold font-mono">{product.prices[0].dateObserved} to {product.prices[product.prices.length - 1].dateObserved}</span>
-                    </div>
-                    <p className="text-slate-700 font-semibold">
-                      Unit price altered: <span className="font-extrabold text-slate-950">
-                        ₹{product.prices[0].unitPrice}
-                      </span> → <span className="font-extrabold text-brand-600">
-                        ₹{product.prices[product.prices.length - 1].unitPrice}
-                      </span> per {v.unit}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      Observed at {product.prices[0].store}. Overall price shifted from ₹{product.prices[0].price} to ₹{product.prices[product.prices.length - 1].price}.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="rounded-xl border border-slate-100 p-4 text-center text-xs text-slate-400 bg-white shadow-sm">
-                    No price shifts recorded on retail shelves.
-                  </div>
-                )}
-
-                {/* Submitted Proof Photos if any */}
-                {product.submissions.length > 0 && (
-                  <div className="space-y-2 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">User-submitted Photo Proof</h4>
-                    <div className="grid grid-cols-2 gap-2">
-                      {product.submissions.flatMap((s) =>
-                        Object.entries(s.media).filter(([, url]) => url).slice(0, 2).map(([type, url]) => (
-                          <div key={`${s.id}-${type}`} className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-slate-200">
-                            <Image src={url!} alt={type} fill className="object-cover" unoptimized sizes="150px" />
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center justify-center bg-brand-50 border border-brand-100/50 rounded-2xl p-4 w-full">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600">Total Trust Verification Score</span>
-              <span className="text-2xl font-black text-brand-700 mt-1">{product.trustScore}% ({product.trustLevel})</span>
             </div>
           </div>
         )}

@@ -6,9 +6,8 @@ import { getLatestVersion } from "@/lib/data/products";
 import NutritionTable from "./NutritionTable";
 import BodyImpactPanel from "./BodyImpactPanel";
 import Badge from "./Badge";
-import FormulaDiff from "./FormulaDiff";
 import NutritionLabel from "./NutritionLabel";
-import PackSizeTimeline from "./PackSizeTimeline";
+import ShrinkflationApiPanel from "./ShrinkflationApiPanel";
 import HighlightedIngredient from "./HighlightedIngredient";
 import Disclaimer from "./Disclaimer";
 import Image from "next/image";
@@ -17,7 +16,7 @@ import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
 } from "recharts";
 
-const tabs = ["Overview", "Nutrition", "Ingredients", "Body Impact", "Pack History", "Unit Price", "Formula", "Photos", "Countries", "Reports"] as const;
+const tabs = ["Overview", "Nutrition", "Ingredients", "Body Impact", "Shrinkflation API", "Unit Price", "Photos", "Countries", "Reports"] as const;
 type Tab = (typeof tabs)[number];
 
 export default function ProductDetailTabs({ product }: { product: Product }) {
@@ -145,8 +144,8 @@ export default function ProductDetailTabs({ product }: { product: Product }) {
           </div>
         )}
 
-        {active === "Pack History" && (
-          <PackSizeTimeline changes={product.packSizeChanges} />
+        {active === "Shrinkflation API" && (
+          <ShrinkflationApiPanel productId={product.id} initialProduct={product} />
         )}
 
         {active === "Unit Price" && (
@@ -193,23 +192,7 @@ export default function ProductDetailTabs({ product }: { product: Product }) {
           </div>
         )}
 
-        {active === "Formula" && (
-          <div className="space-y-4">
-            {product.formulaChanges.length === 0 ? (
-              <p className="text-sm text-slate-500">No formula changes recorded.</p>
-            ) : (
-              product.formulaChanges.map((c) => (
-                <div key={c.date} className="card">
-                  <Badge label="Formula change" variant="brand" />
-                  <p className="text-xs text-slate-500 mt-1">{c.date} · {c.country}</p>
-                  <div className="mt-3">
-                    <FormulaDiff change={c} />
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
+
 
         {active === "Photos" && (
           <div className="grid gap-4 sm:grid-cols-2">

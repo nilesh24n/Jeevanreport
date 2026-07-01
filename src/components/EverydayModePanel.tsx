@@ -150,18 +150,7 @@ export default function EverydayModePanel({ version }: { version: ProductVersion
         </div>
       </div>
 
-      {/* 3. Calories Made Simple */}
-      <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm flex items-start gap-3">
-        <span className="text-3xl flex-shrink-0 mt-0.5">🍽️</span>
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-            Calories Made Simple
-          </p>
-          <p className="text-sm font-semibold text-slate-700 leading-relaxed">
-            {everyday.caloriesSimplified}
-          </p>
-        </div>
-      </div>
+
 
       {/* 4. Should I Eat This? */}
       <div className="rounded-2xl border border-brand-100/50 bg-gradient-to-br from-brand-50/30 to-white p-5 space-y-2 shadow-sm">
