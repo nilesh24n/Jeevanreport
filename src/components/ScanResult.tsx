@@ -7,6 +7,7 @@ import type { Product, ProductVersion } from "@/lib/types";
 import { getLatestVersion } from "@/lib/data/products";
 import { getProductStatus } from "@/lib/nutrition-engine";
 import { classifyProduct } from "@/lib/product-classifier";
+import { isConsumableProduct, getConsumableMessage } from "@/lib/consumable-filter";
 import BodyImpactPanel from "./BodyImpactPanel";
 import FullPackPanel from "./FullPackPanel";
 import ScanTracker from "./ScanTracker";
@@ -21,6 +22,7 @@ import EverydayModePanel from "./EverydayModePanel";
 import PersonalCarePanel from "./PersonalCarePanel";
 import HouseholdPanel from "./HouseholdPanel";
 import BabyCarePanel from "./BabyCarePanel";
+import ShrinkflationApiPanel from "./ShrinkflationApiPanel";
 
 function getRatingCardClass(color: string) {
   switch (color) {
@@ -94,6 +96,24 @@ export default function ScanResult({ product }: { product: Product }) {
 
   return (
     <div className="space-y-6">
+      {/* ── Warning Banner for Non-Consumable Products ── */}
+      {!isConsumableProduct(product) && (
+        <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-5 space-y-3">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">⚠️</span>
+            <div className="flex-1">
+              <h3 className="font-bold text-amber-900 text-base">Not for Consumption</h3>
+              <p className="text-sm text-amber-800 mt-1 leading-relaxed">
+                {getConsumableMessage()}
+              </p>
+              <p className="text-xs text-amber-700 mt-2 font-semibold">
+                💡 Jeevanreport is designed specifically for edible and consumable products. Please scan a food or beverage item instead.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Sticky Mode Toggle ── */}
       <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 backdrop-blur-xl bg-white/80 border-b border-slate-200/60 shadow-sm">
         <div className="flex items-center gap-2 max-w-xs">
@@ -234,10 +254,10 @@ export default function ScanResult({ product }: { product: Product }) {
         </h2>
         <div className="bg-brand-50/20 border border-latte rounded-2xl p-5 space-y-4">
           <p className="text-base font-semibold leading-relaxed text-espresso/80">
-            {status.rating === 'Good' ? "This product is a good choice for daily or regular use. It has balanced nutrients and no high warning signs." :
-             status.rating === 'Okay' ? "This product is okay for daily use in moderate quantities. Keep an eye on portions." :
-             status.color === 'orange' ? "Caution: This product has moderate warning signs. It is best to limit consumption or use occasionally." :
-             "Be Careful: This product has high sugar, high salt, or high fat. It is best to limit consumption and treat it as an occasional treat."}
+            {status.rating === 'Good' ? "This product is a good choice to consume daily or regularly. It has balanced nutrients and no high warning signs." :
+             status.rating === 'Okay' ? "This product is okay to consume daily in moderate quantities. Keep an eye on portions." :
+             status.color === 'orange' ? "Caution: This product has moderate warning signs. It is best to limit consumption or consume it occasionally." :
+             "Be Careful: This product has high sugar, high salt, or high fat. It is best to limit consumption and treat it as an occasional item to consume."}
           </p>
           
           <div className="grid gap-3.5 sm:grid-cols-2 text-sm pt-4 border-t border-latte">
@@ -426,7 +446,14 @@ export default function ScanResult({ product }: { product: Product }) {
         <BodyImpactPanel body={body} />
       </section>
 
-      {/* 9. Similar products recommendations */}
+      {/* 9. Shrinkflation & Package Size Changes (for consumable products) */}
+      {isFood && (
+        <section>
+          <ShrinkflationApiPanel productId={product.id} initialProduct={product} />
+        </section>
+      )}
+
+      {/* 10. Similar products recommendations */}
       <SimilarProducts productId={product.id} />
 
       {/* 10. Large, Thumb-Friendly Mobile Actions (Blue Actions) */}
