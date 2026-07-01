@@ -56,7 +56,6 @@ export function calculateFrequencyAndReasoning(v: ProductVersion): {
   }
 
   // 4. Calories (Reference: 2000 kcal total)
-  const calPercent = Math.round((caloriesVal / 2000) * 100);
   if (caloriesVal >= 250) {
     score -= 2;
   } else if (caloriesVal >= 150) {

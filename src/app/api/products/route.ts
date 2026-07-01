@@ -12,7 +12,6 @@ export async function GET(request: Request) {
   const brand = searchParams.get("brand");
   const minTrustScore = searchParams.get("minTrustScore");
   const nutritionFlag = searchParams.get("nutritionFlag");
-  const changeType = searchParams.get("changeType");
   const sort = searchParams.get("sort");
   const onlyChanged = searchParams.get("onlyChanged") === "true";
 

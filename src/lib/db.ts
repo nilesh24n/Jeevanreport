@@ -49,7 +49,7 @@ function initLocalDb() {
     if (typeof window === "undefined") {
       const fs = require("fs");
       if (fs.existsSync(DB_PATH)) {
-        const BetterSqlite3 = require("better-sqlite3");
+        const BetterSqlite3 = eval('require("better-sqlite3")');
         localDb = new BetterSqlite3(DB_PATH, { readonly: true });
         localDbAvailable = true;
         return true;
