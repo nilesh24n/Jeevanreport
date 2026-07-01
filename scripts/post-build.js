@@ -18,12 +18,12 @@ function deleteFolderRecursive(directoryPath) {
 }
 
 function main() {
-  // 1. Delete standalone output entirely to prevent deployment bloat and Netlify upload issues
-  const standalonePath = path.join(process.cwd(), ".next", "standalone");
-  if (fs.existsSync(standalonePath)) {
-    console.log(`Found ${standalonePath}. Deleting standalone output to prevent deployment bloat...`);
-    deleteFolderRecursive(standalonePath);
-    console.log("✓ Successfully deleted standalone directory from build output.");
+  // 1. Delete products.db from standalone output if it exists (as a safety fallback)
+  const dbPath = path.join(process.cwd(), ".next", "standalone", "products.db");
+  if (fs.existsSync(dbPath)) {
+    console.log(`Found ${dbPath} (3GB+). Deleting to prevent deployment bloat...`);
+    fs.unlinkSync(dbPath);
+    console.log("✓ Successfully deleted products.db from standalone output.");
   }
 
   // 2. Delete Next.js build cache from output
