@@ -14,7 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const categorySlugs = [
     "snacks", "cereal", "drinks", "dairy", "instant-foods",
-    "household", "toiletries", "pet-food", "otc-health",
+    "toiletries", "pet-food", "otc-health",
   ];
 
   return [

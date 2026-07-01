@@ -11,7 +11,6 @@ const CONSUMABLE_CATEGORIES = [
 ];
 
 // Keywords that indicate a product IS actually consumable (food/beverage)
-// These are used to recategorize mislabeled "household" items
 const CONSUMABLE_KEYWORDS = [
   // Meats & Proteins
   "chicken", "beef", "pork", "turkey", "lamb", "meat", "sausage", "bacon", "ham", "fish", "salmon", "tuna", "shrimp", "crab", "ground beef", "steak", "drumstick",
@@ -89,15 +88,7 @@ export function isConsumableProduct(product: Product | null): boolean {
     return true;
   }
   
-  // SPECIAL CASE: Many food products are mislabeled as "household"
-  // Check if the product name/description contains consumable indicators
-  if (category === "household") {
-    for (const keyword of CONSUMABLE_KEYWORDS) {
-      if (fullText.includes(keyword)) {
-        return true; // This is actually a consumable item mislabeled as household
-      }
-    }
-  }
+
   
   // If none of the above, it's not consumable
   return false;
@@ -107,7 +98,7 @@ export function getConsumableMessage(): string {
   return `⚠️ This platform is for edible/consumable products only. The product you scanned appears to be a non-consumable item. Please scan a food or beverage product to get accurate nutrition and ingredient information.`;
 }
 
-export function isHouseholdOrPersonalCare(product: Product | null): boolean {
+export function isNonConsumableOrPersonalCare(product: Product | null): boolean {
   if (!product) return false;
   
   const category = (product.category || "").toLowerCase();
@@ -123,16 +114,7 @@ export function isHouseholdOrPersonalCare(product: Product | null): boolean {
     }
   }
   
-  // If category is household but contains consumable keywords, it's actually food (not truly household)
-  if (category === "household") {
-    for (const keyword of CONSUMABLE_KEYWORDS) {
-      if (fullText.includes(keyword)) {
-        return false; // This is actually food, not truly household
-      }
-    }
-    // If it's household and has NO consumable keywords, it's non-consumable
-    return true;
-  }
+
   
   return false;
 }

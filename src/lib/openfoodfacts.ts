@@ -30,7 +30,7 @@ function getNutritionFlags(bodyImpact: any): string[] {
 }
 
 function mapCategory(categoriesTags: string[]): string {
-  if (!categoriesTags || !Array.isArray(categoriesTags)) return 'household';
+  if (!categoriesTags || !Array.isArray(categoriesTags)) return 'snacks';
   for (const tag of categoriesTags) {
     const t = tag.toLowerCase();
     if (t.includes('snack') || t.includes('biscuit') || t.includes('cookie') || t.includes('chip') || t.includes('confectionery') || t.includes('chocolate') || t.includes('sweet')) return 'snacks';
@@ -41,7 +41,7 @@ function mapCategory(categoriesTags: string[]): string {
     if (t.includes('supplement') || t.includes('medicine') || t.includes('health') || t.includes('vitamins') || t.includes('pharmacy')) return 'otc-health';
     if (t.includes('soap') || t.includes('shampoo') || t.includes('hygiene') || t.includes('cosmetic') || t.includes('care') || t.includes('toilet')) return 'toiletries';
   }
-  return 'household';
+  return 'snacks';
 }
 
 function parseQuantity(qtyStr: string) {

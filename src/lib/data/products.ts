@@ -426,7 +426,7 @@ const productsRaw: Product[] = [
     name: "Fortune Kachi Ghani Mustard Oil",
     brand: "Fortune",
     barcode: "8906007282836",
-    category: "household", // Treat under staples/household context
+    category: "snacks", // Oil - edible cooking staple
     manufacturer: "Adani Wilmar Ltd.",
     baseDescription: "Pure cold-pressed mustard oil, high in monounsaturates.",
     imageUrl: "https://placehold.co/400x400/fffbeb/d97706?text=Mustard+Oil",
@@ -591,7 +591,7 @@ const productsRaw: Product[] = [
     name: "Surf Excel Easy Wash Detergent",
     brand: "Surf Excel",
     barcode: "8901030976131",
-    category: "household",
+    category: "toiletries",
     manufacturer: "Hindustan Unilever Ltd. (HUL)",
     baseDescription: "Stain-removing laundry powder for bucket washing.",
     imageUrl: "https://placehold.co/400x400/eef3ff/1a5bdb?text=Surf+Excel",
@@ -626,8 +626,8 @@ const productsRaw: Product[] = [
         fiberFlag: "Low",
         balanceLabel: "Moderately balanced",
         occasionLabel: "Moderate frequency",
-        summaryText: "Household detergent powder. Toxic if ingested. Keep sealed and dry. In case of skin sensitivity, wear protective gloves during bucket wash.",
-        disclaimerText: "Household product information. Do not eat."
+        summaryText: "Laundry detergent powder. Toxic if ingested. Keep sealed and dry. In case of skin sensitivity, wear protective gloves during use.",
+        disclaimerText: "Cleaning product information. Do not eat."
       }
     }],
     prices: [
@@ -702,7 +702,7 @@ const productsRaw: Product[] = [
     name: "Tata Salt Iodized",
     brand: "Tata Salt",
     barcode: "8901058895032",
-    category: "household", // Treat under staples/household context
+    category: "snacks", // Salt - food ingredient/condiment
     manufacturer: "Tata Consumer Products Ltd.",
     baseDescription: "Vacuum evaporated iodized salt, Desh Ka Namak.",
     imageUrl: "https://placehold.co/400x400/eef3ff/1a5bdb?text=Tata+Salt",
@@ -894,7 +894,6 @@ export const categories: Category[] = [
   { slug: "instant-foods", name: "Instant Foods", description: "Maggi, cup noodles, ready-to-eat meals", icon: "🍜", productCount: products.filter((p) => p.category === "instant-foods").length },
   { slug: "dairy", name: "Dairy Drinks & Yogurt", description: "Amul milkshakes, lassi, Greek yogurts and dahi", icon: "🥛", productCount: products.filter((p) => p.category === "dairy").length },
   { slug: "drinks", name: "Soft Drinks & Juices", description: "Thums Up, sodas, energy and health drinks", icon: "🥤", productCount: products.filter((p) => p.category === "drinks").length },
-  { slug: "household", name: "Staples & Detergents", description: "Fortune edible oils, Surf Excel, Tata salt", icon: "🧺", productCount: products.filter((p) => p.category === "household").length },
   { slug: "toiletries", name: "Soaps & Shampoo", description: "Dettol handwash, Clinic Plus shampoo, personal care", icon: "🧴", productCount: products.filter((p) => p.category === "toiletries").length },
   { slug: "pet-food", name: "Pet Food", description: "Pedigree dog food and pet care feeds", icon: "🐾", productCount: products.filter((p) => p.category === "pet-food").length },
   { slug: "otc-health", name: "OTC Wellness Products", description: "Eno, Chyawanprash, wellness packages", icon: "💊", productCount: products.filter((p) => p.category === "otc-health").length }

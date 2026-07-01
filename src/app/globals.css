@@ -102,7 +102,6 @@
   }
   .category-pill-food        { @apply category-pill bg-emerald-50 text-emerald-800 border-emerald-200; }
   .category-pill-care        { @apply category-pill bg-sky-50 text-sky-800 border-sky-200; }
-  .category-pill-household   { @apply category-pill bg-amber-50 text-amber-800 border-amber-200; }
   .category-pill-supplement  { @apply category-pill bg-violet-50 text-violet-800 border-violet-200; }
   .category-pill-baby        { @apply category-pill bg-pink-50 text-pink-800 border-pink-200; }
   .category-pill-unknown     { @apply category-pill bg-latte text-espresso border-brand-200; }

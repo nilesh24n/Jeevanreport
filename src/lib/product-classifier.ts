@@ -9,7 +9,6 @@
 export type ProductCategory =
   | "FOOD"
   | "PERSONAL_CARE"
-  | "HOUSEHOLD"
   | "SUPPLEMENT"
   | "BABY_CARE"
   | "UNKNOWN";
@@ -21,7 +20,6 @@ export interface CategoryMeta {
   pillClass: string;
   showNutrition: boolean;
   showIngredientSafety: boolean; // skin/hair safety context
-  showHouseholdSafety: boolean;  // chemical hazard context
 }
 
 // ── Keyword matchers ────────────────────────────────────────────────────────
@@ -43,15 +41,6 @@ const PERSONAL_CARE_KEYWORDS = [
   "pantene", "sunsilk", "garnier", "l'oreal", "loreal", "clinic plus",
   "colgate", "pepsodent", "sensodyne", "listerine", "dabur", "patanjali",
   "skin", "hair care", "personal care", "grooming", "beauty", "cosmetic",
-];
-
-const HOUSEHOLD_KEYWORDS = [
-  "cleaner", "detergent", "freshener", "disinfectant", "fabric", "floor",
-  "toilet", "dish", "washing powder", "washing liquid", "fabric softener",
-  "surface cleaner", "bathroom cleaner", "kitchen cleaner", "bleach",
-  "phenyl", "colin", "harpic", "lizol", "mr. muscle", "vim", "surf excel",
-  "ariel", "tide", "rin", "nirma", "wheel", "ajax", "air freshener",
-  "mosquito", "repellent", "insecticide", "pesticide",
 ];
 
 const SUPPLEMENT_KEYWORDS = [
@@ -79,11 +68,10 @@ export function classifyProduct(opts: {
 }): CategoryMeta {
   const combined = [opts.name, opts.brand ?? "", opts.categorySlug ?? "", opts.description ?? ""].join(" ");
 
-  // Strict hierarchy: Baby > Supplement > Personal Care > Household > Food
+  // Strict hierarchy: Baby > Supplement > Personal Care > Food
   if (matchesAny(combined, BABY_CARE_KEYWORDS)) return CATEGORY_META.BABY_CARE;
   if (matchesAny(combined, SUPPLEMENT_KEYWORDS)) return CATEGORY_META.SUPPLEMENT;
   if (matchesAny(combined, PERSONAL_CARE_KEYWORDS)) return CATEGORY_META.PERSONAL_CARE;
-  if (matchesAny(combined, HOUSEHOLD_KEYWORDS)) return CATEGORY_META.HOUSEHOLD;
 
   // If category slug explicitly says food-related
   const foodSlugs = [
@@ -109,7 +97,6 @@ export const CATEGORY_META: Record<ProductCategory, CategoryMeta> = {
     pillClass: "category-pill-food",
     showNutrition: true,
     showIngredientSafety: false,
-    showHouseholdSafety: false,
   },
   SUPPLEMENT: {
     category: "SUPPLEMENT",
@@ -118,7 +105,6 @@ export const CATEGORY_META: Record<ProductCategory, CategoryMeta> = {
     pillClass: "category-pill-supplement",
     showNutrition: true,
     showIngredientSafety: false,
-    showHouseholdSafety: false,
   },
   PERSONAL_CARE: {
     category: "PERSONAL_CARE",
@@ -127,16 +113,6 @@ export const CATEGORY_META: Record<ProductCategory, CategoryMeta> = {
     pillClass: "category-pill-care",
     showNutrition: false,
     showIngredientSafety: true,
-    showHouseholdSafety: false,
-  },
-  HOUSEHOLD: {
-    category: "HOUSEHOLD",
-    label: "Household",
-    emoji: "🧹",
-    pillClass: "category-pill-household",
-    showNutrition: false,
-    showIngredientSafety: false,
-    showHouseholdSafety: true,
   },
   BABY_CARE: {
     category: "BABY_CARE",
@@ -145,7 +121,6 @@ export const CATEGORY_META: Record<ProductCategory, CategoryMeta> = {
     pillClass: "category-pill-baby",
     showNutrition: false,
     showIngredientSafety: true,
-    showHouseholdSafety: false,
   },
   UNKNOWN: {
     category: "UNKNOWN",
@@ -154,6 +129,5 @@ export const CATEGORY_META: Record<ProductCategory, CategoryMeta> = {
     pillClass: "category-pill-unknown",
     showNutrition: false,
     showIngredientSafety: false,
-    showHouseholdSafety: false,
   },
 };
