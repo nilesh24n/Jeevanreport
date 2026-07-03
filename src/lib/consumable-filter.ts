@@ -76,8 +76,7 @@ const NON_CONSUMABLE_KEYWORDS = [
 
 export function isConsumableProduct(product: Product | null): boolean {
   if (!product) return false;
-  
-  const _category = (product.category || "").toLowerCase();
+  const category = (product.category || "").toLowerCase();
   const name = (product.name || "").toLowerCase();
   const brand = (product.brand || "").toLowerCase();
   const baseDescription = (product.baseDescription || "").toLowerCase();
@@ -117,8 +116,6 @@ export function getConsumableMessage(): string {
 
 export function isNonConsumableOrPersonalCare(product: Product | null): boolean {
   if (!product) return false;
-  
-  const _category = (product.category || "").toLowerCase();
   const name = (product.name || "").toLowerCase();
   const brand = (product.brand || "").toLowerCase();
   const baseDescription = (product.baseDescription || "").toLowerCase();
