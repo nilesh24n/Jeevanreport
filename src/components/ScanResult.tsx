@@ -79,6 +79,9 @@ export default function ScanResult({ product }: { product: Product }) {
     description: product.baseDescription,
   });
 
+  // Also block if classifier identifies it as Household
+  const isHousehold = catMeta.category === "HOUSEHOLD";
+
   // Rating and status calculations (only meaningful for food)
   const status = getProductStatus(body);
 
@@ -90,7 +93,7 @@ export default function ScanResult({ product }: { product: Product }) {
   const [showIngredients, setShowIngredients] = useState(false);
 
 
-  if (!isFood) {
+  if (!isFood || isHousehold) {
     // Non-consumable product - show only warning
     return (
       <div className="space-y-6">

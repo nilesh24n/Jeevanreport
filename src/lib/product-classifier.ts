@@ -11,6 +11,7 @@ export type ProductCategory =
   | "PERSONAL_CARE"
   | "SUPPLEMENT"
   | "BABY_CARE"
+  | "HOUSEHOLD"
   | "UNKNOWN";
 
 export interface CategoryMeta {
@@ -55,6 +56,9 @@ const SUPPLEMENT_KEYWORDS = [
 
 // ── Classifier ──────────────────────────────────────────────────────────────
 
+// Non-consumable category slugs — assigned by mapCategory in openfoodfacts.ts
+const HOUSEHOLD_CATEGORY_SLUGS = ["household", "cleaning", "toiletries", "personal-care"];
+
 function matchesAny(haystack: string, needles: string[]): boolean {
   const lower = haystack.toLowerCase();
   return needles.some((n) => lower.includes(n.toLowerCase()));
@@ -66,10 +70,15 @@ export function classifyProduct(opts: {
   categorySlug?: string;
   description?: string;
 }): CategoryMeta {
-  const combined = [opts.name, opts.brand ?? "", opts.categorySlug ?? "", opts.description ?? ""].join(" ");
+  const combined = [opts.name, opts.brand ?? "", opts.categorySlug ?? ""].join(" ");
+  // NOTE: description is intentionally excluded from combined to avoid false positives
+  // (e.g. "a household favourite" or "tide of flavour" in food descriptions).
 
-  // Strict hierarchy: Baby > Supplement > Personal Care > Food
+  // Strict hierarchy: Baby > Household (slug only) > Supplement > Personal Care > Food
   if (matchesAny(combined, BABY_CARE_KEYWORDS)) return CATEGORY_META.BABY_CARE;
+
+  // Household is detected ONLY via categorySlug — never via free-text keywords
+  if (opts.categorySlug && HOUSEHOLD_CATEGORY_SLUGS.includes(opts.categorySlug)) return CATEGORY_META.HOUSEHOLD;
   if (matchesAny(combined, SUPPLEMENT_KEYWORDS)) return CATEGORY_META.SUPPLEMENT;
   if (matchesAny(combined, PERSONAL_CARE_KEYWORDS)) return CATEGORY_META.PERSONAL_CARE;
 
@@ -121,6 +130,14 @@ export const CATEGORY_META: Record<ProductCategory, CategoryMeta> = {
     pillClass: "category-pill-baby",
     showNutrition: false,
     showIngredientSafety: true,
+  },
+  HOUSEHOLD: {
+    category: "HOUSEHOLD",
+    label: "Household",
+    emoji: "🏠",
+    pillClass: "category-pill-unknown",
+    showNutrition: false,
+    showIngredientSafety: false,
   },
   UNKNOWN: {
     category: "UNKNOWN",

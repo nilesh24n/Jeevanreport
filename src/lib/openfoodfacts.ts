@@ -33,13 +33,21 @@ function mapCategory(categoriesTags: string[]): string {
   if (!categoriesTags || !Array.isArray(categoriesTags)) return 'snacks';
   for (const tag of categoriesTags) {
     const t = tag.toLowerCase();
+    // Non-consumable categories — checked first so they are never misclassified as food
+    if (
+      t.includes('household') || t.includes('cleaning') || t.includes('detergent') ||
+      t.includes('laundry') || t.includes('dishwash') || t.includes('floor-cleaner') ||
+      t.includes('toilet-cleaner') || t.includes('bleach') || t.includes('disinfectant') ||
+      t.includes('fabric-softener') || t.includes('surface-cleaner') || t.includes('air-freshener')
+    ) return 'household';
+    if (t.includes('soap') || t.includes('shampoo') || t.includes('hygiene') || t.includes('cosmetic') || t.includes('personal-care') || t.includes('toiletries') || t.includes('dental') || t.includes('deodorant') || t.includes('skincare') || t.includes('haircare')) return 'toiletries';
+    if (t.includes('pet') || t.includes('dog') || t.includes('cat') || t.includes('animal')) return 'pet-food';
+    // Consumable categories
     if (t.includes('snack') || t.includes('biscuit') || t.includes('cookie') || t.includes('chip') || t.includes('confectionery') || t.includes('chocolate') || t.includes('sweet')) return 'snacks';
-    if (t.includes('noodle') || t.includes('pasta') || t.includes('instant') || t.includes('meal') || t.includes('ready-to-eat')) return 'instant-foods';
+    if (t.includes('noodle') || t.includes('pasta') || t.includes('instant') || t.includes('meal') || t.includes('ready-to-eat') || t.includes('cereal') || t.includes('grain') || t.includes('bread') || t.includes('rice') || t.includes('flour')) return 'instant-foods';
     if (t.includes('dairy') || t.includes('milk') || t.includes('yogurt') || t.includes('cheese') || t.includes('butter') || t.includes('cream')) return 'dairy';
     if (t.includes('beverage') || t.includes('drink') || t.includes('soda') || t.includes('juice') || t.includes('water') || t.includes('coffee') || t.includes('tea')) return 'drinks';
-    if (t.includes('pet') || t.includes('dog') || t.includes('cat') || t.includes('animal')) return 'pet-food';
     if (t.includes('supplement') || t.includes('medicine') || t.includes('health') || t.includes('vitamins') || t.includes('pharmacy')) return 'otc-health';
-    if (t.includes('soap') || t.includes('shampoo') || t.includes('hygiene') || t.includes('cosmetic') || t.includes('care') || t.includes('toilet')) return 'toiletries';
   }
   return 'snacks';
 }

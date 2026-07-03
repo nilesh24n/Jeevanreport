@@ -10,6 +10,14 @@ const CONSUMABLE_CATEGORIES = [
   "pet-food"
 ];
 
+// Categories that are explicitly NON-consumable
+const NON_CONSUMABLE_CATEGORIES = [
+  "household",
+  "toiletries",
+  "personal-care",
+  "cleaning",
+];
+
 // Keywords that indicate a product IS actually consumable (food/beverage)
 const CONSUMABLE_KEYWORDS = [
   // Meats & Proteins
@@ -69,26 +77,35 @@ const NON_CONSUMABLE_KEYWORDS = [
 export function isConsumableProduct(product: Product | null): boolean {
   if (!product) return false;
   
-  const category = (product.category || "").toLowerCase();
+  const _category = (product.category || "").toLowerCase();
   const name = (product.name || "").toLowerCase();
   const brand = (product.brand || "").toLowerCase();
   const baseDescription = (product.baseDescription || "").toLowerCase();
   const fullText = `${name} ${brand} ${baseDescription}`.toLowerCase();
   
-  // First, check if it clearly contains non-consumable keywords
-  // If it does, it's definitely not consumable
+  // 1. If the category is explicitly non-consumable, reject immediately
+  if (NON_CONSUMABLE_CATEGORIES.includes(category)) {
+    return false;
+  }
+
+  // 2. Check if it clearly contains non-consumable keywords in name/brand/description
   for (const keyword of NON_CONSUMABLE_KEYWORDS) {
     if (fullText.includes(keyword)) {
       return false;
     }
   }
   
-  // Check if it's in known consumable categories
+  // 3. Check if it's in known consumable categories
   if (CONSUMABLE_CATEGORIES.includes(category)) {
     return true;
   }
-  
 
+  // 4. If the name/brand/description strongly suggests it's food, allow it
+  for (const keyword of CONSUMABLE_KEYWORDS) {
+    if (fullText.includes(keyword)) {
+      return true;
+    }
+  }
   
   // If none of the above, it's not consumable
   return false;
@@ -101,7 +118,7 @@ export function getConsumableMessage(): string {
 export function isNonConsumableOrPersonalCare(product: Product | null): boolean {
   if (!product) return false;
   
-  const category = (product.category || "").toLowerCase();
+  const _category = (product.category || "").toLowerCase();
   const name = (product.name || "").toLowerCase();
   const brand = (product.brand || "").toLowerCase();
   const baseDescription = (product.baseDescription || "").toLowerCase();
