@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getProductById, products } from "@/lib/data/products";
 import { dbGetProductById, dbGetProductByBarcode } from "@/lib/db";
 import { getProductStatus } from "@/lib/nutrition-engine";
+import { classifyProduct } from "@/lib/product-classifier";
 import ProductDetailTabs from "@/components/ProductDetailTabs";
 import WatchlistButton from "@/components/WatchlistButton";
 import ProductJsonLd from "@/components/ProductJsonLd";
@@ -102,6 +103,15 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   // Rating and assessment calculations
   const status = getProductStatus(body);
+
+  // Classify product to check if it is a household product
+  const catMeta = classifyProduct({
+    name: product.name,
+    brand: product.brand,
+    categorySlug: product.category,
+    description: product.baseDescription,
+  });
+  const isHousehold = catMeta.category === "HOUSEHOLD";
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 space-y-6">
@@ -260,8 +270,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               {product.baseDescription}
             </p>
             <div className="flex items-center gap-2.5 pt-1">
-              <span className="text-xs font-bold text-slate-400 font-mono">Category: {product.category}</span>
-              <span className="text-slate-300">·</span>
+              {!isHousehold && (
+                <span className="text-xs font-bold text-slate-400 font-mono">Category: {product.category}</span>
+              )}
+              {!isHousehold && <span className="text-slate-300">·</span>}
               <span className="text-xs font-bold text-slate-400 font-mono">Pack size: {v.packSize}</span>
             </div>
           </section>
