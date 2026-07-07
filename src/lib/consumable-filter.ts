@@ -7,7 +7,14 @@ const CONSUMABLE_CATEGORIES = [
   "dairy",
   "instant-foods",
   "otc-health", // Over-the-counter health products (vitamins, supplements)
-  "pet-food"
+  "pet-food",
+  "spices",
+  "condiments",
+  "sauces",
+  "spreads",
+  "bakery",
+  "baking",
+  "groceries"
 ];
 
 // Categories that are explicitly NON-consumable
@@ -20,6 +27,8 @@ const NON_CONSUMABLE_CATEGORIES = [
 
 // Keywords that indicate a product IS actually consumable (food/beverage)
 const CONSUMABLE_KEYWORDS = [
+  // Culinary ingredients and herbs
+  "garlic", "onion", "ginger", "pepper", "chili", "chilly", "cumin", "mustard", "turmeric", "coriander", "cardamom", "clove", "cinnamon", "oregano", "basil", "thyme", "herb", "herbs", "spread", "jam", "jelly", "honey", "yeast",
   // Meats & Proteins
   "chicken", "beef", "pork", "turkey", "lamb", "meat", "sausage", "bacon", "ham", "fish", "salmon", "tuna", "shrimp", "crab", "ground beef", "steak", "drumstick",
   // Dairy & Cheese
@@ -30,6 +39,7 @@ const CONSUMABLE_KEYWORDS = [
   "vegetable", "fruit", "apple", "banana", "orange", "carrot", "lettuce", "broccoli", "tomato", "potato", "beans",
   // Beverages
   "tea", "coffee", "juice", "soda", "water", "beer", "wine", "cocoa", "chocolate milk", "lemonade", "smoothie",
+  "cola", "beverage", "drink", "soft drink", "energy drink", "fizzy", "can", "tonic", "shake", "milkshake", "syrup", "squash",
   // Condiments & Sauces
   "sauce", "ketchup", "mustard", "mayo", "oil", "vinegar", "pepper sauce", "salsa", "gravy",
   // Prepared Foods
@@ -50,7 +60,7 @@ const NON_CONSUMABLE_KEYWORDS = [
   "shampoo",
   "conditioner",
   "lotion",
-  "cream",
+  "face cream", "hand cream", "body cream", "skin cream", "shaving cream", "moisturizing cream", "night cream", "sunscreen cream",
   "makeup",
   "cosmetic",
   "personal care",
@@ -59,14 +69,14 @@ const NON_CONSUMABLE_KEYWORDS = [
   "bleach",
   "deodorant",
   "toothbrush",
-  "dental",
+  "dental care", "dental floss", "dental pick",
   "hair care",
   "body care",
   "bath",
   "perfume",
   "fragrance",
   "skincare",
-  "powder",
+  "baby powder", "talcum powder", "face powder", "dusting powder", "detergent powder", "washing powder",
   "toilet paper",
   "tissues",
   "paper towel",

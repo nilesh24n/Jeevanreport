@@ -31,17 +31,16 @@ const BABY_CARE_KEYWORDS = [
 ];
 
 const PERSONAL_CARE_KEYWORDS = [
-  "wash", "shampoo", "soap", "cream", "lotion", "paste", "gel", "scrub",
-  "moisturiser", "moisturizer", "conditioner", "serum", "toner", "face wash",
+  "shampoo", "soap", "lotion", "moisturiser", "moisturizer", "conditioner", "serum", "toner", "face wash",
   "body wash", "hand wash", "toothpaste", "mouthwash", "deodorant",
-  "antiperspirant", "sunscreen", "sunblock", "face cream", "hair oil",
+  "antiperspirant", "sunscreen", "sunblock", "face cream", "hand cream", "body cream", "skin cream", "shaving cream", "hair oil",
   "hair gel", "hair mask", "lip balm", "lip gloss", "foundation", "blush",
   "mascara", "kajal", "eyeliner", "nail polish", "sanitizer", "antiseptic",
   "dettol", "savlon", "lifebuoy", "dove", "himalaya", "nivea", "olay",
   "pond's", "ponds", "fair & lovely", "glow & lovely", "head & shoulders",
   "pantene", "sunsilk", "garnier", "l'oreal", "loreal", "clinic plus",
   "colgate", "pepsodent", "sensodyne", "listerine", "dabur", "patanjali",
-  "skin", "hair care", "personal care", "grooming", "beauty", "cosmetic",
+  "hair care", "personal care", "grooming", "beauty", "cosmetic",
 ];
 
 const SUPPLEMENT_KEYWORDS = [

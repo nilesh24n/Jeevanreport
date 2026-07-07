@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import type { ProductVersion } from "@/lib/types";
 import { computeEverydayAnalysis } from "@/lib/everyday-engine";
 import type { EverydayIngredientCard as EverydayIngCard } from "@/lib/everyday-engine";
+import type { ProductStatus } from "@/lib/nutrition-engine";
 
 // ─── Ingredient Card ───────────────────────────────────────────────────────────
 
@@ -83,29 +84,52 @@ function IngredientCard({ card }: { card: EverydayIngCard }) {
 
 // ─── Main Component ────────────────────────────────────────────────────────────
 
-export default function EverydayModePanel({ version }: { version: ProductVersion }) {
+export default function EverydayModePanel({
+  version,
+  status,
+}: {
+  version: ProductVersion;
+  status?: ProductStatus;
+}) {
   const everyday = useMemo(() => computeEverydayAnalysis(version), [version]);
+
+  // Use the top-level status color/label if provided, so both banners agree.
+  const resolvedColor: "green" | "yellow" | "red" = status
+    ? status.color === "orange" || status.color === "red"
+      ? "red"
+      : status.color === "yellow"
+      ? "yellow"
+      : "green"
+    : everyday.verdictColor;
+
+  const resolvedLabel = status
+    ? status.color === "red" || status.color === "orange"
+      ? "🔴 Be Careful — limit this product"
+      : status.color === "yellow"
+      ? "🟡 OK sometimes — not every day"
+      : "🟢 Good choice for daily use"
+    : everyday.verdictLabel;
 
   const verdictBg = {
     green: "from-emerald-50 to-emerald-100/50 border-emerald-200",
     yellow: "from-amber-50 to-amber-100/50 border-amber-200",
     red: "from-rose-50 to-rose-100/50 border-rose-200",
-  }[everyday.verdictColor];
+  }[resolvedColor];
 
   const verdictTextColor = {
     green: "text-emerald-800",
     yellow: "text-amber-800",
     red: "text-rose-800",
-  }[everyday.verdictColor];
+  }[resolvedColor];
 
   return (
     <div className="space-y-5">
-      {/* 1. Simple Verdict */}
+      {/* 1. Simple Verdict — consistent with top banner */}
       <div
         className={`rounded-2xl border-2 bg-gradient-to-br p-5 ${verdictBg}`}
       >
         <p className={`text-base font-black leading-snug ${verdictTextColor}`}>
-          {everyday.verdictLabel}
+          {resolvedLabel}
         </p>
       </div>
 

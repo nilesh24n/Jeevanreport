@@ -160,10 +160,12 @@ export default function ScanResult({ product }: { product: Product }) {
         
         <div className="flex-1 text-center md:text-left space-y-2">
           <div className="flex flex-wrap justify-center md:justify-start items-center gap-2 mb-1">
-            {/* Category badge */}
-            <span className={catMeta.pillClass}>
-              {catMeta.emoji} {catMeta.label}
-            </span>
+            {/* Category badge — hide for household products */}
+            {!isHousehold && (
+              <span className={catMeta.pillClass}>
+                {catMeta.emoji} {catMeta.label}
+              </span>
+            )}
           </div>
           <h1 className="text-2xl font-bold text-espresso leading-tight">{product.name}</h1>
           <p className="text-sm font-semibold text-espresso/50">{product.brand} · {product.manufacturer}</p>
@@ -202,7 +204,7 @@ export default function ScanResult({ product }: { product: Product }) {
         {scanMode === "gym" ? (
           <GymModePanel version={v} />
         ) : (
-          <EverydayModePanel version={v} />
+          <EverydayModePanel version={v} status={status} />
         )}
       </section>
 
