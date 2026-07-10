@@ -1,3 +1,5 @@
+import { CONSUMABLE_KEYWORDS, NON_CONSUMABLE_KEYWORDS } from "./consumable-filter";
+
 /**
  * Product Category Classifier
  *
@@ -56,7 +58,8 @@ const SUPPLEMENT_KEYWORDS = [
 // ── Classifier ──────────────────────────────────────────────────────────────
 
 // Non-consumable category slugs — assigned by mapCategory in openfoodfacts.ts
-const HOUSEHOLD_CATEGORY_SLUGS = ["household", "cleaning", "toiletries", "personal-care"];
+const HOUSEHOLD_CATEGORY_SLUGS = ["household", "cleaning"];
+const PERSONAL_CARE_CATEGORY_SLUGS = ["toiletries", "personal-care"];
 
 function matchesAny(haystack: string, needles: string[]): boolean {
   const lower = haystack.toLowerCase();
@@ -73,13 +76,42 @@ export function classifyProduct(opts: {
   // NOTE: description is intentionally excluded from combined to avoid false positives
   // (e.g. "a household favourite" or "tide of flavour" in food descriptions).
 
-  // Strict hierarchy: Baby > Household (slug only) > Supplement > Personal Care > Food
+  // Strict hierarchy: Baby > Supplement > Personal Care > Household (slug only) > Food
   if (matchesAny(combined, BABY_CARE_KEYWORDS)) return CATEGORY_META.BABY_CARE;
-
-  // Household is detected ONLY via categorySlug — never via free-text keywords
-  if (opts.categorySlug && HOUSEHOLD_CATEGORY_SLUGS.includes(opts.categorySlug)) return CATEGORY_META.HOUSEHOLD;
   if (matchesAny(combined, SUPPLEMENT_KEYWORDS)) return CATEGORY_META.SUPPLEMENT;
-  if (matchesAny(combined, PERSONAL_CARE_KEYWORDS)) return CATEGORY_META.PERSONAL_CARE;
+
+  // Personal Care is detected via categorySlug or keywords — but bypass if it is actually food
+  const isPersonalCareSlug = opts.categorySlug && PERSONAL_CARE_CATEGORY_SLUGS.includes(opts.categorySlug);
+  if (isPersonalCareSlug || matchesAny(combined, PERSONAL_CARE_KEYWORDS)) {
+    const lowerName = opts.name.toLowerCase();
+    const lowerBrand = (opts.brand ?? "").toLowerCase();
+    const lowerDesc = (opts.description ?? "").toLowerCase();
+    const fullText = `${lowerName} ${lowerBrand} ${lowerDesc}`;
+    
+    // Check if it's actually a food/beverage based on keywords
+    const isFood = CONSUMABLE_KEYWORDS.some(k => fullText.includes(k)) && 
+                   !NON_CONSUMABLE_KEYWORDS.some(k => fullText.includes(k));
+                   
+    if (!isFood) {
+      return CATEGORY_META.PERSONAL_CARE;
+    }
+  }
+
+  // Household is detected via categorySlug — but bypass if it is actually food
+  if (opts.categorySlug && HOUSEHOLD_CATEGORY_SLUGS.includes(opts.categorySlug)) {
+    const lowerName = opts.name.toLowerCase();
+    const lowerBrand = (opts.brand ?? "").toLowerCase();
+    const lowerDesc = (opts.description ?? "").toLowerCase();
+    const fullText = `${lowerName} ${lowerBrand} ${lowerDesc}`;
+    
+    // Check if it's actually a food/beverage based on keywords
+    const isFood = CONSUMABLE_KEYWORDS.some(k => fullText.includes(k)) && 
+                   !NON_CONSUMABLE_KEYWORDS.some(k => fullText.includes(k));
+                   
+    if (!isFood) {
+      return CATEGORY_META.HOUSEHOLD;
+    }
+  }
 
   // If category slug explicitly says food-related
   const foodSlugs = [

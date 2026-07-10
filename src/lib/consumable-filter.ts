@@ -26,7 +26,8 @@ const NON_CONSUMABLE_CATEGORIES = [
 ];
 
 // Keywords that indicate a product IS actually consumable (food/beverage)
-const CONSUMABLE_KEYWORDS = [
+// Keywords that indicate a product IS actually consumable (food/beverage)
+export const CONSUMABLE_KEYWORDS = [
   // Culinary ingredients and herbs
   "garlic", "onion", "ginger", "pepper", "chili", "chilly", "cumin", "mustard", "turmeric", "coriander", "cardamom", "clove", "cinnamon", "oregano", "basil", "thyme", "herb", "herbs", "spread", "jam", "jelly", "honey", "yeast",
   // Meats & Proteins
@@ -55,7 +56,7 @@ const CONSUMABLE_KEYWORDS = [
 ];
 
 // Non-consumable categories to exclude
-const NON_CONSUMABLE_KEYWORDS = [
+export const NON_CONSUMABLE_KEYWORDS = [
   "soap",
   "shampoo",
   "conditioner",
@@ -81,7 +82,43 @@ const NON_CONSUMABLE_KEYWORDS = [
   "tissues",
   "paper towel",
   "laundry",
-  "dish soap"
+  "dish soap",
+  "dishwash",
+  "cleaner",
+  "disinfectant",
+  "softener",
+  "freshener",
+  "toner",
+  "serum",
+  "moisturiser",
+  "moisturizer",
+  "face wash", "body wash", "hand wash",
+  "facewash", "bodywash", "handwash",
+  "toothpaste",
+  "mouthwash",
+  "antiperspirant",
+  "sunscreen",
+  "sunblock",
+  "hair oil",
+  "hair gel",
+  "hair mask",
+  "lip balm",
+  "lip gloss",
+  "foundation",
+  "blush",
+  "mascara",
+  "kajal",
+  "eyeliner",
+  "nail polish",
+  "sanitizer",
+  "antiseptic",
+  "cleanser",
+  "scrub",
+  "wash",
+  "tonique",
+  "mist",
+  "toiletries",
+  "shower gel"
 ];
 
 export function isConsumableProduct(product: Product | null): boolean {
@@ -92,28 +129,30 @@ export function isConsumableProduct(product: Product | null): boolean {
   const baseDescription = (product.baseDescription || "").toLowerCase();
   const fullText = `${name} ${brand} ${baseDescription}`.toLowerCase();
   
-  // 1. If the category is explicitly non-consumable, reject immediately
-  if (NON_CONSUMABLE_CATEGORIES.includes(category)) {
-    return false;
-  }
-
-  // 2. Check if it clearly contains non-consumable keywords in name/brand/description
+  // 1. Check if it clearly contains non-consumable keywords in name/brand/description
+  // Reject early to avoid false positive matches on foods
   for (const keyword of NON_CONSUMABLE_KEYWORDS) {
     if (fullText.includes(keyword)) {
       return false;
     }
   }
   
-  // 3. Check if it's in known consumable categories
-  if (CONSUMABLE_CATEGORIES.includes(category)) {
-    return true;
-  }
-
-  // 4. If the name/brand/description strongly suggests it's food, allow it
+  // 2. Check if the name/brand/description strongly suggests it's food/beverage
+  // If so, allow it (this handles misclassified categories in the database like "household" chicken)
   for (const keyword of CONSUMABLE_KEYWORDS) {
     if (fullText.includes(keyword)) {
       return true;
     }
+  }
+  
+  // 3. If the category is explicitly non-consumable, reject
+  if (NON_CONSUMABLE_CATEGORIES.includes(category)) {
+    return false;
+  }
+  
+  // 4. Check if it's in known consumable categories
+  if (CONSUMABLE_CATEGORIES.includes(category)) {
+    return true;
   }
   
   // If none of the above, it's not consumable
