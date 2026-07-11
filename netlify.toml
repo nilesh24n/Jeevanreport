@@ -9,6 +9,11 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+[[redirects]]
+  from = "/api/product/:id"
+  to = "/api/products/:id"
+  status = 200
+
 [dev]
   command = "npm run dev"
   port = 3000
