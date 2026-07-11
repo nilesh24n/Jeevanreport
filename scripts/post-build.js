@@ -18,7 +18,12 @@ function deleteFolderRecursive(directoryPath) {
 }
 
 function main() {
-  // 1. Delete products.db from standalone output if it exists (as a safety fallback)
+  // When running on Netlify, skip cache deletion — the @netlify/plugin-nextjs
+  // plugin runs its onPostBuild AFTER this script and needs .next/cache intact.
+  // Only delete products.db (3GB+) to prevent deploy bloat.
+  const isNetlify = process.env.NETLIFY === "true";
+
+  // 1. Delete products.db from standalone output if it exists
   const dbPath = path.join(process.cwd(), ".next", "standalone", "products.db");
   if (fs.existsSync(dbPath)) {
     console.log(`Found ${dbPath} (3GB+). Deleting to prevent deployment bloat...`);
@@ -26,12 +31,17 @@ function main() {
     console.log("✓ Successfully deleted products.db from standalone output.");
   }
 
-  // 2. Delete Next.js build cache from output
-  const cachePath = path.join(process.cwd(), ".next", "cache");
-  if (fs.existsSync(cachePath)) {
-    console.log(`Found ${cachePath} (200MB+). Deleting build cache to prevent Netlify upload size issues...`);
-    deleteFolderRecursive(cachePath);
-    console.log("✓ Successfully deleted Next.js cache from build output.");
+  // 2. Delete Next.js build cache — ONLY when NOT on Netlify.
+  // On Netlify, the plugin-nextjs needs .next/cache for its onPostBuild step.
+  if (!isNetlify) {
+    const cachePath = path.join(process.cwd(), ".next", "cache");
+    if (fs.existsSync(cachePath)) {
+      console.log(`Found ${cachePath} (200MB+). Deleting build cache (local only)...`);
+      deleteFolderRecursive(cachePath);
+      console.log("✓ Successfully deleted Next.js cache from build output.");
+    }
+  } else {
+    console.log("Running on Netlify — skipping cache deletion so plugin-nextjs can complete onPostBuild.");
   }
 }
 

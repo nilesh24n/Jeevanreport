@@ -132,7 +132,7 @@ export function isConsumableProduct(product: Product | null): boolean {
   const brand = (product.brand || "").toLowerCase();
   const baseDescription = (product.baseDescription || "").toLowerCase();
   const fullText = `${name} ${brand} ${baseDescription}`.toLowerCase();
-  
+
   // 1. Check if it clearly contains non-consumable keywords in name/brand/description
   // Reject early to avoid false positive matches on foods
   for (const keyword of NON_CONSUMABLE_KEYWORDS) {
@@ -140,7 +140,7 @@ export function isConsumableProduct(product: Product | null): boolean {
       return false;
     }
   }
-  
+
   // 2. Check if the name/brand/description strongly suggests it's food/beverage
   // If so, allow it (this handles misclassified categories in the database like "household" chicken)
   for (const keyword of CONSUMABLE_KEYWORDS) {
@@ -148,17 +148,17 @@ export function isConsumableProduct(product: Product | null): boolean {
       return true;
     }
   }
-  
+
   // 3. If the category is explicitly non-consumable, reject
   if (NON_CONSUMABLE_CATEGORIES.includes(category)) {
     return false;
   }
-  
+
   // 4. Check if it's in known consumable categories
   if (CONSUMABLE_CATEGORIES.includes(category)) {
     return true;
   }
-  
+
   // If none of the above, it's not consumable
   return false;
 }
@@ -173,15 +173,15 @@ export function isNonConsumableOrPersonalCare(product: Product | null): boolean 
   const brand = (product.brand || "").toLowerCase();
   const baseDescription = (product.baseDescription || "").toLowerCase();
   const fullText = `${name} ${brand} ${baseDescription}`.toLowerCase();
-  
+
   // Check if it contains non-consumable keywords
   for (const keyword of NON_CONSUMABLE_KEYWORDS) {
     if (fullText.includes(keyword)) {
       return true; // This is a non-consumable item
     }
   }
-  
 
-  
+
+
   return false;
 }
