@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "./globals.css";
 import { Inter, Fraunces } from "next/font/google";
 import Script from "next/script";
 import Header from "@/components/Header";
@@ -9,7 +10,6 @@ import FirstVisitBanner from "@/components/FirstVisitBanner";
 import CommandPalette from "@/components/CommandPalette";
 import { ToastProvider } from "@/components/Toast";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
-import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const fraunces = Fraunces({
@@ -88,7 +88,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `}
         </Script>
         <Script id="sw-register" strategy="afterInteractive">
-          {`if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js'); }`}
+          {`
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                registrations.forEach(function(reg) {
+                  reg.unregister();
+                });
+              });
+              navigator.serviceWorker.register('/sw.js').catch(function(err) {
+                console.log('SW error:', err);
+              });
+            }
+          `}
         </Script>
       </body>
     </html>
