@@ -105,7 +105,7 @@ export default function ShrinkflationApiPanel({ productId, initialProduct }: Shr
           {hasPackChanges ? (
             <div className="space-y-3">
               {product.packSizeChanges.map((c: PackSizeChange, idx: number) => (
-                <div key={idx} className="rounded-xl border border-slate-155 p-2 bg-white shadow-sm hover:border-slate-300 transition-colors">
+                <div key={idx} className="rounded-xl border border-slate-100 p-2 bg-white shadow-sm hover:border-slate-300 transition-colors">
                   <ShrinkflationComparison
                     productName={product.name}
                     imageUrl={product.imageUrl}

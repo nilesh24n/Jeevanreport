@@ -311,19 +311,21 @@ export default function ScanResult({ product }: { product: Product }) {
       <section className="card p-0 overflow-hidden border border-latte shadow-card">
         <button 
           onClick={() => setShowNutrition(!showNutrition)}
-          className="w-full flex items-center justify-between p-6 text-left hover:bg-brand-50/10 transition-colors focus:outline-none"
+          aria-expanded={showNutrition}
+          aria-controls="nutrition-details-panel"
+          className="w-full flex items-center justify-between p-6 text-left hover:bg-brand-50/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <div>
             <h2 className="text-lg font-bold text-espresso">Detailed Nutrition Facts</h2>
             <p className="text-xs text-espresso/30 font-medium mt-0.5">Serving sizes, macros and % daily values</p>
           </div>
-          <span className="text-base text-brand-600 font-bold transition-transform duration-300 flex items-center gap-1">
+          <span className="text-base text-brand-600 font-bold transition-transform duration-300 flex items-center gap-1" aria-hidden="true">
             {showNutrition ? "Hide ▴" : "Show ▾"}
           </span>
         </button>
 
         {showNutrition && (
-          <div className="p-6 border-t border-latte space-y-6 bg-brand-50/5">
+          <div id="nutrition-details-panel" className="p-6 border-t border-latte space-y-6 bg-brand-50/5">
             <div className="flex flex-col md:flex-row gap-6 justify-center items-start">
               <div className="w-full max-w-xs mx-auto md:mx-0 flex-shrink-0">
                 <NutritionLabel nutrition={n} version={v} />
@@ -353,19 +355,21 @@ export default function ScanResult({ product }: { product: Product }) {
       <section className="card p-0 overflow-hidden border border-slate-100 shadow-card">
         <button 
           onClick={() => setShowIngredients(!showIngredients)}
-          className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50/50 transition-colors focus:outline-none"
+          aria-expanded={showIngredients}
+          aria-controls="ingredients-details-panel"
+          className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <div>
             <h2 className="text-lg font-bold text-slate-900">Ingredients & Additives Log</h2>
             <p className="text-xs text-slate-400 font-medium mt-0.5">Complexity index, simplified labels, and allergen details</p>
           </div>
-          <span className="text-base text-brand-600 font-bold transition-transform duration-300 flex items-center gap-1">
+          <span className="text-base text-brand-600 font-bold transition-transform duration-300 flex items-center gap-1" aria-hidden="true">
             {showIngredients ? "Hide ▴" : "Show ▾"}
           </span>
         </button>
 
         {showIngredients && (
-          <div className="p-6 border-t border-slate-100 space-y-4 bg-slate-50/10">
+          <div id="ingredients-details-panel" className="p-6 border-t border-slate-100 space-y-4 bg-slate-50/10">
             <div className="space-y-1">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Full Ingredients text</h3>
               <p className="text-sm text-slate-700 leading-relaxed font-medium bg-white rounded-xl p-4 border border-slate-100 shadow-sm">

@@ -29,28 +29,111 @@ function getNutritionFlags(bodyImpact: any): string[] {
   return badges;
 }
 
-function mapCategory(categoriesTags: string[]): string {
-  if (!categoriesTags || !Array.isArray(categoriesTags)) return 'snacks';
-  for (const tag of categoriesTags) {
-    const t = tag.toLowerCase();
+// ── Hardcoded barcode overrides for known misclassified products ──────────────
+const BARCODE_CATEGORY_OVERRIDES: Record<string, string> = {
+  // Coca-Cola variants
+  "5449000107664": "drinks",
+  "5449000000996": "drinks",
+  "5449000054227": "drinks",
+  "5449000131836": "drinks",
+  "04963406": "drinks",
+  // Pepsi
+  "012000001215": "drinks",
+  // Sprite
+  "5449000148582": "drinks",
+  // Fanta
+  "5449000058867": "drinks",
+  // Red Bull
+  "9002490100070": "drinks",
+  // Common Indian barcodes
+  "8901058800023": "instant-foods", // Maggi
+  "8901058002478": "instant-foods", // Maggi Masala
+  "8901030944014": "snacks",         // Parle-G
+  "8901719110252": "dairy",          // Amul Butter
+  "8906002650060": "snacks",         // Kurkure
+};
+
+// ── pnns_groups_1 → internal category slug ────────────────────────────────────
+const PNNS_TO_SLUG: Record<string, string> = {
+  "beverages": "drinks",
+  "milk and dairy products": "dairy",
+  "cereals and potatoes": "instant-foods",
+  "sugary snacks": "snacks",
+  "salty snacks": "snacks",
+  "fruits and vegetables": "instant-foods",
+  "fish meat eggs": "instant-foods",
+  "fat and sauces": "condiments",
+  "composite foods": "instant-foods",
+  "unknown": "packaged-food",
+};
+
+function mapCategory(raw: {
+  categories_tags?: string[];
+  pnns_groups_1?: string;
+  pnns_groups_2?: string;
+  barcode?: string;
+}): string {
+  const categoriesTags: string[] = raw.categories_tags || [];
+
+  // 0. Hardcoded barcode override — highest priority
+  if (raw.barcode && BARCODE_CATEGORY_OVERRIDES[raw.barcode]) {
+    return BARCODE_CATEGORY_OVERRIDES[raw.barcode];
+  }
+
+  // 1. Use pnns_groups_1 — Open Food Facts' most reliable category field
+  if (raw.pnns_groups_1) {
+    const pnns = raw.pnns_groups_1.toLowerCase().trim();
+    if (pnns && pnns !== "unknown") {
+      // Direct slug lookup
+      const slug = PNNS_TO_SLUG[pnns];
+      if (slug) return slug;
+      // Fallback fuzzy match on pnns_groups_1
+      if (pnns.includes("beverage") || pnns.includes("drink") || pnns.includes("water") || pnns.includes("juice") || pnns.includes("soda") || pnns.includes("cola")) return "drinks";
+      if (pnns.includes("dairy") || pnns.includes("milk")) return "dairy";
+      if (pnns.includes("snack") || pnns.includes("biscuit") || pnns.includes("sweet") || pnns.includes("confection")) return "snacks";
+      if (pnns.includes("cereal") || pnns.includes("grain") || pnns.includes("pasta") || pnns.includes("noodle") || pnns.includes("bread")) return "instant-foods";
+    }
+  }
+
+  // 2. Use pnns_groups_2 as secondary
+  if (raw.pnns_groups_2) {
+    const pnns2 = raw.pnns_groups_2.toLowerCase().trim();
+    if (pnns2.includes("soda") || pnns2.includes("cola") || pnns2.includes("carbonated") || pnns2.includes("beverage") || pnns2.includes("juice") || pnns2.includes("water")) return "drinks";
+    if (pnns2.includes("yogurt") || pnns2.includes("cheese") || pnns2.includes("milk")) return "dairy";
+  }
+
+  // 3. Fall back to categories_tags — clean "en:" prefix before matching
+  if (!Array.isArray(categoriesTags) || categoriesTags.length === 0) {
+    return "packaged-food"; // neutral fallback — not "snacks"
+  }
+
+  for (const rawTag of categoriesTags) {
+    // Clean language prefix: "en:beverages" → "beverages", "fr:boissons" → "boissons"
+    const t = rawTag.toLowerCase().replace(/^[a-z]{2}:/, "").trim();
+
     // Non-consumable categories — checked first so they are never misclassified as food
     if (
-      t.includes('household') || t.includes('cleaning') || t.includes('detergent') ||
-      t.includes('laundry') || t.includes('dishwash') || t.includes('floor-cleaner') ||
-      t.includes('toilet-cleaner') || t.includes('bleach') || t.includes('disinfectant') ||
-      t.includes('fabric-softener') || t.includes('surface-cleaner') || t.includes('air-freshener')
-    ) return 'household';
-    if (t.includes('soap') || t.includes('shampoo') || t.includes('hygiene') || t.includes('cosmetic') || t.includes('personal-care') || t.includes('toiletries') || t.includes('dental') || t.includes('deodorant') || t.includes('skincare') || t.includes('haircare')) return 'toiletries';
-    if (t.includes('pet') || t.includes('dog') || t.includes('cat') || t.includes('animal')) return 'pet-food';
-    // Consumable categories
-    if (t.includes('snack') || t.includes('biscuit') || t.includes('cookie') || t.includes('chip') || t.includes('confectionery') || t.includes('chocolate') || t.includes('sweet')) return 'snacks';
-    if (t.includes('noodle') || t.includes('pasta') || t.includes('instant') || t.includes('meal') || t.includes('ready-to-eat') || t.includes('cereal') || t.includes('grain') || t.includes('bread') || t.includes('rice') || t.includes('flour')) return 'instant-foods';
-    if (t.includes('dairy') || t.includes('milk') || t.includes('yogurt') || t.includes('cheese') || t.includes('butter') || t.includes('cream')) return 'dairy';
-    if (t.includes('beverage') || t.includes('drink') || t.includes('soda') || t.includes('juice') || t.includes('water') || t.includes('coffee') || t.includes('tea')) return 'drinks';
-    if (t.includes('supplement') || t.includes('medicine') || t.includes('health') || t.includes('vitamins') || t.includes('pharmacy')) return 'otc-health';
+      t.includes("household") || t.includes("cleaning") || t.includes("detergent") ||
+      t.includes("laundry") || t.includes("dishwash") || t.includes("floor-cleaner") ||
+      t.includes("toilet-cleaner") || t.includes("bleach") || t.includes("disinfectant") ||
+      t.includes("fabric-softener") || t.includes("surface-cleaner") || t.includes("air-freshener")
+    ) return "household";
+
+    if (t.includes("soap") || t.includes("shampoo") || t.includes("hygiene") || t.includes("cosmetic") || t.includes("personal-care") || t.includes("toiletries") || t.includes("dental") || t.includes("deodorant") || t.includes("skincare") || t.includes("haircare")) return "toiletries";
+    if (t.includes("pet") || t.includes("dog") || t.includes("cat") || t.includes("animal")) return "pet-food";
+
+    // Consumable categories — beverages BEFORE snacks
+    if (t.includes("beverage") || t.includes("drink") || t.includes("soda") || t.includes("juice") || t.includes("water") || t.includes("coffee") || t.includes("tea") || t.includes("cola") || t.includes("carbonated") || t.includes("smoothie") || t.includes("energy-drink") || t.includes("mineral-water") || t.includes("soft-drink") || t.includes("lemonade")) return "drinks";
+    if (t.includes("dairy") || t.includes("milk") || t.includes("yogurt") || t.includes("cheese") || t.includes("butter") || t.includes("cream")) return "dairy";
+    if (t.includes("snack") || t.includes("biscuit") || t.includes("cookie") || t.includes("chip") || t.includes("confectionery") || t.includes("chocolate") || t.includes("sweet")) return "snacks";
+    if (t.includes("noodle") || t.includes("pasta") || t.includes("instant") || t.includes("meal") || t.includes("ready-to-eat") || t.includes("cereal") || t.includes("grain") || t.includes("bread") || t.includes("rice") || t.includes("flour")) return "instant-foods";
+    if (t.includes("supplement") || t.includes("medicine") || t.includes("health") || t.includes("vitamins") || t.includes("pharmacy")) return "otc-health";
   }
-  return 'snacks';
+
+  // 4. Final fallback — neutral, not "snacks"
+  return "packaged-food";
 }
+
 
 function parseQuantity(qtyStr: string) {
   if (!qtyStr) return { value: 100, unit: 'g' };
@@ -129,7 +212,12 @@ export async function fetchProductFromOpenFoodFacts(barcode: string): Promise<Pr
     const ingredientsText = raw.ingredients_text || raw.ingredients_text_en || '';
     const nutriments = raw.nutriments || {};
     const brand = raw.brands ? String(raw.brands).split(',')[0].trim() : 'Generic';
-    const category = mapCategory(raw.categories_tags || []);
+    const category = mapCategory({
+      categories_tags: raw.categories_tags,
+      pnns_groups_1: raw.pnns_groups_1,
+      pnns_groups_2: raw.pnns_groups_2,
+      barcode: clean,
+    });
     const countries = raw.countries || 'Unknown';
     const imageUrl = raw.image_front_url || raw.image_url || `https://placehold.co/400x400/fffbeb/d97706?text=${encodeURIComponent(name.slice(0,15))}`;
     

@@ -75,7 +75,7 @@ export default function LiveSearch({ initialQuery = "" }: { initialQuery?: strin
 
       <div className="card grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 bg-slate-50/50">
         <div>
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-450 text-slate-500">Country</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Country</label>
           <select className="input-field mt-1.5" value={country} onChange={(e) => setCountry(e.target.value)}>
             <option value="">All countries</option>
             {countries.map((c) => <option key={c} value={c}>{c}</option>)}

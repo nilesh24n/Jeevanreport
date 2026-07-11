@@ -19,6 +19,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://jeevanreport.in"),
   title: "Jeevanreport — Scan products. Know the truth.",
   description:
     "India's premier barcode-based nutrition, ingredient, and shrinkflation intelligence platform. Scan products, know the truth, and track package size changes.",
@@ -27,6 +28,33 @@ export const metadata: Metadata = {
     capable: true,
     title: "Jeevanreport",
     statusBarStyle: "default",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://jeevanreport.in",
+    siteName: "Jeevanreport",
+    title: "Jeevanreport — Scan products. Know the truth.",
+    description:
+      "India's premier barcode-based nutrition, ingredient, and shrinkflation intelligence platform. Scan products, know the truth, and track package size changes.",
+    images: [
+      {
+        url: "/icon-512.png",
+        width: 512,
+        height: 512,
+        alt: "Jeevanreport — India's Product Transparency Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Jeevanreport — Scan products. Know the truth.",
+    description:
+      "India's premier barcode-based nutrition, ingredient, and shrinkflation intelligence platform.",
+    images: ["/icon-512.png"],
+  },
+  alternates: {
+    canonical: "https://jeevanreport.in",
   },
 };
 

@@ -159,9 +159,19 @@ export default function BarcodeScanner({ onDetected }: { onDetected?: (code: str
           // Start ambient light sensing
           startAmbientLightSensor();
         }
-      } catch {
+      } catch (err: unknown) {
         if (!cancelled) {
-          setError("Camera access unavailable. Use manual entry or upload instead.");
+          // Distinguish between permission denied and other camera errors
+          const errorName = err instanceof Error ? err.name : "";
+          if (errorName === "NotAllowedError" || errorName === "PermissionDeniedError") {
+            setError(
+              "Camera access denied. Please allow camera access in your browser settings, then refresh this page. Alternatively, enter the barcode manually below."
+            );
+          } else if (errorName === "NotFoundError" || errorName === "DevicesNotFoundError") {
+            setError("No camera found on this device. Please enter the barcode manually below.");
+          } else {
+            setError("Camera unavailable. Please enter the barcode manually below.");
+          }
           setScanning(false);
         }
       }

@@ -2,8 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Google Fonts ─────────────────────────────────────────────────── */
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600&display=swap");
+/* ── Fonts are loaded via next/font/google in layout.tsx (SSR-safe). ──
+   No @import needed here — duplicate @import was causing FOUC and CSS
+   parse failures when navigating from Google Search referrals. ──── */
 
 /* ── CSS Custom Properties — Mocha Mousse 2025 ─────────────────────── */
 :root {

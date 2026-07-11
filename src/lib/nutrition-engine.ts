@@ -15,6 +15,8 @@ function level(value: number, low: number, high: number): NutritionLevel {
 }
 
 function satietyScore(n: NutritionFacts): SatietyLabel {
+  // Guard: avoid division by zero when no calorie data is available
+  if (!n.caloriesPerServing || n.caloriesPerServing === 0) return "Moderately filling";
   const proteinPer100cal = (n.protein / n.caloriesPerServing) * 100;
   const fiberPer100cal = (n.fiber / n.caloriesPerServing) * 100;
   const score = proteinPer100cal * 2 + fiberPer100cal * 3 - (n.sugar / n.caloriesPerServing) * 50;

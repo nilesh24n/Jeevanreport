@@ -51,37 +51,36 @@ function ScanContent() {
     }
 
     // Otherwise fetch from database API
-    fetch(`/api/products?barcode=${encodeURIComponent(barcodeParam)}`)
-      .then((res) => {
+    // Fetch via async/await to handle intermediate failures correctly
+    (async () => {
+      try {
+        const res = await fetch(`/api/products?barcode=${encodeURIComponent(barcodeParam)}`);
         if (!res.ok) throw new Error("Failed to fetch product");
-        return res.json();
-      })
-      .then((data) => {
-        if (data.products && data.products.length > 0) {
-          // Fetch full product details
-          const firstProduct = data.products[0];
-          return fetch(`/api/products/${firstProduct.id}`).then((res) => {
-            if (!res.ok) throw new Error("Failed to fetch full product details");
-            return res.json();
-          });
-        } else {
+        const data = await res.json();
+
+        if (!data.products || data.products.length === 0) {
+          // No product found in DB — show not found
           setProduct(null);
           setError(true);
           setLoading(false);
+          return;
         }
-      })
-      .then((fullProduct) => {
-        if (fullProduct) {
-          setProduct(fullProduct);
-        }
+
+        // Fetch full product details by ID
+        const firstProduct = data.products[0];
+        const detailRes = await fetch(`/api/products/${firstProduct.id}`);
+        if (!detailRes.ok) throw new Error("Failed to fetch full product details");
+        const fullProduct = await detailRes.json();
+
+        setProduct(fullProduct);
         setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error(err);
         setProduct(null);
         setError(true);
         setLoading(false);
-      });
+      }
+    })();
   }, [barcodeParam]);
 
   if (barcodeParam && loading) {

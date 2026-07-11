@@ -4,7 +4,7 @@ import { getAllBrands } from "@/lib/brands";
 import { ingredientGlossary } from "@/lib/ingredient-glossary";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://jeevanreport.org";
+  const base = "https://jeevanreport.in";
 
   const staticPages = [
     "", "scan", "search", "products", "countries", "brands", "ingredients", "compare", "submit", "methodology",
