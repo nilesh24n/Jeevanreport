@@ -1,10 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
-  outputFileTracingExcludes: {
-    "*": ["**/products.db"],
-  },
+  // NOTE: Do NOT set output: "standalone" — it conflicts with @netlify/plugin-nextjs v5
+  // which uses OpenNext and manages its own output format internally.
   images: {
     unoptimized: true,
     remotePatterns: [
