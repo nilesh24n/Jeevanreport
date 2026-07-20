@@ -150,7 +150,18 @@ export default function ScanResult({ product }: { product: Product }) {
           </button>
         </div>
       </div>
-      <ScanTracker productId={product.id} name={product.name} barcode={product.barcode} />
+      <ScanTracker
+        productId={product.id}
+        name={product.name}
+        barcode={product.barcode}
+        rating={
+          status.rating === "Good"
+            ? "Good"
+            : status.rating === "Okay" || status.color === "orange"
+            ? "Careful"
+            : "Limit"
+        }
+      />
 
       {/* 1. Simple, Color-Coded Verdict Banner */}
       <section className={`card border-2 flex flex-col md:flex-row items-center gap-6 p-6 ${getRatingCardClass(status.color)}`}>

@@ -10,6 +10,7 @@ import FirstVisitBanner from "@/components/FirstVisitBanner";
 import CommandPalette from "@/components/CommandPalette";
 import { ToastProvider } from "@/components/Toast";
 import PwaInstallPrompt from "@/components/PwaInstallPrompt";
+import { LanguageProvider } from "@/components/LanguageContext";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const fraunces = Fraunces({
@@ -24,6 +25,10 @@ export const metadata: Metadata = {
   description:
     "India's premier barcode-based nutrition, ingredient, and shrinkflation intelligence platform. Scan products, know the truth, and track package size changes.",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon-192.png",
+  },
   appleWebApp: {
     capable: true,
     title: "Jeevanreport",
@@ -62,6 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={`${inter.variable} ${fraunces.variable} font-sans bg-canvas text-espresso`}>
+        <LanguageProvider>
         <ToastProvider>
           <Header />
           <FirstVisitBanner />
@@ -72,6 +78,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <PwaInstallPrompt />
           <Footer />
         </ToastProvider>
+        </LanguageProvider>
         {/* Google Analytics 4 */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-GBVS13HWSL"

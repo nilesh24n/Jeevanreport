@@ -18,8 +18,28 @@ export default function LiveSearch({ initialQuery = "" }: { initialQuery?: strin
 
   const [results, setResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsOffline(!navigator.onLine);
+      const handleOnline = () => setIsOffline(false);
+      const handleOffline = () => setIsOffline(true);
+      window.addEventListener("online", handleOnline);
+      window.addEventListener("offline", handleOffline);
+      return () => {
+        window.removeEventListener("online", handleOnline);
+        window.removeEventListener("offline", handleOffline);
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isOffline) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     
     const params = new URLSearchParams();
@@ -31,24 +51,66 @@ export default function LiveSearch({ initialQuery = "" }: { initialQuery?: strin
     if (brand.trim()) params.set("brand", brand.trim());
     if (minTrustScore) params.set("minTrustScore", minTrustScore.toString());
 
+    const cacheKey = `jr_search_cache_${params.toString()}`;
+
+    // Check localStorage cache (1 hour lifetime)
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const { timestamp, data } = JSON.parse(cached);
+        if (Date.now() - timestamp < 3600000) { // 1 hour in ms
+          setResults(data);
+          setLoading(false);
+          return;
+        }
+      }
+    } catch {
+      // silent
+    }
+
     const timer = setTimeout(() => {
-      fetch(`/api/products?${params.toString()}`)
-        .then((res) => {
-          if (!res.ok) throw new Error("Search failed");
-          return res.json();
-        })
-        .then((data) => {
-          setResults(data.products || []);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.error(err);
-          setLoading(false);
-        });
+      let attempts = 0;
+      const maxAttempts = 3;
+
+      async function doFetch() {
+        while (attempts < maxAttempts) {
+          attempts++;
+          try {
+            const res = await fetch(`/api/products?${params.toString()}`);
+            if (!res.ok) throw new Error("Search failed");
+            const data = await res.json();
+            
+            const fetchedResults = data.products || [];
+            setResults(fetchedResults);
+            setLoading(false);
+
+            // Save to cache
+            try {
+              localStorage.setItem(
+                cacheKey,
+                JSON.stringify({ timestamp: Date.now(), data: fetchedResults })
+              );
+            } catch {
+              // silent
+            }
+            return;
+          } catch (err) {
+            if (attempts >= maxAttempts) {
+              console.error(err);
+              setLoading(false);
+            } else {
+              // Exponential backoff
+              await new Promise((r) => setTimeout(r, 200 * Math.pow(2, attempts - 1)));
+            }
+          }
+        }
+      }
+
+      doFetch();
     }, 300); // 300ms debounce to prevent spamming queries
 
     return () => clearTimeout(timer);
-  }, [query, country, category, nutritionFlag, changeType, brand, minTrustScore]);
+  }, [query, country, category, nutritionFlag, changeType, brand, minTrustScore, isOffline]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -60,6 +122,12 @@ export default function LiveSearch({ initialQuery = "" }: { initialQuery?: strin
 
   return (
     <div className="space-y-6">
+      {isOffline && (
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm font-semibold text-rose-800 flex items-center gap-2">
+          <span>📶</span>
+          <span>You appear to be offline. Please check your connection.</span>
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="flex w-full flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <input

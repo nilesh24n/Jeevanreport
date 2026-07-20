@@ -40,17 +40,30 @@ export default function ProductDetailTabs({ product }: { product: Product }) {
 
   return (
     <div className="mt-6">
-      <div className="flex overflow-x-auto border-b border-slate-200 gap-1 pb-px">
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            onClick={() => setActive(tab)}
-            className={`whitespace-nowrap px-3 py-2 text-sm ${active === tab ? "tab-active" : "tab-inactive"}`}
-          >
-            {tab}
-          </button>
-        ))}
+      <div className="relative">
+        <div className="flex overflow-x-auto border-b border-slate-200 gap-1 pb-px scrollbar-hide">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActive(tab)}
+              className={`whitespace-nowrap px-3.5 py-3 text-sm font-semibold min-h-[44px] ${active === tab ? "tab-active" : "tab-inactive"}`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+        {/* Mobile scroll indicator dots */}
+        <div className="flex justify-center gap-1.5 mt-2 sm:hidden pb-1">
+          {tabs.map((tab) => (
+            <span
+              key={tab}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                active === tab ? "bg-brand-650 bg-brand-600 w-3" : "bg-slate-300 w-1.5"
+              }`}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="mt-6">

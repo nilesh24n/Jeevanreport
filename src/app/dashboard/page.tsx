@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import Badge from "@/components/Badge";
+import ProductImage from "@/components/ProductImage";
 import AlertPreferencesPanel from "@/components/AlertPreferences";
 import {
   getScanHistory,
@@ -35,6 +35,24 @@ function filterAlerts(watchlist: WatchlistEntry[], prefs: AlertPreferences) {
   });
 }
 
+function DashboardSkeleton() {
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <div className="shimmer h-9 w-48 rounded-xl mb-2" />
+      <div className="shimmer h-5 w-72 rounded-lg mb-8" />
+      <div className="grid gap-8 lg:grid-cols-2">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="space-y-3">
+            <div className="shimmer h-6 w-40 rounded-lg" />
+            <div className="shimmer h-24 rounded-2xl" />
+            <div className="shimmer h-16 rounded-2xl" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const [watchlist, setWatchlist] = useState<WatchlistEntry[]>([]);
   const [scanHistory, setScanHistory] = useState<ScanHistoryEntry[]>([]);
@@ -42,9 +60,13 @@ export default function DashboardPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    setMounted(true);
-    setWatchlist(getWatchlist());
-    setScanHistory(getScanHistory());
+    // Small delay to prevent flash, but never infinite
+    const timer = setTimeout(() => {
+      setWatchlist(getWatchlist());
+      setScanHistory(getScanHistory());
+      setMounted(true);
+    }, 50);
+    return () => clearTimeout(timer);
   }, []);
 
   function handleRemove(productId: string) {
@@ -74,7 +96,7 @@ export default function DashboardPage() {
   const alerts = mounted ? filterAlerts(watchlist, getAlertPreferences()).slice(0, 6) : [];
 
   if (!mounted) {
-    return <div className="py-20 text-center text-slate-500">Loading dashboard…</div>;
+    return <DashboardSkeleton />;
   }
 
   return (
@@ -101,7 +123,9 @@ export default function DashboardPage() {
           <div className="mt-4 space-y-3">
             {watchlist.length === 0 ? (
               <div className="card text-center py-8 text-sm text-slate-500">
-                No saved products yet. Scan a product and tap &quot;Add to watchlist&quot;.
+                No saved products yet.{" "}
+                <Link href="/scan" className="text-brand-600 font-medium">Scan a product</Link>
+                {" "}and tap &quot;Add to watchlist&quot;.
               </div>
             ) : (
               watchlist.map((w) => {
@@ -110,7 +134,7 @@ export default function DashboardPage() {
                   <div key={w.productId} className="card flex items-center gap-3">
                     {product && (
                       <div className="relative h-12 w-12 overflow-hidden rounded-lg flex-shrink-0">
-                        <Image src={product.imageUrl} alt="" fill className="object-cover" sizes="48px" />
+                        <ProductImage src={product.imageUrl} alt="" fill className="object-cover" sizes="48px" barcode={product.barcode} category={product.category} />
                       </div>
                     )}
                     <Link href={`/products/${w.productId}`} className="flex-1 min-w-0">
@@ -121,7 +145,7 @@ export default function DashboardPage() {
                     <button
                       type="button"
                       onClick={() => handleRemove(w.productId)}
-                      className="text-xs text-slate-400 hover:text-danger-600"
+                      className="text-xs text-slate-400 hover:text-danger-600 min-h-[44px] px-2"
                     >
                       Remove
                     </button>
@@ -163,7 +187,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-slate-900">Scan history</h2>
             {scanHistory.length > 0 && (
-              <button type="button" onClick={handleClearHistory} className="text-xs text-slate-500 hover:text-danger-600">
+              <button type="button" onClick={handleClearHistory} className="text-xs text-slate-500 hover:text-danger-600 min-h-[44px] px-2">
                 Clear
               </button>
             )}
@@ -178,7 +202,7 @@ export default function DashboardPage() {
                 <Link
                   key={s.productId + s.scannedAt}
                   href={`/scan?barcode=${s.barcode}`}
-                  className="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-2 text-sm hover:bg-slate-50"
+                  className="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-3 text-sm hover:bg-slate-50 min-h-[48px]"
                 >
                   <span>{s.name}</span>
                   <span className="text-xs text-slate-400 font-mono">{s.barcode}</span>

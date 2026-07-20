@@ -1,8 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { Product } from "@/lib/types";
 import { getLatestVersion } from "@/lib/data/products";
 import Badge from "./Badge";
+import ProductImage from "./ProductImage";
 
 export default function ProductCard({ product }: { product: Product }) {
   const v = getLatestVersion(product);
@@ -13,7 +13,7 @@ export default function ProductCard({ product }: { product: Product }) {
     <div className="card group hover:-translate-y-0.5 transition-all duration-300">
       <Link href={`/products/${product.id}`} className="flex gap-4">
         <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-slate-50 border border-slate-100 shadow-sm">
-          <Image src={product.imageUrl} alt={product.name} fill className="object-cover" sizes="80px" />
+          <ProductImage src={product.imageUrl} alt={product.name} barcode={product.barcode} category={product.category} fill className="object-cover" sizes="80px" />
         </div>
         
         <div className="min-w-0 flex-1 space-y-1">

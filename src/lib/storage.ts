@@ -1,13 +1,14 @@
-const SCAN_HISTORY_KEY = "jeevanreport_scan_history";
-const WATCHLIST_KEY = "jeevanreport_watchlist";
-const ALERT_PREFS_KEY = "jeevanreport_alert_prefs";
+const SCAN_HISTORY_KEY = "jr_scan_history";
+const WATCHLIST_KEY = "jr_watchlist";
+const ALERT_PREFS_KEY = "jr_alert_prefs";
 const MAX_HISTORY = 20;
 
 export interface ScanHistoryEntry {
-  productId: string;
+  productId: string; // matches product slug/id
   name: string;
   barcode: string;
   scannedAt: string;
+  rating?: "Good" | "Careful" | "Limit";
 }
 
 export interface WatchlistEntry {

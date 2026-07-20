@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import Badge from "@/components/Badge";
 import { getShrinkflationLeaderboard, getPriceIncreaseLeaderboard } from "@/lib/leaderboard";
+
+export const metadata: Metadata = {
+  title: "Shrinkflation Leaderboard — Biggest Pack Size Reductions in India | JeevanReport",
+  description: "Browse the worst cases of shrinkflation in India. Track which brands reduced package weight or volume while keeping the price same.",
+};
 
 export default function LeaderboardPage() {
   const shrinkflation = getShrinkflationLeaderboard();

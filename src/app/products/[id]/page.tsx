@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { getProductById, products } from "@/lib/data/products";
 import { dbGetProductById, dbGetProductByBarcode } from "@/lib/db";
 import { getProductStatus } from "@/lib/nutrition-engine";
 import { classifyProduct } from "@/lib/product-classifier";
-import ProductDetailTabs from "@/components/ProductDetailTabs";
 import WatchlistButton from "@/components/WatchlistButton";
 import ProductJsonLd from "@/components/ProductJsonLd";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import BackButton from "@/components/BackButton";
 import CopyBarcode from "@/components/CopyBarcode";
 import ShareButton from "@/components/ShareButton";
 import SimilarProducts from "@/components/SimilarProducts";
 import PrintButton from "@/components/PrintButton";
 import TrustScoreBreakdown from "@/components/TrustScoreBreakdown";
+import ProductImage from "@/components/ProductImage";
+import ProductAnalysisPanel from "@/components/ProductAnalysisPanel";
 
 function getRatingCardClass(color: string) {
   switch (color) {
@@ -35,26 +36,6 @@ function getRatingBadgeText(rating: string, color: string) {
     case "red":
     default:
       return "🔴 Be Careful";
-  }
-}
-
-function getPointIcon(point: string) {
-  const p = point.toLowerCase();
-  if (p.includes("high sugar") || p.includes("high salt") || p.includes("high fat") || p.includes("limit") || p.includes("calorie dense") || p.includes("low protein") || p.includes("low fiber")) {
-    return "⚠️";
-  }
-  return "✅";
-}
-
-function getNutrientTagColor(label: string, value: string) {
-  if (label === "Protein" || label === "Fiber") {
-    if (value === "High") return "bg-emerald-50 text-emerald-700 border border-emerald-100";
-    if (value === "Low") return "bg-rose-50 text-rose-700 border border-rose-100";
-    return "bg-amber-50 text-amber-700 border border-amber-100";
-  } else {
-    if (value === "High") return "bg-rose-50 text-rose-700 border border-rose-100";
-    if (value === "Low") return "bg-emerald-50 text-emerald-700 border border-emerald-100";
-    return "bg-amber-50 text-amber-700 border border-amber-100";
   }
 }
 
@@ -117,6 +98,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 space-y-6">
       <ProductJsonLd product={product} />
       
+      <BackButton productName={product.name} />
+
       <Breadcrumbs items={[
         { label: "Products", href: "/products" },
         ...(!isHousehold ? [{ label: product.category, href: `/categories/${product.category}` }] : []),
@@ -126,7 +109,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       {/* 1. Simple Visual Overall Result Card */}
       <div className={`card border-2 flex flex-col md:flex-row items-center gap-6 p-6 ${getRatingCardClass(status.color)}`}>
         <div className="relative mx-auto h-28 w-28 flex-shrink-0 overflow-hidden rounded-2xl bg-white border border-slate-100 shadow-sm md:mx-0">
-          <Image src={product.imageUrl} alt={product.name} fill className="object-cover" sizes="112px" priority />
+          <ProductImage src={product.imageUrl} alt={product.name} barcode={product.barcode} category={product.category} fill sizes="112px" priority className="object-cover" />
         </div>
         
         <div className="flex-1 space-y-2 text-center md:text-left">
@@ -159,106 +142,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           }`}>{status.label}</span>
         </div>
       </div>
-
-      {/* 2. Visual Assessment Points (3-5 points only) */}
-      <section className="card space-y-4">
-        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <span>⚡</span> Quick Assessment
-        </h2>
-        <ul className="grid gap-2 sm:grid-cols-2">
-          {status.points.map((p, idx) => (
-            <li key={idx} className="flex items-start gap-2.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
-              <span className="text-base mt-0.5">{getPointIcon(p)}</span>
-              <span className="text-sm font-semibold text-slate-700 leading-snug">{p}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* 3. Easy Summary Card (No medical/jargon terms) */}
-      <section className="card space-y-4">
-        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <span>📝</span> Easy Summary
-        </h2>
-        <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 space-y-4">
-          <p className="text-base font-semibold leading-relaxed text-slate-800">
-            {status.rating === 'Good' ? "This product is a good choice for daily or regular use. It has balanced nutrients and no high warning signs." :
-             status.rating === 'Okay' ? "This product is okay for daily use in moderate quantities. Keep an eye on portions." :
-             status.color === 'orange' ? "Caution: This product has moderate warning signs. It is best to limit consumption or use occasionally." :
-             "Be Careful: This product has high sugar, high salt, or high fat. It is best to limit consumption and treat it as an occasional treat."}
-          </p>
-          
-          <div className="grid gap-3.5 sm:grid-cols-2 text-sm pt-4 border-t border-slate-200/60">
-            <div className="flex justify-between py-1.5 border-b border-slate-100">
-              <span className="font-semibold text-slate-500">Regular use suitability:</span>
-              <span className="font-extrabold text-slate-800">
-                {body.occasionLabel === "Better staple candidate" ? "Suitable for daily use" : 
-                 body.occasionLabel === "Moderate frequency" ? "Eat in moderation" : "Limit often"}
-              </span>
-            </div>
-            <div className="flex justify-between py-1.5 border-b border-slate-100">
-              <span className="font-semibold text-slate-500">Sugar level:</span>
-              <span className={`font-extrabold ${body.sugarFlag === 'High' ? 'text-rose-600' : 'text-slate-800'}`}>
-                {body.sugarFlag === 'High' ? "High sugar" : body.sugarFlag === 'Moderate' ? "Medium sugar" : "Low sugar"}
-              </span>
-            </div>
-            <div className="flex justify-between py-1.5 border-b border-slate-100">
-              <span className="font-semibold text-slate-500">Salt / Sodium:</span>
-              <span className={`font-extrabold ${body.sodiumFlag === 'High' ? 'text-rose-600' : 'text-slate-800'}`}>
-                {body.sodiumFlag === 'High' ? "High salt" : body.sodiumFlag === 'Moderate' ? "Medium salt" : "Low salt"}
-              </span>
-            </div>
-            <div className="flex justify-between py-1.5 border-b border-slate-100">
-              <span className="font-semibold text-slate-500">Fat content:</span>
-              <span className={`font-extrabold ${body.saturatedFatFlag === 'High' ? 'text-rose-600' : 'text-slate-800'}`}>
-                {body.saturatedFatFlag === 'High' ? "High fat" : body.saturatedFatFlag === 'Moderate' ? "Medium fat" : "Low fat"}
-              </span>
-            </div>
-            <div className="flex justify-between py-1.5 border-b border-slate-100">
-              <span className="font-semibold text-slate-500">Protein:</span>
-              <span className={`font-extrabold ${body.proteinFlag === 'Low' ? 'text-rose-500' : 'text-slate-800'}`}>
-                {body.proteinFlag === 'High' ? "High protein" : body.proteinFlag === 'Moderate' ? "Medium protein" : "Low protein"}
-              </span>
-            </div>
-            <div className="flex justify-between py-1.5 border-b border-slate-100">
-              <span className="font-semibold text-slate-500">Likely filling:</span>
-              <span className="font-extrabold text-slate-800">
-                {body.satietyLabel === 'More filling' ? "More filling" : 
-                 body.satietyLabel === 'Moderately filling' ? "Moderately filling" : "Less filling"}
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Layer 1: Visual Nutrition Highlights */}
-      <section className="card space-y-4">
-        <div className="border-b border-slate-100 pb-3">
-          <h2 className="text-lg font-bold text-slate-900">Nutrition Highlights</h2>
-          <p className="text-xs text-slate-400 font-medium">Layer 1: Simple visual summary</p>
-        </div>
-
-        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3">
-          {[
-            { label: "Sugar", val: body.sugarFlag, icon: "🍬" },
-            { label: "Fat", val: body.saturatedFatFlag, icon: "🥑" },
-            { label: "Protein", val: body.proteinFlag, icon: "💪" },
-            { label: "Fiber", val: body.fiberFlag, icon: "🌾" },
-            { label: "Salt/Sodium", val: body.sodiumFlag, icon: "🧂" },
-            { label: "Calories", val: body.energyDensityLabel, icon: "🔋" },
-          ].map((item) => (
-            <div key={item.label} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50">
-              <div className="flex items-center gap-2">
-                <span className="text-base">{item.icon}</span>
-                <span className="text-xs font-bold text-slate-600">{item.label}</span>
-              </div>
-              <span className={`text-xs font-black px-2 py-0.5 rounded-md border ${getNutrientTagColor(item.label, item.val)}`}>
-                {item.val}
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* Detailed Pricing & Base Description Card */}
       <div className="grid gap-6 md:grid-cols-12">
@@ -302,8 +185,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         )}
       </div>
 
-      {/* Tabs containing further details: Pack history, formula changes, price trend, photos, reports, trust score */}
-      <ProductDetailTabs product={product} />
+      {/* Main Analysis and Tabs Panel (with For Everyone / For Gym mode selector) */}
+      <ProductAnalysisPanel product={product} />
 
       {/* Trust and recommendations */}
       <div className="grid gap-6 lg:grid-cols-2">
@@ -311,14 +194,23 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         <SimilarProducts productId={product.id} />
       </div>
 
+      {/* Share Section */}
+      <section className="card">
+        <ShareButton
+          title={product.name}
+          slug={product.id}
+          rating={status.rating}
+          keyFinding={status.points[0]}
+        />
+      </section>
+
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3 print:hidden pt-4 border-t border-slate-100">
-        <Link href={`/scan?barcode=${product.barcode}`} className="btn-primary">Scan again</Link>
+        <Link href={`/scan?barcode=${product.barcode}`} className="btn-primary min-h-[48px]">Scan again</Link>
         <WatchlistButton productId={product.id} name={product.name} brand={product.brand} />
-        <ShareButton title={product.name} />
         <PrintButton />
-        <Link href={`/compare?ids=${product.id}`} className="btn-secondary">Compare</Link>
-        <Link href={`/submit?product=${product.id}`} className="btn-accent">Submit evidence</Link>
+        <Link href={`/compare?ids=${product.id}`} className="btn-secondary min-h-[48px]">Compare</Link>
+        <Link href={`/submit?product=${product.id}`} className="btn-accent min-h-[48px]">Submit evidence</Link>
       </div>
     </div>
   );

@@ -33,19 +33,20 @@ export default function WatchlistButton({
   function handleToggle() {
     const nowSaved = toggleWatchlist({ productId, name, brand });
     setSaved(nowSaved);
-    toast(
-      nowSaved ? `Added ${name} to watchlist` : `Removed ${name} from watchlist`,
-      "success"
-    );
+    if (nowSaved) {
+      toast("Added to watchlist! We'll track any changes for you.", "success");
+    } else {
+      toast(`Removed ${name} from watchlist`, "success");
+    }
   }
 
   return (
     <button
       type="button"
       onClick={handleToggle}
-      className={saved ? "btn-accent" : "btn-secondary"}
+      className={saved ? "btn-accent min-h-[48px]" : "btn-secondary min-h-[48px]"}
     >
-      {saved ? "✓ On watchlist" : "+ Add to watchlist"}
+      {saved ? "✓ Watching" : "+ Add to Watchlist"}
     </button>
   );
 }
