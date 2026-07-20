@@ -1,3 +1,7 @@
+# NOTE: To deploy, always use: netlify deploy --trigger --prod
+# Running --build locally on Windows causes @netlify/plugin-nextjs v5 onPostBuild
+# to fail with "Failed publishing static content" due to Windows path handling.
+# The --trigger flag runs the build on Netlify's Linux CI instead.
 [build]
   command = "next build"
   publish = ".next"
