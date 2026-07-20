@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MEDICAL_DISCLAIMER } from "@/lib/types";
+import FooterLangToggle from "./FooterLangToggle";
 
 const platformLinks = [
   { href: "/scan",           label: "Scan Product" },
@@ -141,38 +142,5 @@ export default function Footer() {
         </div>
       </div>
     </footer>
-  );
-}
-
-// Client sub-component for language toggle in footer
-function FooterLangToggle() {
-  // We render as a simple static UI here since Footer is a server component
-  // The language toggle in the header handles the actual switching
-  return (
-    <div className="flex gap-1">
-      <span className="text-xs text-espresso/40 font-medium mr-1 self-center">Language:</span>
-      <a
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          if (typeof window !== "undefined") localStorage.setItem("jr_lang", "en");
-          window.location.reload();
-        }}
-        className="px-2 py-1 text-xs font-bold border border-latte rounded-lg hover:bg-brand-50 text-espresso/60 transition-colors"
-      >
-        EN
-      </a>
-      <a
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          if (typeof window !== "undefined") localStorage.setItem("jr_lang", "hi");
-          window.location.reload();
-        }}
-        className="px-2 py-1 text-xs font-bold border border-latte rounded-lg hover:bg-brand-50 text-espresso/60 transition-colors"
-      >
-        हिं
-      </a>
-    </div>
   );
 }
