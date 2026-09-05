@@ -44,3 +44,6 @@ next-env.d.ts
 
 # netlify builds
 .netlify/
+
+# bun lockfile (binary, very large — use package-lock.json instead)
+bun.lock
