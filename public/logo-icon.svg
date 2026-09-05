@@ -1,98 +1,52 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56" fill="none" role="img" aria-label="JeevanReport Logo - Mascot Hanging from Scanner Handle">
   <defs>
-    <!-- Barcode clip for round lens -->
     <clipPath id="lensClip">
       <circle cx="17" cy="22" r="11.5"/>
     </clipPath>
   </defs>
-
-  <!-- === YELLOW SCANNER (Bold, Clean & Iconic) === -->
   <g id="scanner">
-    <!-- Horizontal Yellow Handle (Monkey-bar style) -->
     <line x1="26" y1="21" x2="50" y2="21" stroke="#f59e0b" stroke-width="6" stroke-linecap="round"/>
     <circle cx="50" cy="21" r="3.5" fill="#d97706"/>
     <circle cx="50" cy="21" r="2" fill="#fde047"/>
-
-    <!-- Lens Outer Ring (Vibrant Golden Yellow) -->
     <circle cx="17" cy="22" r="14" stroke="#f59e0b" stroke-width="4.2" fill="#ffffff"/>
-
-    <!-- Lens Glass & Clean Barcode Stripes -->
     <g clip-path="url(#lensClip)">
       <rect x="3" y="8" width="28" height="28" fill="#ffffff"/>
-      
-      <!-- 5 Bold, distinct barcode stripes with great spacing -->
       <rect x="8"  y="12" width="2.2" height="20" fill="#18181b" rx="0.6"/>
       <rect x="12" y="12" width="1.2" height="20" fill="#18181b" rx="0.4"/>
       <rect x="15" y="12" width="3.2" height="20" fill="#18181b" rx="0.6"/>
       <rect x="20" y="12" width="1.2" height="20" fill="#18181b" rx="0.4"/>
       <rect x="23" y="12" width="2.2" height="20" fill="#18181b" rx="0.6"/>
-
-      <!-- Bold Yellow Laser Beam -->
       <rect x="3" y="20" width="28" height="3.2" fill="#f59e0b" rx="1.6"/>
       <rect x="3" y="21" width="28" height="1.2" fill="#fef08a" rx="0.6"/>
     </g>
-
-    <!-- Glossy reflection arc on glass -->
     <path d="M 9 16 A 10 10 0 0 1 21 14" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
   </g>
-
-  <!-- === CUTE TOY MASCOT HANGING FROM THE HANDLE === -->
   <g id="mascot-hanging">
-    <!-- Blue Arms reaching UP to the handle -->
     <path d="M 33 30 L 33 22" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
     <path d="M 43 30 L 43 22" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
-
-    <!-- Dangling Body / Hoodie (Vibrant Electric Blue) -->
     <path d="M 34 33 C 33 37, 34 41, 36 43 L 40 43 C 42 41, 43 37, 42 33 Z" fill="#2563eb"/>
-    <!-- Yellow zipper detail -->
     <line x1="38" y1="33" x2="38" y2="39" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/>
-
-    <!-- Cute swinging legs & shoes -->
-    <!-- Left leg dangling straight -->
     <rect x="34.5" y="42" width="2.6" height="4" rx="1" fill="#1d4ed8"/>
     <ellipse cx="35.5" cy="47" rx="2" ry="1.4" fill="#0f172a"/>
-
-    <!-- Right leg playfully kicking out -->
     <path d="M 39.5 42 L 42.5 45.5" stroke="#1d4ed8" stroke-width="2.6" stroke-linecap="round"/>
     <ellipse cx="43.5" cy="46" rx="2" ry="1.4" fill="#0f172a" transform="rotate(-20 43.5 46)"/>
-
-    <!-- Round Chibi Head (Centered between the arms) -->
     <circle cx="38" cy="30" r="6.2" fill="#fed7aa"/>
-
-    <!-- Sleek Dark Hair / Beanie with Yellow Star Pin -->
     <path d="M 32.5 29 C 32 25, 35 23.5, 38 23.5 C 41 23.5, 44 25, 43.5 29 C 42 27.8, 40 27.8, 38 28.5 C 36 27.8, 34 27.8, 32.5 29 Z" fill="#0f172a"/>
     <circle cx="41.5" cy="25.5" r="1.1" fill="#fbbf24"/>
-
-    <!-- Big Expressive Eyes (Clean & Bright) -->
     <circle cx="36" cy="30" r="1.2" fill="#0f172a"/>
     <circle cx="35.7" cy="29.6" r="0.45" fill="#ffffff"/>
-
     <circle cx="40" cy="30" r="1.2" fill="#0f172a"/>
     <circle cx="39.7" cy="29.6" r="0.45" fill="#ffffff"/>
-
-    <!-- Rosy Cheeks -->
     <ellipse cx="34.5" cy="32" rx="1" ry="0.6" fill="#f43f5e" opacity="0.6"/>
     <ellipse cx="41.5" cy="32" rx="1" ry="0.6" fill="#f43f5e" opacity="0.6"/>
-
-    <!-- Cheerful Smile -->
     <path d="M 37 32.2 Q 38 33.4 39 32.2" stroke="#9a3412" stroke-width="0.8" stroke-linecap="round" fill="none"/>
-
-    <!-- === CLEAR HANDS WRAPPING AROUND THE HANDLE === -->
-    <!-- Distinct, large peach hands wrapping OVER the yellow bar with finger curves -->
-    <!-- Left Hand -->
     <g id="left-hand">
-      <!-- Palm wrapping over the top of the handle -->
       <path d="M 30.5 24 L 30.5 19 C 30.5 16.8, 35.5 16.8, 35.5 19 L 35.5 24 Z" fill="#fed7aa" stroke="#d97706" stroke-width="0.8"/>
-      <!-- Finger separation lines -->
       <line x1="32.2" y1="18.5" x2="32.2" y2="22.5" stroke="#d97706" stroke-width="0.6" stroke-linecap="round"/>
       <line x1="33.8" y1="18.5" x2="33.8" y2="22.5" stroke="#d97706" stroke-width="0.6" stroke-linecap="round"/>
     </g>
-
-    <!-- Right Hand -->
     <g id="right-hand">
-      <!-- Palm wrapping over the top of the handle -->
       <path d="M 40.5 24 L 40.5 19 C 40.5 16.8, 45.5 16.8, 45.5 19 L 45.5 24 Z" fill="#fed7aa" stroke="#d97706" stroke-width="0.8"/>
-      <!-- Finger separation lines -->
       <line x1="42.2" y1="18.5" x2="42.2" y2="22.5" stroke="#d97706" stroke-width="0.6" stroke-linecap="round"/>
       <line x1="43.8" y1="18.5" x2="43.8" y2="22.5" stroke="#d97706" stroke-width="0.6" stroke-linecap="round"/>
     </g>
