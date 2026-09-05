@@ -40,13 +40,15 @@ export default function Header() {
   const nav = getDynamicNav({ pathname, watchlistCount, scanHistoryCount });
   const menuActive = menuOpen || nav.menuSections.some((s) => s.items.some((i) => i.href === pathname));
 
+  const logoSrc = pathname === "/" ? "/logo-scanner.svg" : "/logo-icon.svg";
+
   return (
     <header className="sticky top-0 z-50 border-b border-latte bg-canvas/95 backdrop-blur-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <Link href="/" className="group flex flex-shrink-0 items-center gap-2.5">
           <Image
             id="site-logo"
-            src="/logo-icon.svg"
+            src={logoSrc}
             alt="JeevanReport"
             width={40}
             height={40}

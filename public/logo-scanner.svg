@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 58" fill="none" role="img" aria-label="JeevanReport Scanner">
+  <defs>
+    <clipPath id="lensClip">
+      <circle cx="17" cy="15" r="11.5"/>
+    </clipPath>
+  </defs>
+
+  <g id="slanted-scanner">
+    <line x1="24" y1="22" x2="42" y2="37" stroke="#f59e0b" stroke-width="5.5" stroke-linecap="round"/>
+    <circle cx="42" cy="37" r="3" fill="#d97706"/>
+    <circle cx="42" cy="37" r="1.6" fill="#fde047"/>
+    <circle cx="17" cy="15" r="14" stroke="#f59e0b" stroke-width="4.2" fill="#ffffff"/>
+    <g clip-path="url(#lensClip)">
+      <rect x="3" y="1" width="28" height="28" fill="#ffffff"/>
+      <rect x="8"   y="5" width="2.2" height="20" fill="#18181b" rx="0.6"/>
+      <rect x="11.8" y="5" width="1.2" height="20" fill="#18181b" rx="0.4"/>
+      <rect x="14.8" y="5" width="3.2" height="20" fill="#18181b" rx="0.6"/>
+      <rect x="19.8" y="5" width="1.2" height="20" fill="#18181b" rx="0.4"/>
+      <rect x="22.8" y="5" width="2.2" height="20" fill="#18181b" rx="0.6"/>
+      <rect x="3" y="13.2" width="28" height="3.2" fill="#f59e0b" rx="1.6"/>
+      <rect x="3" y="14.2" width="28" height="1.2" fill="#fef08a" rx="0.6"/>
+    </g>
+    <path d="M 9 9 A 10 10 0 0 1 21 7" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
+  </g>
+</svg>
