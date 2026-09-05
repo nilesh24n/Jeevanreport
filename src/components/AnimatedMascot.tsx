@@ -119,11 +119,11 @@ export default function AnimatedMascot() {
     // Begin first cross
     stepWalk();
 
-    // The user requested: "walk for 3 mins ans come back" (3 minutes = 180,000 ms)
-    const threeMinTimer = setTimeout(() => {
+    // The user requested: "reduce the walking time to 30 sec only" (30 seconds = 30,000 ms)
+    const thirtySecTimer = setTimeout(() => {
       triggerJumpBack();
-    }, 180000);
-    timersRef.current.push(threeMinTimer);
+    }, 30000);
+    timersRef.current.push(thirtySecTimer);
   }, [getBtnBounds, triggerJumpBack]);
 
   // Jump from logo down to scan barcode button
@@ -215,7 +215,7 @@ export default function AnimatedMascot() {
   return (
     <div
       aria-label="JeevanReport Animated Mascot"
-      title={isWalking ? "Mascot walking on Scan button! Click me to jump back to logo anytime." : undefined}
+      title={isWalking ? "Mascot walking on Scan button! Click me to jump back to logo anytime, or wait for the 30-second stroll." : undefined}
       onClick={isWalking ? triggerJumpBack : undefined}
       style={{
         position: "fixed",
