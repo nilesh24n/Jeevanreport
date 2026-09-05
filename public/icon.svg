@@ -1,142 +1,92 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="JeevanReport Logo - Mascot Hanging from Yellow Scanner">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 54" fill="none" role="img" aria-label="JeevanReport Logo - Mascot Hanging from Scanner Handle">
   <defs>
-    <!-- Vibrant Yellow Gradients -->
-    <linearGradient id="yellowGlow" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#fef08a"/>
-      <stop offset="30%" stop-color="#fde047"/>
-      <stop offset="70%" stop-color="#f59e0b"/>
-      <stop offset="100%" stop-color="#d97706"/>
-    </linearGradient>
-
-    <linearGradient id="handleYellow" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#fde047"/>
-      <stop offset="50%" stop-color="#f59e0b"/>
-      <stop offset="100%" stop-color="#b45309"/>
-    </linearGradient>
-
-    <linearGradient id="charSkin" x1="0.2" y1="0" x2="0.8" y2="1">
-      <stop offset="0%" stop-color="#fed7aa"/>
-      <stop offset="60%" stop-color="#fdba74"/>
-      <stop offset="100%" stop-color="#fb923c"/>
-    </linearGradient>
-
-    <linearGradient id="charCloth" x1="0" y1="0" x2="0.8" y2="1">
-      <stop offset="0%" stop-color="#3b82f6"/>
-      <stop offset="60%" stop-color="#1d4ed8"/>
-      <stop offset="100%" stop-color="#1e3a8a"/>
-    </linearGradient>
-
-    <linearGradient id="hairGrad" x1="0.2" y1="0" x2="0.8" y2="1">
-      <stop offset="0%" stop-color="#334155"/>
-      <stop offset="100%" stop-color="#0f172a"/>
-    </linearGradient>
-
-    <filter id="softShadow" x="-15%" y="-15%" width="130%" height="130%">
-      <feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-color="#78350f" flood-opacity="0.22"/>
-    </filter>
-
-    <!-- Barcode clip circle inside magnifying glass -->
+    <!-- Barcode clip for round lens -->
     <clipPath id="lensClip">
-      <circle cx="31" cy="22" r="14"/>
+      <circle cx="20" cy="18" r="12"/>
     </clipPath>
   </defs>
 
-  <!-- === YELLOW SCANNER / MAGNIFYING GLASS (TOP-CENTER) === -->
-  <g id="scanner-group" filter="url(#softShadow)">
-    <!-- Yellow Handle (pointing up & right) -->
-    <line x1="41" y1="13" x2="54" y2="4" stroke="url(#handleYellow)" stroke-width="4.5" stroke-linecap="round"/>
-    <circle cx="54" cy="4" r="2.8" fill="#d97706"/>
-    <circle cx="54" cy="4" r="1.5" fill="#fde047"/>
+  <!-- === YELLOW SCANNER (Bold, Crisp, High Contrast) === -->
+  <g id="scanner">
+    <!-- Sturdy Yellow Handle (diagonal down-right) -->
+    <line x1="28" y1="26" x2="44" y2="40" stroke="#f59e0b" stroke-width="5" stroke-linecap="round"/>
+    <line x1="28" y1="26" x2="44" y2="40" stroke="#d97706" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 18 6 0"/>
+    <circle cx="44" cy="40" r="2.8" fill="#d97706"/>
+    <circle cx="44" cy="40" r="1.6" fill="#fde047"/>
 
-    <!-- Outer Yellow Rim -->
-    <circle cx="31" cy="22" r="16.5" stroke="url(#yellowGlow)" stroke-width="3.5" fill="#ffffff"/>
+    <!-- Lens Outer Ring (Vibrant Golden Yellow) -->
+    <circle cx="20" cy="18" r="14.5" stroke="#f59e0b" stroke-width="4" fill="#ffffff"/>
 
-    <!-- Inner Lens Glass & Barcode -->
+    <!-- Lens Glass & Clean Barcode Stripes -->
     <g clip-path="url(#lensClip)">
-      <rect x="15" y="6" width="32" height="32" fill="#fefce8"/>
+      <rect x="6" y="4" width="28" height="28" fill="#ffffff"/>
       
-      <!-- Barcode Stripes -->
-      <rect x="19.5" y="9" width="1.5" height="26" fill="#1c1917" rx="0.5"/>
-      <rect x="22" y="9" width="0.8" height="26" fill="#1c1917" rx="0.4"/>
-      <rect x="23.8" y="9" width="2.2" height="26" fill="#1c1917" rx="0.5"/>
-      <rect x="27" y="9" width="0.9" height="26" fill="#1c1917" rx="0.4"/>
-      <rect x="29" y="9" width="1.8" height="26" fill="#1c1917" rx="0.5"/>
-      <rect x="31.8" y="9" width="1.0" height="26" fill="#1c1917" rx="0.4"/>
-      <rect x="33.8" y="9" width="2.0" height="26" fill="#1c1917" rx="0.5"/>
-      <rect x="36.8" y="9" width="0.9" height="26" fill="#1c1917" rx="0.4"/>
-      <rect x="38.8" y="9" width="1.6" height="26" fill="#1c1917" rx="0.5"/>
-      <rect x="41.2" y="9" width="1.0" height="26" fill="#1c1917" rx="0.4"/>
+      <!-- 5 Bold, distinct barcode stripes with great spacing (super clear at any size) -->
+      <rect x="11"   y="8" width="2.2" height="20" fill="#18181b" rx="0.6"/>
+      <rect x="15"   y="8" width="1.2" height="20" fill="#18181b" rx="0.4"/>
+      <rect x="18"   y="8" width="3.2" height="20" fill="#18181b" rx="0.6"/>
+      <rect x="23"   y="8" width="1.2" height="20" fill="#18181b" rx="0.4"/>
+      <rect x="26"   y="8" width="2.2" height="20" fill="#18181b" rx="0.6"/>
 
-      <!-- Glowing Yellow Laser Scan Beam -->
-      <rect x="15" y="20.5" width="32" height="2.8" fill="#f59e0b" opacity="0.9" rx="1.4"/>
-      <rect x="15" y="21.3" width="32" height="1.2" fill="#fef08a" opacity="0.95" rx="0.6"/>
-
-      <!-- Specular Highlight Arc on glass -->
-      <path d="M 21 14 A 12 12 0 0 1 38 13" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" opacity="0.75"/>
+      <!-- Bold Yellow Laser Beam -->
+      <rect x="6" y="16" width="28" height="3.2" fill="#f59e0b" rx="1.6"/>
+      <rect x="6" y="17" width="28" height="1.2" fill="#fef08a" rx="0.6"/>
     </g>
 
-    <!-- Inner gold trim ring -->
-    <circle cx="31" cy="22" r="14.2" stroke="#f59e0b" stroke-width="0.8" fill="none" opacity="0.5"/>
+    <!-- Glossy reflection arc on glass -->
+    <path d="M 12 12 A 10 10 0 0 1 24 10" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
   </g>
 
-  <!-- === CUTE TOY MASCOT HANGING FROM SCANNER RIM === -->
-  <g id="hanging-mascot">
-    <!-- Left Arm reaching UP to grab rim -->
-    <path d="M 25 43 Q 23 39 23.5 36.5" stroke="url(#charCloth)" stroke-width="3.5" stroke-linecap="round"/>
-    <!-- Right Arm reaching UP to grab rim -->
-    <path d="M 37 43 Q 39 39 38.5 36.5" stroke="url(#charCloth)" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- === CUTE TOY MASCOT HANGING FROM THE HANDLE === -->
+  <g id="mascot-hanging-from-handle">
+    <!-- Arms reaching up to grab the handle -->
+    <!-- Left arm to upper handle -->
+    <path d="M 33 36 L 33 29" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
+    <!-- Right arm to lower handle -->
+    <path d="M 39 39 L 39 34" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
 
-    <!-- Dangling Torso / Hoodie -->
-    <path d="M 25 48 C 24 53, 25 57, 28 58 L 34 58 C 37 57, 38 53, 37 48 Z" fill="url(#charCloth)"/>
-    <!-- Yellow hoodie zipper/collar detail -->
-    <line x1="31" y1="48" x2="31" y2="54" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/>
+    <!-- Dangling Body / Hoodie (Vibrant Electric Blue) -->
+    <path d="M 31 40 C 30 44, 31 47, 33 48 L 38 48 C 40 47, 41 44, 40 40 Z" fill="#2563eb"/>
+    <!-- Yellow zipper badge -->
+    <line x1="35.5" y1="40" x2="35.5" y2="44" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/>
 
-    <!-- Cute dangling legs / feet playfully kicking -->
-    <!-- Left leg (straight down) -->
-    <rect x="26.5" y="56" width="3" height="4" rx="1.2" fill="#1d4ed8"/>
-    <ellipse cx="27.5" cy="60.5" rx="2.4" ry="1.5" fill="#0f172a"/>
-    <path d="M 25.5 60.5 Q 27.5 61.5 29.5 60.5" stroke="#fbbf24" stroke-width="0.7"/>
+    <!-- Cute swinging legs & shoes -->
+    <!-- Left leg dangling straight -->
+    <rect x="32" y="47" width="2.6" height="3.5" rx="1" fill="#1d4ed8"/>
+    <ellipse cx="33" cy="51" rx="2" ry="1.4" fill="#0f172a"/>
 
-    <!-- Right leg (playfully kicked outward) -->
-    <path d="M 32.5 56 L 35 59.5" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round"/>
-    <ellipse cx="36" cy="60" rx="2.4" ry="1.5" fill="#0f172a" transform="rotate(-15 36 60)"/>
-    <path d="M 34.5 59.8 Q 36 60.8 37.8 59.5" stroke="#fbbf24" stroke-width="0.7"/>
+    <!-- Right leg playfully kicking back -->
+    <path d="M 37 47 L 40 50" stroke="#1d4ed8" stroke-width="2.6" stroke-linecap="round"/>
+    <ellipse cx="41" cy="50.5" rx="2" ry="1.4" fill="#0f172a" transform="rotate(-20 41 50.5)"/>
 
-    <!-- Cute Round Head (centered right below the rim) -->
-    <circle cx="31" cy="44" r="8.5" fill="url(#charSkin)"/>
+    <!-- Round Chibi Head -->
+    <circle cx="35" cy="36" r="6.5" fill="#fed7aa"/>
 
-    <!-- Hair / Cap with stylish tufts -->
-    <path d="M 23 43 C 22.5 37, 26 35, 31 35 C 36 35, 39.5 37, 39 43 C 37 41, 35 41, 33 42 C 31 40, 27 40, 25 42 Z" fill="url(#hairGrad)"/>
-    <!-- Yellow star hairpin accessory -->
-    <circle cx="36" cy="38.5" r="1.4" fill="#fbbf24"/>
+    <!-- Sleek Dark Hair / Beanie with Yellow Star Pin -->
+    <path d="M 29.5 35 C 29 30.5, 32 29, 35 29 C 38 29, 41 30.5, 40.5 35 C 39 33.5, 37 33.5, 35 34 C 33 33, 31 33.5, 29.5 35 Z" fill="#0f172a"/>
+    <circle cx="39" cy="31" r="1.2" fill="#fbbf24"/>
 
-    <!-- Big Expressive Toy Eyes (looking playfully forward/up) -->
-    <ellipse cx="28.5" cy="44" rx="1.7" ry="2.2" fill="#0f172a"/>
-    <circle cx="28" cy="43.2" r="0.8" fill="#ffffff"/>
-    <circle cx="29.2" cy="45" r="0.35" fill="#ffffff"/>
+    <!-- Big Expressive Eyes (Bold & Clear) -->
+    <circle cx="33" cy="36" r="1.3" fill="#0f172a"/>
+    <circle cx="32.6" cy="35.5" r="0.5" fill="#ffffff"/>
 
-    <ellipse cx="33.5" cy="44" rx="1.7" ry="2.2" fill="#0f172a"/>
-    <circle cx="33" cy="43.2" r="0.8" fill="#ffffff"/>
-    <circle cx="34.2" cy="45" r="0.35" fill="#ffffff"/>
+    <circle cx="37" cy="36" r="1.3" fill="#0f172a"/>
+    <circle cx="36.6" cy="35.5" r="0.5" fill="#ffffff"/>
 
-    <!-- Rosy Blush Cheeks -->
-    <ellipse cx="25.8" cy="46.5" rx="1.6" ry="0.9" fill="#f43f5e" opacity="0.45"/>
-    <ellipse cx="36.2" cy="46.5" rx="1.6" ry="0.9" fill="#f43f5e" opacity="0.45"/>
+    <!-- Rosy Cheeks -->
+    <ellipse cx="31.2" cy="38" rx="1.2" ry="0.7" fill="#f43f5e" opacity="0.6"/>
+    <ellipse cx="38.8" cy="38" rx="1.2" ry="0.7" fill="#f43f5e" opacity="0.6"/>
 
-    <!-- Cheerful Playful Smile -->
-    <path d="M 29.5 46.8 Q 31 48.5 32.5 46.8" stroke="#7c2d12" stroke-width="0.9" stroke-linecap="round" fill="none"/>
+    <!-- Cheerful Smile -->
+    <path d="M 34 38.5 Q 35 40 36 38.5" stroke="#9a3412" stroke-width="0.8" stroke-linecap="round" fill="none"/>
 
-    <!-- === CUTE TOY HANDS CLAMPED ONTO THE YELLOW SCANNER RIM === -->
-    <!-- Left Hand (gripping rim) -->
-    <ellipse cx="23.5" cy="36.5" rx="2.3" ry="2" fill="url(#charSkin)"/>
-    <circle cx="23.5" cy="36.5" r="1.2" fill="#fde68a" opacity="0.5"/>
-    <!-- Left fingers wrap -->
-    <path d="M 22 36.5 Q 23.5 35.5 25 36.5" stroke="#fb923c" stroke-width="0.6" fill="none"/>
+    <!-- Hands CLAMPED ONTO THE YELLOW HANDLE (Round cute paws wrapping over the handle) -->
+    <!-- Left hand on handle -->
+    <circle cx="33" cy="29" r="2.2" fill="#fdba74"/>
+    <path d="M 31.8 28.8 Q 33 27.8 34.2 28.8" stroke="#ea580c" stroke-width="0.7" fill="none"/>
 
-    <!-- Right Hand (gripping rim) -->
-    <ellipse cx="38.5" cy="36.5" rx="2.3" ry="2" fill="url(#charSkin)"/>
-    <circle cx="38.5" cy="36.5" r="1.2" fill="#fde68a" opacity="0.5"/>
-    <!-- Right fingers wrap -->
-    <path d="M 37 36.5 Q 38.5 35.5 40 36.5" stroke="#fb923c" stroke-width="0.6" fill="none"/>
+    <!-- Right hand on handle -->
+    <circle cx="39" cy="34" r="2.2" fill="#fdba74"/>
+    <path d="M 37.8 33.8 Q 39 32.8 40.2 33.8" stroke="#ea580c" stroke-width="0.7" fill="none"/>
   </g>
 </svg>
