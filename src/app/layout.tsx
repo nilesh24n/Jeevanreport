@@ -4,7 +4,6 @@ import { Inter } from "next/font/google";
 import Script from "next/script";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import MobileScanBar from "@/components/MobileScanBar";
 import KeyboardShortcuts from "@/components/KeyboardShortcuts";
 import FirstVisitBanner from "@/components/FirstVisitBanner";
 import CommandPalette from "@/components/CommandPalette";
@@ -68,8 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <FirstVisitBanner />
           <KeyboardShortcuts />
           <CommandPalette />
-          <main className="min-h-screen pb-20 sm:pb-0 print:pb-0">{children}</main>
-          <MobileScanBar />
+          <main className="min-h-screen pb-8 sm:pb-0 print:pb-0">{children}</main>
           <PwaInstallPrompt />
           <Footer />
         </ToastProvider>

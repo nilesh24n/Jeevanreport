@@ -132,34 +132,6 @@ export default function ScanPageClient() {
 
       <BarcodeScanner />
 
-      {/* Manual entry — always visible, no scrolling needed */}
-      <div className="mt-4 rounded-xl border border-brand-200 bg-brand-50/30 p-4">
-        <p className="text-xs font-semibold text-brand-700 mb-2">📝 Or enter barcode manually</p>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const input = (e.currentTarget.elements.namedItem("manual") as HTMLInputElement)?.value;
-            const code = input?.replace(/\D/g, "");
-            if (code && code.length >= 8) {
-              window.location.href = `/scan?barcode=${encodeURIComponent(code)}`;
-            }
-          }}
-          className="flex gap-2"
-        >
-          <input
-            name="manual"
-            type="text"
-            inputMode="numeric"
-            className="input-field flex-1 font-mono text-base"
-            placeholder="e.g. 8901058002478"
-            style={{ fontSize: "16px" }}
-          />
-          <button type="submit" className="btn-scan whitespace-nowrap min-h-[48px]">
-            Lookup
-          </button>
-        </form>
-      </div>
-
       <div className="mt-6">
         <BarcodeImageUpload />
       </div>
