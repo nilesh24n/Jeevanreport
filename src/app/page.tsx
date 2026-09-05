@@ -9,6 +9,7 @@ import { getScanHistory, clearScanHistory, type ScanHistoryEntry } from "@/lib/s
 import { useLang } from "@/components/LanguageContext";
 import { useToast } from "@/components/Toast";
 import { RatingBadge } from "@/lib/rating-ui";
+import AnimatedMascot from "@/components/AnimatedMascot";
 
 const tickerItems = [
   "Maggi 2-Minute Noodles", "Amul Butter", "Dettol Handwash",
@@ -159,6 +160,7 @@ export default function HomePage() {
 
   return (
     <>
+      <AnimatedMascot />
       {/* Hero */}
       <section className="border-b border-latte bg-brand-50">
         <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">

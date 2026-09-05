@@ -45,6 +45,7 @@ export default function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <Link href="/" className="group flex flex-shrink-0 items-center gap-2.5">
           <Image
+            id="site-logo"
             src="/logo-icon.svg"
             alt="JeevanReport"
             width={40}
