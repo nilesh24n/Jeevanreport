@@ -2,19 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Fonts are loaded via next/font/google in layout.tsx (SSR-safe). ──
-   No @import needed here — duplicate @import was causing FOUC and CSS
-   parse failures when navigating from Google Search referrals. ──── */
-
-/* ── CSS Custom Properties — Mocha Mousse 2025 ─────────────────────── */
 :root {
-  --color-mocha:   #9b7653;
-  --color-canvas:  #faf7f2;
-  --color-espresso:#2c1a0e;
-  --color-latte:   #e8ddd0;
-  --color-success: #3b6d11;
-  --color-warning: #854f0b;
-  --color-danger:  #a32d2d;
+  --color-brand:   #16a34a;
+  --color-canvas:  #ffffff;
+  --color-espresso:#1f2937;
+  --color-latte:   #e5e7eb;
+  --color-success: #22c55e;
+  --color-warning: #eab308;
+  --color-danger:  #ef4444;
 }
 
 @layer base {
@@ -22,93 +17,93 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-canvas text-espresso antialiased selection:bg-brand-200 selection:text-brand-950;
+    @apply bg-canvas text-espresso antialiased selection:bg-brand-100 selection:text-brand-900;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-fraunces), Georgia, serif;
-    color: var(--color-espresso);
+    @apply font-sans font-semibold text-espresso;
   }
 }
 
-/* ── Component Library ─────────────────────────────────────────────── */
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:bg-brand-700 hover:shadow-mocha hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition-colors duration-150 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border-2 border-brand-600 bg-transparent px-6 py-3 text-sm font-semibold text-brand-700 shadow-sm transition-all duration-300 hover:bg-brand-50 hover:shadow-sm active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-latte bg-white px-6 py-3 text-sm font-semibold text-espresso transition-colors duration-150 hover:border-brand-400 hover:bg-brand-50 focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:ring-offset-2;
   }
   .btn-accent {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-success-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:bg-success-700 hover:shadow-md hover:scale-[1.01] active:scale-[0.99];
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-warning-500 px-6 py-3 text-sm font-semibold text-espresso transition-colors duration-150 hover:bg-warning-600 hover:text-white;
   }
   .card {
-    @apply rounded-2xl border border-latte bg-white p-4 sm:p-6 shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-brand-200;
+    @apply rounded-lg border border-latte bg-white p-4 sm:p-6 shadow-card transition-colors duration-150 hover:border-brand-200;
   }
   .card-premium {
-    @apply rounded-3xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-5 sm:p-8 shadow-premium transition-all duration-300 hover:shadow-xl hover:border-brand-300;
+    @apply rounded-lg border border-latte bg-white p-5 sm:p-8 shadow-premium;
   }
   .badge {
-    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide;
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold;
   }
   .badge-warning {
-    @apply badge bg-warning-50 text-warning-600 ring-1 ring-warning-500/20;
+    @apply badge bg-warning-100 text-warning-800 ring-1 ring-warning-400/40;
   }
   .badge-success {
-    @apply badge bg-success-50 text-success-600 ring-1 ring-success-500/20;
+    @apply badge bg-success-50 text-success-700 ring-1 ring-success-500/20;
   }
   .badge-danger {
-    @apply badge bg-danger-50 text-danger-600 ring-1 ring-danger-500/20;
+    @apply badge bg-danger-50 text-danger-700 ring-1 ring-danger-500/20;
   }
   .badge-neutral {
-    @apply badge bg-latte text-espresso ring-1 ring-brand-200;
+    @apply badge bg-gray-100 text-espresso/70 ring-1 ring-gray-200;
   }
   .badge-brand {
     @apply badge bg-brand-50 text-brand-700 ring-1 ring-brand-500/20;
   }
   .badge-saffron {
-    @apply badge bg-saffron-50 text-saffron-700 ring-1 ring-saffron-500/20;
+    @apply badge bg-warning-100 text-warning-800 ring-1 ring-warning-400/40;
   }
   .badge-rating-green {
-    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold bg-emerald-50 text-emerald-700 ring-2 ring-emerald-500/20 shadow-sm;
+    @apply inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold bg-brand-50 text-brand-800 ring-1 ring-brand-200;
   }
   .badge-rating-yellow {
-    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold bg-amber-50 text-amber-700 ring-2 ring-amber-500/20 shadow-sm;
+    @apply inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold bg-warning-100 text-warning-900 ring-1 ring-warning-300;
   }
   .badge-rating-orange {
-    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold bg-orange-50 text-orange-700 ring-2 ring-orange-500/20 shadow-sm;
+    @apply inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold bg-orange-50 text-orange-800 ring-1 ring-orange-200;
   }
   .badge-rating-red {
-    @apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold bg-rose-50 text-rose-700 ring-2 ring-rose-500/20 shadow-sm;
+    @apply inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold bg-red-50 text-red-800 ring-1 ring-red-200;
   }
   .section-title {
-    @apply text-3xl font-bold tracking-tight text-espresso sm:text-4xl;
-    font-family: var(--font-fraunces), Georgia, serif;
+    @apply text-2xl font-semibold text-espresso sm:text-3xl;
   }
   .section-subtitle {
-    @apply mt-3 text-base sm:text-lg text-brand-900/60 max-w-2xl mx-auto;
+    @apply mt-2 text-base text-espresso/60 max-w-2xl;
   }
   .input-field {
-    @apply w-full rounded-xl border border-latte bg-white px-4 py-3.5 text-base shadow-sm placeholder:text-brand-900/30 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 transition-all duration-300;
+    @apply w-full rounded-lg border border-latte bg-white px-4 py-3 text-base placeholder:text-espresso/40 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors duration-150;
   }
   .tab-active {
     @apply border-b-2 border-brand-600 text-brand-700 font-semibold px-4 py-3;
   }
   .tab-inactive {
-    @apply border-b-2 border-transparent text-brand-900/50 hover:text-espresso hover:border-brand-300 px-4 py-3 transition-all duration-200;
+    @apply border-b-2 border-transparent text-espresso/50 hover:text-espresso hover:border-brand-300 px-4 py-3 transition-colors duration-150;
   }
-
-  /* Category pill badges for product classification */
   .category-pill {
-    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border;
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase border;
   }
-  .category-pill-food        { @apply category-pill bg-emerald-50 text-emerald-800 border-emerald-200; }
+  .category-pill-food        { @apply category-pill bg-brand-50 text-brand-800 border-brand-200; }
   .category-pill-care        { @apply category-pill bg-sky-50 text-sky-800 border-sky-200; }
   .category-pill-supplement  { @apply category-pill bg-violet-50 text-violet-800 border-violet-200; }
   .category-pill-baby        { @apply category-pill bg-pink-50 text-pink-800 border-pink-200; }
-  .category-pill-unknown     { @apply category-pill bg-latte text-espresso border-brand-200; }
+  .category-pill-unknown     { @apply category-pill bg-gray-100 text-espresso/70 border-gray-200; }
+  .rating-dot {
+    @apply h-2 w-2 rounded-full flex-shrink-0;
+  }
+  .feature-icon {
+    @apply flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-600;
+  }
 }
 
-/* ── Ticker / Marquee Animation ────────────────────────────────────── */
 @keyframes ticker {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -116,13 +111,12 @@
 .ticker-track {
   display: flex;
   width: max-content;
-  animation: ticker 28s linear infinite;
+  animation: ticker 32s linear infinite;
 }
 .ticker-track:hover {
   animation-play-state: paused;
 }
 
-/* ── Animated CSS Barcode ───────────────────────────────────────────── */
 @keyframes laser-sweep {
   0%   { top: 8%; opacity: 0; }
   5%   { opacity: 1; }
@@ -133,43 +127,37 @@
   animation: laser-sweep 2s ease-in-out infinite;
 }
 
-/* ── Subtle shimmer for skeleton loading ───────────────────────────── */
 @keyframes shimmer {
   0%   { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 .shimmer {
-  background: linear-gradient(90deg, var(--color-latte) 25%, #f5ede4 50%, var(--color-latte) 75%);
+  background: linear-gradient(90deg, var(--color-latte) 25%, #f3f4f6 50%, var(--color-latte) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.6s ease-in-out infinite;
 }
 
-/* ── Floating scan button (mobile) ────────────────────────────────── */
 .fab-scan {
   position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  z-index: 50;
-  height: 56px;
-  padding: 0 2rem;
+  bottom: 5rem;
+  right: 1rem;
+  z-index: 40;
+  height: 52px;
+  padding: 0 1.25rem;
   border-radius: 9999px;
-  background: var(--color-mocha);
+  background: var(--color-brand);
   color: #fff;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
-  box-shadow: 0 8px 24px rgb(155 118 83 / 0.35);
+  box-shadow: 0 4px 12px rgb(22 163 74 / 0.3);
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: background-color 0.15s;
 }
 .fab-scan:hover {
-  transform: scale(1.03);
-  box-shadow: 0 12px 32px rgb(155 118 83 / 0.45);
-}
-.fab-scan:active {
-  transform: scale(0.98);
+  background: #15803d;
 }
 @media (min-width: 768px) {
   .fab-scan { display: none; }

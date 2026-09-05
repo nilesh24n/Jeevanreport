@@ -1,4 +1,5 @@
 import { products, changeFeed, countries, categories } from "./data/products";
+import * as jsonProducts from "./products-json";
 
 export function getPlatformStats() {
   const shrinkflationCount = products.filter((p) => p.packSizeChanges.length > 0).length;
@@ -21,9 +22,13 @@ export function getPlatformStats() {
 }
 
 export function getSimilarProducts(productId: string, limit = 4) {
-  const product = products.find((p) => p.id === productId);
+  const product = products.find((p) => p.id === productId) || jsonProducts.getProductById(productId);
   if (!product) return [];
-  return products
-    .filter((p) => p.id !== productId && p.category === product.category)
+  const allCategoryProds = jsonProducts.getProductsByCategory(product.category);
+  const pool = allCategoryProds.length > 0
+    ? allCategoryProds
+    : products.filter((p) => p.category === product.category);
+  return pool
+    .filter((p) => p.id !== productId)
     .slice(0, limit);
 }

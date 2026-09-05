@@ -11,13 +11,13 @@ export interface BlogPost {
 export const blogPosts: BlogPost[] = [
   {
     slug: "what-is-shrinkflation-indian-brands",
-    title: "What is Shrinkflation? How Indian Brands Are Cheating You",
+    title: "What is Shrinkflation? How Indian Brands Adjust Pack Sizes",
     excerpt: "Have you noticed your favorite biscuit packet feels lighter or soap bar got smaller, but the price remained exactly the same? That is shrinkflation. Learn how it works in India.",
     date: "2024-05-15",
     author: "JeevanReport Team",
     tags: ["Shrinkflation", "Consumer Rights", "India"],
     content: `
-Have you ever opened a packet of your favorite potato chips or chocolate bar and felt that the contents were unusually sparse, even though you paid the exact same price as always? If so, you are not imagining things. You are a victim of a widespread retail strategy known as "shrinkflation."
+Have you ever opened a packet of your favorite potato chips or chocolate bar and felt that the contents were unusually sparse, even though you paid the exact same price as always? If so, you are not imagining things. You are observing a widespread retail strategy known as "shrinkflation."
 
 ### What is Shrinkflation?
 

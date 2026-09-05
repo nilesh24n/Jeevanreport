@@ -1,8 +1,13 @@
 import type { PackSizeChange, Product } from "./types";
 import { products } from "./data/products";
+import * as jsonProducts from "./products-json";
 
 export function getProductsByCountry(country: string): Product[] {
-  return products.filter((p) => p.versions.some((v) => v.country === country));
+  const jsonMatches = jsonProducts.getAllProducts().filter((p) =>
+    (p.versions || []).some((v) => v.country?.toLowerCase() === country.toLowerCase())
+  );
+  if (jsonMatches.length > 0) return jsonMatches;
+  return products.filter((p) => p.versions.some((v) => v.country?.toLowerCase() === country.toLowerCase()));
 }
 
 export function getCountryStats(country: string) {

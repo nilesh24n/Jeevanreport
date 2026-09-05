@@ -184,14 +184,20 @@ export function getProductStatus(body: BodyImpactSummary): ProductStatus {
   let label: "Better Choice" | "Average Choice" | "Limit Often";
   let color: "green" | "yellow" | "orange" | "red";
 
-  if (isHighSugar || isHighSodium || isHighFat) {
+  const highCount = (isHighSugar ? 1 : 0) + (isHighSodium ? 1 : 0) + (isHighFat ? 1 : 0);
+
+  if (highCount >= 2) {
     rating = "Be Careful";
     label = "Limit Often";
     color = "red";
+  } else if (highCount === 1) {
+    rating = "Okay";
+    label = "Average Choice";
+    color = "yellow";
   } else if (body.occasionLabel === "Better occasional treat" || body.processingFlag === "High") {
-    rating = "Be Careful";
-    label = "Limit Often";
-    color = "orange";
+    rating = "Okay";
+    label = "Average Choice";
+    color = "yellow";
   } else if (body.occasionLabel === "Better staple candidate" && body.balanceLabel === "More balanced") {
     rating = "Good";
     label = "Better Choice";

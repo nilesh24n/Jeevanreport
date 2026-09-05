@@ -43,9 +43,9 @@ export default function CategoryFilters({
 
   return (
     <>
-      <div className="mt-6 flex flex-wrap gap-4 rounded-xl border border-slate-200 bg-white p-4">
+      <div className="mt-6 flex flex-wrap gap-4 rounded-xl border border-latte bg-white p-4">
         <div>
-          <label className="text-xs font-medium text-slate-600">Nutrition flag</label>
+          <label className="text-xs font-semibold uppercase tracking-wider text-espresso/45">Nutrition flag</label>
           <select className="input-field mt-1" value={nutritionFlag} onChange={(e) => setNutritionFlag(e.target.value)}>
             <option value="">Any</option>
             <option value="high sugar">High sugar</option>
@@ -55,19 +55,19 @@ export default function CategoryFilters({
           </select>
         </div>
         <div>
-          <label className="text-xs font-medium text-slate-600">Sort by</label>
+          <label className="text-xs font-semibold uppercase tracking-wider text-espresso/45">Sort by</label>
           <select className="input-field mt-1" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
             <option value="name">Name</option>
-            <option value="trust">Trust score</option>
+            <option value="trust">Data confidence</option>
             <option value="calories">Calories</option>
           </select>
         </div>
-        <label className="flex items-end gap-2 pb-2 text-sm text-slate-600 cursor-pointer">
+        <label className="flex cursor-pointer items-end gap-2 pb-2 text-sm text-espresso/60">
           <input
             type="checkbox"
             checked={onlyChanged}
             onChange={(e) => setOnlyChanged(e.target.checked)}
-            className="rounded border-slate-300 text-brand-600"
+            className="rounded border-latte text-brand-600"
           />
           Only products with changes
         </label>
@@ -75,22 +75,22 @@ export default function CategoryFilters({
 
       {!onlyChanged && withChanges.length > 0 && (
         <section className="mt-10">
-          <h2 className="text-lg font-semibold text-slate-900">Products with recent changes</h2>
+          <h2 className="text-lg font-semibold text-espresso">Products with recent changes</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {withChanges.map((p) => <ProductCard key={p.id} product={p} />)}
           </div>
         </section>
       )}
 
-      <section className="mt-10">
-        <h2 className="text-lg font-semibold text-slate-900">
+      <section className="mt-8">
+        <h2 className="text-lg font-semibold text-espresso">
           {onlyChanged ? "Changed" : "All"} {categoryName} products ({filtered.length})
         </h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-4 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((p) => <ProductCard key={p.id} product={p} />)}
         </div>
         {filtered.length === 0 && (
-          <p className="mt-4 text-sm text-slate-500">No products match these filters.</p>
+          <p className="mt-4 text-sm text-espresso/45">No products match these filters.</p>
         )}
       </section>
     </>

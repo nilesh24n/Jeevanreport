@@ -55,9 +55,13 @@ function SubmitFormContent() {
   if (submitted) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6">
-        <div className="text-4xl">✓</div>
-        <h1 className="mt-4 text-2xl font-bold text-slate-900">Evidence Submitted</h1>
-        <p className="mt-2 text-slate-600">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success-50 text-success-600 ring-1 ring-success-200">
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+        </div>
+        <h1 className="mt-4 text-2xl font-semibold text-espresso">Evidence submitted</h1>
+        <p className="mt-2 text-espresso/55">
           Thank you! Your submission is queued for moderation. Typical review time is 24–72 hours.
         </p>
       </div>
@@ -68,8 +72,8 @@ function SubmitFormContent() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-      <h1 className="text-3xl font-bold text-slate-900">Submit Evidence</h1>
-      <p className="mt-2 text-slate-600">Help build the public archive with photos, prices, and product changes</p>
+      <h1 className="section-title">Submit Evidence</h1>
+      <p className="mt-2 text-espresso/55">Help build the public archive with photos, prices, and product changes</p>
 
       {prefillProduct && (
         <div className="mt-4 card bg-brand-50 border-brand-200">
@@ -106,7 +110,7 @@ function SubmitFormContent() {
             { name: "servingSize", label: "Serving size", default: v?.servingSize },
           ].map((field) => (
             <div key={field.name}>
-              <label className="text-sm font-medium text-slate-700">{field.label}</label>
+              <label className="text-sm font-medium text-espresso/70">{field.label}</label>
               <input
                 name={field.name}
                 type={field.type || "text"}
@@ -119,12 +123,12 @@ function SubmitFormContent() {
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">Ingredients text (from label)</label>
+          <label className="text-sm font-medium text-espresso/70">Ingredients text (from label)</label>
           <textarea name="ingredients" rows={3} className="input-field mt-1" defaultValue={v?.ingredientsText ?? ""} />
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">Nutrition facts (from label)</label>
+          <label className="text-sm font-medium text-espresso/70">Nutrition facts (from label)</label>
           <textarea
             name="nutrition"
             rows={3}
@@ -148,14 +152,14 @@ function SubmitFormContent() {
             "New version photo",
           ].map((label) => (
             <div key={label}>
-              <label className="text-sm font-medium text-slate-700">{label}</label>
+              <label className="text-sm font-medium text-espresso/70">{label}</label>
               <input type="file" accept="image/*" className="mt-1 text-sm" />
             </div>
           ))}
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">Notes</label>
+          <label className="text-sm font-medium text-espresso/70">Notes</label>
           <textarea name="notes" rows={3} className="input-field mt-1" placeholder="Describe what changed, when you noticed, etc. No medical claims." />
         </div>
 
@@ -166,15 +170,15 @@ function SubmitFormContent() {
 
       <div className="mt-12 space-y-6">
         <div className="card">
-          <h2 className="font-semibold">How trust scores work</h2>
-          <p className="mt-2 text-sm text-slate-600">
+          <h2 className="font-semibold">How data confidence scores work</h2>
+          <p className="mt-2 text-sm text-espresso/55">
             Submissions increase trust when barcodes match, photos are readable, metadata is complete,
             and other users confirm findings. Moderators review flagged or disputed submissions.
           </p>
         </div>
         <div className="card border-danger-500/20">
           <h2 className="font-semibold text-danger-600">Community rules</h2>
-          <ul className="mt-2 space-y-1 text-sm text-slate-600">
+          <ul className="mt-2 space-y-1 text-sm text-espresso/55">
             <li>• Submit only accurate, good-faith evidence</li>
             <li>• Do not fabricate changes or use misleading photos</li>
             <li>• No medical diagnoses or health guarantees in notes</li>
@@ -187,7 +191,7 @@ function SubmitFormContent() {
 
 export default function SubmitForm() {
   return (
-    <Suspense fallback={<div className="py-20 text-center text-slate-500">Loading form…</div>}>
+    <Suspense fallback={<div className="py-20 text-center text-espresso/45">Loading form…</div>}>
       <SubmitFormContent />
     </Suspense>
   );

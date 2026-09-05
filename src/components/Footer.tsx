@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MEDICAL_DISCLAIMER } from "@/lib/types";
+import { MEDICAL_DISCLAIMER, CONTENT_DISCLAIMER } from "@/lib/types";
 import FooterLangToggle from "./FooterLangToggle";
 
 const platformLinks = [
@@ -23,57 +23,51 @@ const companyLinks = [
 ];
 
 const legalLinks = [
-  { href: "/privacy",     label: "Privacy Policy" },
-  { href: "/terms",       label: "Terms of Service" },
-  { href: "/disclaimer",  label: "Medical Disclaimer" },
-  { href: "/data-sources",label: "Data Sources" },
-  { href: "/contact",     label: "Contact" },
+  { href: "/privacy",      label: "Privacy Policy" },
+  { href: "/terms",        label: "Terms of Service" },
+  { href: "/disclaimer",   label: "Medical Disclaimer" },
+  { href: "/data-sources", label: "Data Sources" },
+  { href: "/corrections",  label: "Data Corrections" },
+  { href: "/contact",      label: "Contact" },
 ];
 
 const countryLinks = [
-  { href: "/countries/india",     label: "🇮🇳 India" },
-  { href: "/countries/usa",       label: "🇺🇸 USA" },
-  { href: "/countries/uk",        label: "🇬🇧 UK" },
-  { href: "/countries/canada",    label: "🇨🇦 Canada" },
-  { href: "/countries/australia", label: "🇦🇺 Australia" },
-  { href: "/countries/japan",     label: "🇯🇵 Japan" },
+  { href: "/countries/india",     label: "India" },
+  { href: "/countries/usa",       label: "USA" },
+  { href: "/countries/uk",        label: "UK" },
+  { href: "/countries/canada",    label: "Canada" },
+  { href: "/countries/australia", label: "Australia" },
+  { href: "/countries/japan",     label: "Japan" },
 ];
 
 export default function Footer() {
   return (
-    <footer className="border-t border-latte bg-white print:hidden">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-
-        {/* 4-column grid */}
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Column 1: Brand */}
-          <div className="col-span-2 sm:col-span-2 lg:col-span-1 space-y-4">
-            <Link href="/" className="flex items-center gap-2.5 group">
+    <footer className="border-t border-brand-700 bg-brand-800 text-white print:hidden">
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+        <div className="grid grid-cols-2 gap-10 lg:grid-cols-4">
+          <div className="col-span-2 space-y-4 lg:col-span-1">
+            <Link href="/" className="group flex items-center gap-2.5">
               <Image
                 src="/logo-icon.svg"
-                alt="Jeevanreport"
-                width={36}
-                height={36}
-                className="transition-transform duration-300 group-hover:scale-105"
+                alt="JeevanReport"
+                width={32}
+                height={32}
+                className="brightness-0 invert transition-transform group-hover:scale-105"
               />
-              <span className="font-display text-lg font-bold tracking-tight text-espresso group-hover:text-brand-600 transition-colors">
-                Jeevanreport
-              </span>
+              <span className="text-lg font-semibold text-white">JeevanReport</span>
             </Link>
-            <p className="text-sm text-espresso/60 leading-relaxed">
-              India&apos;s product transparency platform. Scan. Know. Share.
+            <p className="max-w-xs text-sm leading-relaxed text-white/50">
+              India&apos;s product transparency platform. Scan barcodes, read the evidence, make informed choices.
             </p>
-            {/* Language toggle in footer */}
             <FooterLangToggle />
           </div>
 
-          {/* Column 2: Platform */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-brand-900/40">Platform</h3>
+            <h3 className="text-[11px] font-bold uppercase tracking-widest text-white/35">Platform</h3>
             <ul className="space-y-2">
               {platformLinks.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-espresso/60 hover:text-brand-600 transition-colors">
+                  <Link href={l.href} className="text-sm text-white/55 transition-colors hover:text-white">
                     {l.label}
                   </Link>
                 </li>
@@ -81,13 +75,12 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 3: Company */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-brand-900/40">Company</h3>
+            <h3 className="text-[11px] font-bold uppercase tracking-widest text-white/35">Company</h3>
             <ul className="space-y-2">
               {companyLinks.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-espresso/60 hover:text-brand-600 transition-colors">
+                  <Link href={l.href} className="text-sm text-white/55 transition-colors hover:text-white">
                     {l.label}
                   </Link>
                 </li>
@@ -95,13 +88,12 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 4: Legal */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-brand-900/40">Legal</h3>
+            <h3 className="text-[11px] font-bold uppercase tracking-widest text-white/35">Legal</h3>
             <ul className="space-y-2">
               {legalLinks.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-espresso/60 hover:text-brand-600 transition-colors">
+                  <Link href={l.href} className="text-sm text-white/55 transition-colors hover:text-white">
                     {l.label}
                   </Link>
                 </li>
@@ -110,15 +102,14 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Country links */}
-        <div className="mt-10 border-t border-latte pt-6">
-          <p className="text-xs font-bold uppercase tracking-wider text-brand-900/30 mb-3">Browse by Country</p>
-          <div className="flex flex-wrap gap-3">
+        <div className="mt-10 border-t border-white/10 pt-6">
+          <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-white/30">Browse by country</p>
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
             {countryLinks.map((c) => (
               <Link
                 key={c.href}
                 href={c.href}
-                className="text-xs font-medium text-espresso/50 hover:text-brand-600 transition-colors"
+                className="text-xs font-medium text-white/45 transition-colors hover:text-white"
               >
                 {c.label}
               </Link>
@@ -126,17 +117,18 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Medical disclaimer */}
-        <div className="mt-6 rounded-2xl border border-warning-100 bg-warning-50/30 p-4">
-          <p className="text-xs leading-relaxed text-warning-600">
-            <strong>Medical Disclaimer:</strong> {MEDICAL_DISCLAIMER}
+        <div className="mt-6 grid gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 md:grid-cols-2">
+          <p className="text-[11px] leading-relaxed text-white/40">
+            <strong className="text-white/60">Content:</strong> {CONTENT_DISCLAIMER}
+          </p>
+          <p className="text-[11px] leading-relaxed text-white/40 md:border-l md:border-white/10 md:pl-4">
+            <strong className="text-white/60">Medical:</strong> {MEDICAL_DISCLAIMER}
           </p>
         </div>
 
-        {/* Bottom bar */}
-        <div className="mt-6 border-t border-latte pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-espresso/40">
-          <p>© {new Date().getFullYear()} Jeevanreport · Built for India · Empowering consumer awareness</p>
-          <a href="mailto:contact@jeevanreport.in" className="hover:text-brand-600 transition-colors">
+        <div className="mt-6 flex flex-col items-center justify-between gap-2 border-t border-white/10 pt-6 text-xs text-white/35 sm:flex-row">
+          <p>© {new Date().getFullYear()} JeevanReport · Built for India</p>
+          <a href="mailto:contact@jeevanreport.in" className="transition-colors hover:text-white/70">
             contact@jeevanreport.in
           </a>
         </div>

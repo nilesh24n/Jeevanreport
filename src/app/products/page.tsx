@@ -6,8 +6,8 @@ export default async function ProductsPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <h1 className="text-3xl font-bold text-slate-900">All Products</h1>
-      <p className="mt-2 text-slate-600">{(dbCount || 0).toLocaleString()} products in the public archive</p>
+      <h1 className="section-title">All Products</h1>
+      <p className="mt-2 text-espresso/55">{(dbCount || 0).toLocaleString()} products in the public archive</p>
       <ProductBrowser />
     </div>
   );

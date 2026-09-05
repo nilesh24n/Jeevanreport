@@ -197,3 +197,6 @@ export interface Category {
 
 export const MEDICAL_DISCLAIMER =
   "This is general educational guidance based on publicly available nutrition data. It is not medical advice, diagnosis, or treatment. Personal outcomes vary by body size, activity level, health conditions, medications, and total diet.";
+
+export const CONTENT_DISCLAIMER =
+  "All product assessments are automated/editorial opinions based on publicly available label data and user submissions. Jeevanreport does not allege any legal violation by any manufacturer. Brand names and trademarks are used only to identify products for consumer reference (nominative fair use) and are the property of their respective owners.";

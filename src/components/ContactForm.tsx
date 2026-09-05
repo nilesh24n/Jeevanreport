@@ -20,13 +20,17 @@ interface FormState {
   message: string;
 }
 
-export default function ContactForm() {
+interface ContactFormProps {
+  prefilledSubject?: string;
+}
+
+export default function ContactForm({ prefilledSubject }: ContactFormProps = {}) {
   const [status, setStatus] = useState<"idle" | "sending" | "success">("idle");
   const [form, setForm] = useState<FormState>({
     name: "",
     email: "",
-    subject: "general",
-    message: "",
+    subject: prefilledSubject ? "wrong_data" : "general",
+    message: prefilledSubject ? `Correction details:\n- Product Barcode:\n- Incorrect Data Field:\n- Correct Value:\n- Verifiable Evidence link/text:\n` : "",
   });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
@@ -57,9 +61,13 @@ export default function ContactForm() {
   if (status === "success") {
     return (
       <div className="card text-center py-10 space-y-4">
-        <div className="text-4xl">✅</div>
-        <p className="text-xl font-bold text-slate-900">Message received!</p>
-        <p className="text-sm text-slate-600 max-w-md mx-auto">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success-50 text-success-600 ring-1 ring-success-200">
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+        </div>
+        <p className="text-xl font-semibold text-espresso">Message received!</p>
+        <p className="mx-auto max-w-md text-sm text-espresso/55">
           Thank you! We&apos;ll get back to you at{" "}
           <strong>{form.email}</strong> via{" "}
           <a href={`mailto:${CONTACT_EMAIL}`} className="text-brand-600 hover:underline">
@@ -81,7 +89,7 @@ export default function ContactForm() {
   return (
     <form onSubmit={handleSubmit} className="card space-y-5">
       <div>
-        <label htmlFor="cf-name" className="block text-sm font-semibold text-slate-700 mb-1">
+        <label htmlFor="cf-name" className="block text-sm font-semibold text-espresso/70 mb-1">
           Name <span className="text-rose-500">*</span>
         </label>
         <input
@@ -97,7 +105,7 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label htmlFor="cf-email" className="block text-sm font-semibold text-slate-700 mb-1">
+        <label htmlFor="cf-email" className="block text-sm font-semibold text-espresso/70 mb-1">
           Email <span className="text-rose-500">*</span>
         </label>
         <input
@@ -114,7 +122,7 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label htmlFor="cf-subject" className="block text-sm font-semibold text-slate-700 mb-1">
+        <label htmlFor="cf-subject" className="block text-sm font-semibold text-espresso/70 mb-1">
           Subject <span className="text-rose-500">*</span>
         </label>
         <select
@@ -133,7 +141,7 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label htmlFor="cf-message" className="block text-sm font-semibold text-slate-700 mb-1">
+        <label htmlFor="cf-message" className="block text-sm font-semibold text-espresso/70 mb-1">
           Message <span className="text-rose-500">*</span>
         </label>
         <textarea

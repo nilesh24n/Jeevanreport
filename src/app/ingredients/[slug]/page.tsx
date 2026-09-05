@@ -6,6 +6,10 @@ import { getGlossaryEntry, ingredientGlossary } from "@/lib/ingredient-glossary"
 import { products } from "@/lib/data/products";
 import ProductCard from "@/components/ProductCard";
 
+import * as jsonProducts from "@/lib/products-json";
+
+export const dynamicParams = true;
+
 export function generateStaticParams() {
   return ingredientGlossary.map((e) => ({ slug: e.slug }));
 }
@@ -16,10 +20,11 @@ export default async function IngredientPage({ params }: { params: Promise<{ slu
   if (!entry) notFound();
 
   const searchTerm = entry.name.split("(")[0].trim().toLowerCase();
-  const relatedProducts = products.filter((p) =>
-    p.versions.some((v) =>
-      v.ingredientsText.toLowerCase().includes(searchTerm) ||
-      v.highlightedIngredients.some((h) => h.name.toLowerCase().includes(searchTerm.split(" ")[0]))
+  const allProds = jsonProducts.getAllProducts().length > 0 ? jsonProducts.getAllProducts() : products;
+  const relatedProducts = allProds.filter((p) =>
+    (p.versions || []).some((v) =>
+      (v.ingredientsText || "").toLowerCase().includes(searchTerm) ||
+      (v.highlightedIngredients || []).some((h) => h.name?.toLowerCase().includes(searchTerm.split(" ")[0]))
     )
   );
 

@@ -20,28 +20,8 @@ import HighlightedIngredient from "./HighlightedIngredient";
 import GymModePanel from "./GymModePanel";
 import EverydayModePanel from "./EverydayModePanel";
 import ShrinkflationApiPanel from "./ShrinkflationApiPanel";
-
-function getRatingCardClass(color: string) {
-  switch (color) {
-    case "green": return "border-emerald-200 bg-emerald-50/15";
-    case "yellow": return "border-amber-200 bg-amber-50/15";
-    case "orange": return "border-orange-200 bg-orange-50/15";
-    case "red":
-    default:
-      return "border-rose-200 bg-rose-50/15";
-  }
-}
-
-function getRatingBadgeText(rating: string, color: string) {
-  switch (color) {
-    case "green": return "🟢 Good Choice";
-    case "yellow": return "🟡 Okay Choice";
-    case "orange": return "🟠 Caution";
-    case "red":
-    default:
-      return "🔴 Be Careful";
-  }
-}
+import ProductDisclaimerBanner from "./ProductDisclaimerBanner";
+import { getRatingCardClass, RatingBadge, getPointIcon } from "@/lib/rating-ui";
 
 function getNutrientTagColor(label: string, value: string) {
   if (label === "Protein" || label === "Fiber") {
@@ -55,13 +35,6 @@ function getNutrientTagColor(label: string, value: string) {
   }
 }
 
-function getPointIcon(point: string) {
-  const p = point.toLowerCase();
-  if (p.includes("high sugar") || p.includes("high salt") || p.includes("high fat") || p.includes("limit") || p.includes("calorie dense") || p.includes("low protein") || p.includes("low fiber")) {
-    return "⚠️";
-  }
-  return "✅";
-}
 
 export default function ScanResult({ product }: { product: Product }) {
   const v: ProductVersion = getLatestVersion(product);
@@ -123,30 +96,31 @@ export default function ScanResult({ product }: { product: Product }) {
   // For consumable products - show full content
   return (
     <div className="space-y-6">
+      <ProductDisclaimerBanner />
       {/* ── Sticky Mode Toggle ── */}
-      <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 backdrop-blur-xl bg-white/80 border-b border-slate-200/60 shadow-sm">
+      <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 backdrop-blur-xl bg-canvas/90 border-b border-latte">
         <div className="flex items-center gap-2 max-w-xs">
           <button
             id="scan-mode-gym"
             onClick={() => setScanMode("gym")}
-            className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
+            className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               scanMode === "gym"
-                ? "bg-brand-600 text-white shadow-md scale-[1.02]"
-                : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                ? "bg-brand-600 text-white shadow-sm"
+                : "bg-stone-100 text-espresso/55 hover:bg-stone-200"
             }`}
           >
-            <span>💪</span> Gym Mode
+            Gym mode
           </button>
           <button
             id="scan-mode-everyday"
             onClick={() => setScanMode("everyday")}
-            className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
+            className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
               scanMode === "everyday"
-                ? "bg-brand-600 text-white shadow-md scale-[1.02]"
-                : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                ? "bg-brand-600 text-white shadow-sm"
+                : "bg-stone-100 text-espresso/55 hover:bg-stone-200"
             }`}
           >
-            <span>🥗</span> Everyday
+            Everyday
           </button>
         </div>
       </div>
@@ -165,7 +139,7 @@ export default function ScanResult({ product }: { product: Product }) {
 
       {/* 1. Simple, Color-Coded Verdict Banner */}
       <section className={`card border-2 flex flex-col md:flex-row items-center gap-6 p-6 ${getRatingCardClass(status.color)}`}>
-        <div className="relative h-28 w-28 flex-shrink-0 overflow-hidden rounded-2xl bg-white border border-slate-100 shadow-sm mx-auto md:mx-0">
+        <div className="relative h-28 w-28 flex-shrink-0 overflow-hidden rounded-2xl bg-white border border-latte shadow-sm mx-auto md:mx-0">
           <Image src={product.imageUrl} alt={product.name} fill className="object-cover" sizes="112px" priority />
         </div>
         
@@ -183,14 +157,12 @@ export default function ScanResult({ product }: { product: Product }) {
           
           <div className="flex flex-wrap justify-center md:justify-start items-center gap-3 pt-1">
             {isFood && (
-              <span className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold shadow-sm ring-2 ${
-                status.color === "green" ? "bg-emerald-50 text-emerald-700 ring-emerald-500/20" :
-                status.color === "yellow" ? "bg-amber-50 text-amber-700 ring-amber-500/20" :
-                status.color === "orange" ? "bg-orange-50 text-orange-700 ring-orange-500/20" :
-                "bg-rose-50 text-rose-700 ring-rose-500/20"
-              }`}>
-                {getRatingBadgeText(status.rating, status.color)}
-              </span>
+              <div className="flex flex-col items-start gap-1">
+                <RatingBadge color={status.color} />
+                <span className="text-[10px] text-espresso/50 font-medium mt-1">
+                  * Factual data from package labels as of {v.versionDate || "recent check"}.
+                </span>
+              </div>
             )}
             <span className="text-xs font-bold text-espresso/30 font-mono">Barcode: {product.barcode}</span>
           </div>
@@ -198,14 +170,17 @@ export default function ScanResult({ product }: { product: Product }) {
 
         {/* Choice level — food only */}
         {isFood && (
-          <div className="flex flex-col items-center justify-center p-3.5 rounded-2xl bg-white border border-latte shadow-sm w-36 mx-auto md:mx-0">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-espresso/40">Choice Level</span>
+          <div className="flex flex-col items-center justify-center p-3.5 rounded-2xl bg-white border border-latte shadow-sm w-44 mx-auto md:mx-0 text-center relative group">
+            <span className="text-[9px] font-bold uppercase tracking-wider text-espresso/45">Jeevanreport Assessment</span>
             <span className={`text-base font-bold mt-1 ${
               status.color === "green" ? "text-emerald-600" :
               status.color === "yellow" ? "text-amber-600" :
               status.color === "orange" ? "text-orange-500" :
               "text-rose-600"
             }`}>{status.label}</span>
+            <div className="hidden group-hover:block absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 p-2 bg-brand-800 text-white text-[10px] rounded-lg shadow-lg z-30 leading-snug">
+              This rating is Jeevanreport&apos;s interpretive opinion based on public nutritional formulas. It is not an accusation of brand quality.
+            </div>
           </div>
         )}
       </section>
@@ -221,14 +196,12 @@ export default function ScanResult({ product }: { product: Product }) {
 
       {/* 2. Visual Assessment Points — food only */}
       <section className="card space-y-4">
-        <h2 className="text-lg font-bold text-espresso flex items-center gap-2">
-          <span>⚡</span> Quick Assessment
-        </h2>
+        <h2 className="text-lg font-semibold text-espresso">Quick assessment</h2>
         <ul className="grid gap-2 sm:grid-cols-2">
           {status.points.map((p, idx) => (
-            <li key={idx} className="flex items-start gap-2.5 bg-brand-50/30 p-3 rounded-xl border border-latte">
-              <span className="text-base mt-0.5">{getPointIcon(p)}</span>
-              <span className="text-sm font-semibold text-espresso/80 leading-snug">{p}</span>
+            <li key={idx} className="flex items-start gap-2.5 rounded-xl border border-latte bg-brand-50/20 p-3">
+              <span className={`mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full ${getPointIcon(p) === "warn" ? "bg-rose-500" : "bg-emerald-500"}`} />
+              <span className="text-sm font-medium leading-snug text-espresso/75">{p}</span>
             </li>
           ))}
         </ul>
@@ -236,9 +209,7 @@ export default function ScanResult({ product }: { product: Product }) {
 
       {/* 3. Easy Summary Card — food only */}
       <section className="card space-y-4">
-        <h2 className="text-lg font-bold text-espresso flex items-center gap-2">
-          <span>📝</span> Easy Summary
-        </h2>
+        <h2 className="text-lg font-semibold text-espresso">Easy summary</h2>
         <div className="bg-brand-50/20 border border-latte rounded-2xl p-5 space-y-4">
           <p className="text-base font-semibold leading-relaxed text-espresso/80">
             {status.rating === 'Good' ? "This product is a good choice to consume daily or regularly. It has balanced nutrients and no high warning signs." :
@@ -298,18 +269,15 @@ export default function ScanResult({ product }: { product: Product }) {
         </div>
         <div className="grid gap-3 grid-cols-2 sm:grid-cols-3">
           {[
-            { label: "Sugar", val: body.sugarFlag, icon: "🍬" },
-            { label: "Fat", val: body.saturatedFatFlag, icon: "🥑" },
-            { label: "Protein", val: body.proteinFlag, icon: "💪" },
-            { label: "Fiber", val: body.fiberFlag, icon: "🌾" },
-            { label: "Salt/Sodium", val: body.sodiumFlag, icon: "🧂" },
-            { label: "Calories", val: body.energyDensityLabel, icon: "🔋" },
+            { label: "Sugar", val: body.sugarFlag },
+            { label: "Fat", val: body.saturatedFatFlag },
+            { label: "Protein", val: body.proteinFlag },
+            { label: "Fiber", val: body.fiberFlag },
+            { label: "Salt/Sodium", val: body.sodiumFlag },
+            { label: "Calories", val: body.energyDensityLabel },
           ].map((item) => (
-            <div key={item.label} className="flex items-center justify-between p-3 rounded-xl border border-latte bg-brand-50/20">
-              <div className="flex items-center gap-2">
-                <span className="text-base">{item.icon}</span>
-                <span className="text-xs font-bold text-espresso/70">{item.label}</span>
-              </div>
+            <div key={item.label} className="flex items-center justify-between rounded-xl border border-latte bg-brand-50/20 p-3">
+              <span className="text-xs font-bold text-espresso/70">{item.label}</span>
               <span className={`text-xs font-bold px-2 py-0.5 rounded-md border ${getNutrientTagColor(item.label, item.val)}`}>
                 {item.val}
               </span>
@@ -363,16 +331,16 @@ export default function ScanResult({ product }: { product: Product }) {
       </section>
 
       {/* 6. Ingredients & Additives Accordion */}
-      <section className="card p-0 overflow-hidden border border-slate-100 shadow-card">
+      <section className="card p-0 overflow-hidden border border-latte shadow-card">
         <button 
           onClick={() => setShowIngredients(!showIngredients)}
           aria-expanded={showIngredients}
           aria-controls="ingredients-details-panel"
-          className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="w-full flex items-center justify-between p-6 text-left hover:bg-stone-50/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Ingredients & Additives Log</h2>
-            <p className="text-xs text-slate-400 font-medium mt-0.5">Complexity index, simplified labels, and allergen details</p>
+            <h2 className="text-lg font-semibold text-espresso">Ingredients & additives log</h2>
+            <p className="mt-0.5 text-xs font-medium text-espresso/35">Complexity index, simplified labels, and allergen details</p>
           </div>
           <span className="text-base text-brand-600 font-bold transition-transform duration-300 flex items-center gap-1" aria-hidden="true">
             {showIngredients ? "Hide ▴" : "Show ▾"}
@@ -380,16 +348,16 @@ export default function ScanResult({ product }: { product: Product }) {
         </button>
 
         {showIngredients && (
-          <div id="ingredients-details-panel" className="p-6 border-t border-slate-100 space-y-4 bg-slate-50/10">
+          <div id="ingredients-details-panel" className="space-y-4 border-t border-latte bg-stone-50/10 p-6">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Full Ingredients text</h3>
-              <p className="text-sm text-slate-700 leading-relaxed font-medium bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-espresso/35">Full Ingredients text</h3>
+              <p className="text-sm text-espresso/75 leading-relaxed font-medium bg-white rounded-xl p-4 border border-latte shadow-sm">
                 {v.ingredientsText}
               </p>
             </div>
 
             <div className="space-y-2 pt-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Simplified Breakdown</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-espresso/35">Simplified Breakdown</h3>
               <div className="flex flex-wrap gap-1.5">
                 {v.simplifiedIngredients.map((ing) => (
                   <span key={ing} className="badge-neutral !rounded-lg">{ing}</span>
@@ -399,7 +367,7 @@ export default function ScanResult({ product }: { product: Product }) {
 
             {v.highlightedIngredients.length > 0 && (
               <div className="space-y-2 pt-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Highlighted compounds</h3>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-espresso/35">Highlighted compounds</h3>
                 <div className="space-y-1.5">
                   {v.highlightedIngredients.map((h) => (
                     <HighlightedIngredient key={h.name} name={h.name} type={h.type} note={h.note} />
@@ -408,7 +376,7 @@ export default function ScanResult({ product }: { product: Product }) {
               </div>
             )}
 
-            <div className="pt-2 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between border-t border-slate-100">
+            <div className="pt-2 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between border-t border-latte">
               <IngredientComplexity level={v.ingredientComplexity} />
               {v.allergens.length > 0 && (
                 <div className="text-xs font-semibold text-danger-700 bg-danger-50 px-3 py-1.5 rounded-lg border border-danger-100/30">
@@ -422,10 +390,10 @@ export default function ScanResult({ product }: { product: Product }) {
 
       {/* 8. Detailed Body Impact Panel (Always accessible, styled clean) */}
       <section className="card border-brand-100 bg-gradient-to-br from-white to-brand-50/5 space-y-4">
-        <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+        <div className="border-b border-latte pb-3 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Detailed Educational Impact Summary</h2>
-            <p className="text-xs text-slate-400 font-medium">Ayurvedic & modern nutritional markers</p>
+            <h2 className="text-lg font-semibold text-espresso">Detailed educational impact summary</h2>
+            <p className="text-xs text-espresso/35 font-medium">Ayurvedic & modern nutritional markers</p>
           </div>
           <span className="badge-brand">Educational Guidance</span>
         </div>
@@ -443,13 +411,13 @@ export default function ScanResult({ product }: { product: Product }) {
       <SimilarProducts productId={product.id} />
 
       {/* 10. Large, Thumb-Friendly Mobile Actions (Blue Actions) */}
-      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 pt-4 border-t border-slate-100">
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 pt-4 border-t border-latte">
         <div className="col-span-2">
           <WatchlistButton productId={product.id} name={product.name} brand={product.brand} />
         </div>
         <ShareButton title={product.name} />
         <Link href={`/compare?ids=${product.id}`} className="btn-secondary text-center">Compare</Link>
-        <Link href={`/submit?product=${product.id}`} className="col-span-2 btn-primary text-center">⚡ Submit Proof</Link>
+        <Link href={`/submit?product=${product.id}`} className="col-span-2 btn-primary text-center">Submit proof</Link>
       </div>
     </div>
   );

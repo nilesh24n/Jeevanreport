@@ -61,26 +61,26 @@ export default function TrustScoreBreakdown({ product }: { product: Product }) {
 
   return (
     <div className="card">
-      <h3 className="font-semibold text-slate-900">Trust score breakdown</h3>
-      <p className="mt-1 text-xs text-slate-500">
-        How {product.trustScore}% was built from available evidence
+      <h3 className="font-semibold text-espresso">Evidence completeness breakdown</h3>
+      <p className="mt-1 text-xs text-espresso/45">
+        How the {product.trustScore}% trust score was calculated from verification sources:
       </p>
       <div className="mt-4 space-y-3">
         {factors.map((f) => (
           <div key={f.label}>
             <div className="flex items-center justify-between text-sm">
-              <span className={f.met ? "text-slate-800" : "text-slate-400"}>{f.label}</span>
-              <span className="font-medium text-slate-600">
+              <span className={f.met ? "text-espresso/80" : "text-espresso/35"}>{f.label}</span>
+              <span className="font-medium text-espresso/55">
                 {f.met ? f.points : 0}/{f.max}
               </span>
             </div>
-            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-stone-100">
               <div
-                className={`h-full rounded-full ${f.met ? "bg-brand-500" : "bg-slate-200"}`}
+                className={`h-full rounded-full ${f.met ? "bg-brand-500" : "bg-latte"}`}
                 style={{ width: `${(f.met ? f.points : 0) / f.max * 100}%` }}
               />
             </div>
-            <p className="mt-0.5 text-[10px] text-slate-400">{f.description}</p>
+            <p className="mt-0.5 text-[10px] text-espresso/35">{f.description}</p>
           </div>
         ))}
       </div>

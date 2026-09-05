@@ -49,9 +49,9 @@ export default function ProductBrowser() {
 
   return (
     <>
-      <div className="mt-6 grid gap-4 rounded-xl border border-slate-200 bg-white p-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-6 grid gap-4 rounded-xl border border-latte bg-white p-4 sm:grid-cols-2 lg:grid-cols-5">
         <div className="lg:col-span-2">
-          <label className="text-xs font-medium text-slate-600">Search</label>
+          <label className="text-xs font-semibold uppercase tracking-wider text-espresso/45">Search</label>
           <input
             className="input-field mt-1"
             placeholder="Name, brand, barcode…"
@@ -60,36 +60,36 @@ export default function ProductBrowser() {
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-slate-600">Category</label>
+          <label className="text-xs font-semibold uppercase tracking-wider text-espresso/45">Category</label>
           <select className="input-field mt-1" value={category} onChange={(e) => setCategory(e.target.value)}>
             <option value="">All</option>
             {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
           </select>
         </div>
         <div>
-          <label className="text-xs font-medium text-slate-600">Country</label>
+          <label className="text-xs font-semibold uppercase tracking-wider text-espresso/45">Country</label>
           <select className="input-field mt-1" value={country} onChange={(e) => setCountry(e.target.value)}>
             <option value="">All</option>
             {countries.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
         <div>
-          <label className="text-xs font-medium text-slate-600">Sort by</label>
+          <label className="text-xs font-semibold uppercase tracking-wider text-espresso/45">Sort by</label>
           <select className="input-field mt-1" value={sort} onChange={(e) => setSort(e.target.value as SortKey)}>
             <option value="name">Name</option>
-            <option value="trust">Trust score</option>
+            <option value="trust">Data confidence</option>
             <option value="calories">Calories</option>
             <option value="changes">Most changes</option>
           </select>
         </div>
       </div>
 
-      <label className="mt-4 flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+      <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-espresso/60">
         <input
           type="checkbox"
           checked={onlyChanged}
           onChange={(e) => setOnlyChanged(e.target.checked)}
-          className="rounded border-slate-300 text-brand-600"
+          className="rounded border-latte text-brand-600"
         />
         Only products with pack or formula changes
       </label>
@@ -103,7 +103,7 @@ export default function ProductBrowser() {
       </div>
 
       <div className="mt-6 flex items-center gap-2">
-        <p className="text-sm text-slate-500">{filtered.length} product{filtered.length !== 1 ? "s" : ""}</p>
+        <p className="text-sm text-espresso/45">{filtered.length} product{filtered.length !== 1 ? "s" : ""}</p>
         {loading && (
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-200 border-t-brand-600" />
         )}

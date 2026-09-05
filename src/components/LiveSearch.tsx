@@ -141,9 +141,9 @@ export default function LiveSearch({ initialQuery = "" }: { initialQuery?: strin
         <button type="submit" className="btn-primary whitespace-nowrap">Search</button>
       </form>
 
-      <div className="card grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 bg-slate-50/50">
+      <div className="card grid gap-4 bg-stone-50/50 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
         <div>
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Country</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-espresso/45">Country</label>
           <select className="input-field mt-1.5" value={country} onChange={(e) => setCountry(e.target.value)}>
             <option value="">All countries</option>
             {countries.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -151,7 +151,7 @@ export default function LiveSearch({ initialQuery = "" }: { initialQuery?: strin
         </div>
         
         <div>
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Category</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-espresso/45">Category</label>
           <select className="input-field mt-1.5" value={category} onChange={(e) => setCategory(e.target.value)}>
             <option value="">All categories</option>
             {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
@@ -159,7 +159,7 @@ export default function LiveSearch({ initialQuery = "" }: { initialQuery?: strin
         </div>
 
         <div>
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Nutrition Flag</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-espresso/45">Nutrition Flag</label>
           <select className="input-field mt-1.5" value={nutritionFlag} onChange={(e) => setNutritionFlag(e.target.value)}>
             <option value="">Any profile</option>
             <option value="high sugar">High sugar</option>
@@ -170,7 +170,7 @@ export default function LiveSearch({ initialQuery = "" }: { initialQuery?: strin
         </div>
 
         <div>
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Change Type</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-espresso/45">Change Type</label>
           <select className="input-field mt-1.5" value={changeType} onChange={(e) => setChangeType(e.target.value)}>
             <option value="">Any change</option>
             <option value="shrinkflation">Smaller pack (Shrinkflation)</option>
@@ -180,42 +180,42 @@ export default function LiveSearch({ initialQuery = "" }: { initialQuery?: strin
         </div>
 
         <div>
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Min Trust Score</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-espresso/45">Min Data Confidence</label>
           <select className="input-field mt-1.5" value={minTrustScore} onChange={(e) => setMinTrustScore(Number(e.target.value))}>
-            <option value="0">Any trust level</option>
+            <option value="0">Any confidence level</option>
             <option value="70">Community verified (70%+)</option>
             <option value="90">Fully Verified (90%+)</option>
           </select>
         </div>
 
         <div>
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Brand</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-espresso/45">Brand</label>
           <input className="input-field mt-1.5" placeholder="Brand name" value={brand} onChange={(e) => setBrand(e.target.value)} />
         </div>
       </div>
 
-      <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+      <div className="flex items-center justify-between border-b border-latte pb-2">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-semibold text-slate-500">
+          <p className="text-sm font-semibold text-espresso/45">
             Showing {results.length} result{results.length !== 1 ? "s" : ""}
           </p>
           {loading && (
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-200 border-t-brand-600" />
           )}
         </div>
-        <span className="text-xs font-bold text-success-600 bg-success-50 border border-success-100/30 px-3 py-1 rounded-lg">
-          ⚡ India-focused results prioritized first
+        <span className="rounded-lg border border-success-100/30 bg-success-50 px-3 py-1 text-xs font-semibold text-success-600">
+          India-focused results prioritized first
         </span>
       </div>
 
-      <div className={`mt-4 grid gap-6 sm:grid-cols-2 transition-opacity duration-200 ${loading ? "opacity-60" : "opacity-100"}`}>
+      <div className={`mt-4 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 transition-opacity duration-200 ${loading ? "opacity-60" : "opacity-100"}`}>
         {results.map((p) => <ProductCard key={p.id} product={p} />)}
       </div>
       
       {results.length === 0 && !loading && (
-        <div className="card text-center py-16 bg-slate-50/50">
-          <p className="text-slate-500 font-medium text-base">No matching products found.</p>
-          <p className="text-xs text-slate-400 mt-1">Try modifying your query or selecting another country/category.</p>
+        <div className="card bg-stone-50/50 py-16 text-center">
+          <p className="text-base font-medium text-espresso/55">No matching products found.</p>
+          <p className="mt-1 text-xs text-espresso/35">Try modifying your query or selecting another country/category.</p>
         </div>
       )}
     </div>

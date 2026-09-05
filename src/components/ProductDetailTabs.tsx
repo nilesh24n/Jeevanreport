@@ -19,8 +19,12 @@ import {
 const tabs = ["Overview", "Nutrition", "Ingredients", "Body Impact", "Shrinkflation API", "Unit Price", "Photos", "Countries", "Reports"] as const;
 type Tab = (typeof tabs)[number];
 
+const primaryTabs: Tab[] = ["Overview", "Nutrition", "Ingredients", "Body Impact", "Shrinkflation API", "Unit Price"];
+const moreTabs: Tab[] = ["Photos", "Countries", "Reports"];
+
 export default function ProductDetailTabs({ product }: { product: Product }) {
   const [active, setActive] = useState<Tab>("Overview");
+  const [showMore, setShowMore] = useState(false);
   const v: ProductVersion = getLatestVersion(product);
   const n = v.nutrition;
 
@@ -38,31 +42,75 @@ export default function ProductDetailTabs({ product }: { product: Product }) {
     price: p.price,
   }));
 
+  const activeIsMore = moreTabs.includes(active as typeof moreTabs[number]);
+
   return (
     <div className="mt-6">
       <div className="relative">
-        <div className="flex overflow-x-auto border-b border-slate-200 gap-1 pb-px scrollbar-hide">
+        {/* Desktop: show all tabs */}
+        <div className="hidden sm:flex overflow-x-auto border-b border-latte gap-1 pb-px scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab}
               type="button"
-              onClick={() => setActive(tab)}
+              onClick={() => { setActive(tab); setShowMore(false); }}
               className={`whitespace-nowrap px-3.5 py-3 text-sm font-semibold min-h-[44px] ${active === tab ? "tab-active" : "tab-inactive"}`}
             >
               {tab}
             </button>
           ))}
         </div>
-        {/* Mobile scroll indicator dots */}
+
+        {/* Mobile: show primary tabs + More button */}
+        <div className="sm:hidden">
+          <div className="flex overflow-x-auto border-b border-latte gap-1 pb-px scrollbar-hide">
+            {primaryTabs.map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => { setActive(tab); setShowMore(false); }}
+                className={`whitespace-nowrap px-3 py-3 text-sm font-semibold min-h-[44px] ${active === tab ? "tab-active" : "tab-inactive"}`}
+              >
+                {tab}
+              </button>
+            ))}
+            {/* More button */}
+            <button
+              type="button"
+              onClick={() => setShowMore(!showMore)}
+              className={`whitespace-nowrap px-3 py-3 text-sm font-semibold min-h-[44px] flex items-center gap-1 ${activeIsMore ? "tab-active" : "tab-inactive"}`}
+            >
+              More {showMore ? "▲" : "▼"}
+            </button>
+          </div>
+          {/* More dropdown on mobile */}
+          {showMore && (
+            <div className="border border-latte rounded-xl mt-1 overflow-hidden shadow-md">
+              {moreTabs.map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => { setActive(tab); setShowMore(false); }}
+                  className={`w-full text-left px-4 py-3 text-sm font-semibold border-b border-latte last:border-b-0 ${active === tab ? "bg-brand-50 text-brand-700" : "bg-white text-espresso/70 hover:bg-stone-50"}`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Mobile scroll indicator dots for primary tabs */}
         <div className="flex justify-center gap-1.5 mt-2 sm:hidden pb-1">
-          {tabs.map((tab) => (
+          {primaryTabs.map((tab) => (
             <span
               key={tab}
               className={`h-1.5 rounded-full transition-all duration-300 ${
-                active === tab ? "bg-brand-650 bg-brand-600 w-3" : "bg-slate-300 w-1.5"
+                active === tab ? "bg-brand-600 w-3" : "bg-latte w-1.5"
               }`}
             />
           ))}
+          <span className={`h-1.5 rounded-full transition-all duration-300 ${activeIsMore ? "bg-brand-600 w-3" : "bg-latte w-1.5"}`} />
         </div>
       </div>
 
@@ -70,26 +118,26 @@ export default function ProductDetailTabs({ product }: { product: Product }) {
         {active === "Overview" && (
           <div className="space-y-4">
             <div className="card">
-              <h3 className="font-semibold text-slate-900">At a glance</h3>
+              <h3 className="font-semibold text-espresso">At a glance</h3>
               <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <div className="text-center rounded-lg bg-slate-50 p-3">
+                <div className="text-center rounded-lg bg-stone-50 p-3">
                   <div className="text-2xl font-bold">{n.caloriesPerServing}</div>
-                  <div className="text-xs text-slate-500">cal/serving</div>
+                  <div className="text-xs text-espresso/55">cal/serving</div>
                 </div>
-                <div className="text-center rounded-lg bg-slate-50 p-3">
+                <div className="text-center rounded-lg bg-stone-50 p-3">
                   <div className="text-2xl font-bold">{n.protein}g</div>
-                  <div className="text-xs text-slate-500">protein</div>
+                  <div className="text-xs text-espresso/55">protein</div>
                 </div>
-                <div className="text-center rounded-lg bg-slate-50 p-3">
+                <div className="text-center rounded-lg bg-stone-50 p-3">
                   <div className="text-2xl font-bold">{n.sugar}g</div>
-                  <div className="text-xs text-slate-500">sugar</div>
+                  <div className="text-xs text-espresso/55">sugar</div>
                 </div>
-                <div className="text-center rounded-lg bg-slate-50 p-3">
+                <div className="text-center rounded-lg bg-stone-50 p-3">
                   <div className="text-2xl font-bold">{product.packSizeChanges.length}</div>
-                  <div className="text-xs text-slate-500">size changes</div>
+                  <div className="text-xs text-espresso/55">size changes</div>
                 </div>
               </div>
-              <p className="mt-4 text-sm text-slate-600">{v.bodyImpact.summaryText}</p>
+              <p className="mt-4 text-sm text-espresso/55">{v.bodyImpact.summaryText}</p>
             </div>
             {product.packSizeChanges.length > 0 && (
               <div className="card border-warning-500/20 bg-warning-50">
@@ -119,7 +167,7 @@ export default function ProductDetailTabs({ product }: { product: Product }) {
                 </RadarChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-espresso/55">
               Per full pack: {n.caloriesPerPack} calories across {v.servingsPerPack} servings.
             </p>
           </div>
@@ -178,7 +226,7 @@ export default function ProductDetailTabs({ product }: { product: Product }) {
                 </div>
                 <div className="overflow-hidden rounded-lg border">
                   <table className="w-full text-sm">
-                    <thead className="bg-slate-50">
+                    <thead className="bg-stone-50">
                       <tr>
                         <th className="px-4 py-2 text-left">Date</th>
                         <th className="px-4 py-2 text-left">Store</th>
@@ -200,7 +248,7 @@ export default function ProductDetailTabs({ product }: { product: Product }) {
                 </div>
               </>
             ) : (
-              <p className="text-sm text-slate-500">Limited price history available.</p>
+              <p className="text-sm text-espresso/55">Limited price history available.</p>
             )}
           </div>
         )}
@@ -212,15 +260,15 @@ export default function ProductDetailTabs({ product }: { product: Product }) {
             {product.submissions.flatMap((s) =>
               Object.entries(s.media).filter(([, url]) => url).map(([type, url]) => (
                 <div key={`${s.id}-${type}`} className="card">
-                  <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-slate-100">
+                  <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-stone-100">
                     <Image src={url!} alt={type} fill className="object-cover" unoptimized sizes="(max-width: 640px) 100vw, 300px" />
                   </div>
-                  <p className="mt-2 text-xs text-slate-500">{type} · {s.userName} · {s.submittedAt}</p>
+                  <p className="mt-2 text-xs text-espresso/55">{type} · {s.userName} · {s.submittedAt}</p>
                 </div>
               ))
             )}
             {product.submissions.length === 0 && (
-              <p className="text-sm text-slate-500 sm:col-span-2">No user photos yet. Be the first to submit evidence.</p>
+              <p className="text-sm text-espresso/55 sm:col-span-2">No user photos yet. Be the first to submit evidence.</p>
             )}
           </div>
         )}
@@ -228,10 +276,10 @@ export default function ProductDetailTabs({ product }: { product: Product }) {
         {active === "Countries" && (
           <div className="overflow-hidden rounded-lg border">
             {product.countryComparisons.length === 0 ? (
-              <p className="p-4 text-sm text-slate-500">No cross-country data available.</p>
+              <p className="p-4 text-sm text-espresso/55">No cross-country data available.</p>
             ) : (
               <table className="w-full text-sm">
-                <thead className="bg-slate-50">
+                <thead className="bg-stone-50">
                   <tr>
                     <th className="px-4 py-2 text-left">Country</th>
                     <th className="px-4 py-2 text-left">Pack</th>
@@ -251,7 +299,7 @@ export default function ProductDetailTabs({ product }: { product: Product }) {
                       <td className="px-4 py-2 text-right">{c.sugar}g</td>
                       <td className="px-4 py-2 text-right">{c.sodium}</td>
                       <td className="px-4 py-2 text-right">{c.protein}g</td>
-                      <td className="px-4 py-2 text-xs text-slate-500">{c.keyIngredientDiff || "—"}</td>
+                      <td className="px-4 py-2 text-xs text-espresso/55">{c.keyIngredientDiff || "—"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -268,18 +316,18 @@ export default function ProductDetailTabs({ product }: { product: Product }) {
                   <span className="font-medium text-sm">{s.userName}</span>
                   <Badge label={s.status} variant={s.status === "approved" ? "success" : "neutral"} />
                 </div>
-                <p className="mt-2 text-sm text-slate-600">{s.notes}</p>
-                <p className="text-xs text-slate-400">{s.store} · {s.country} · {s.submittedAt}</p>
+                <p className="mt-2 text-sm text-espresso/55">{s.notes}</p>
+                <p className="text-xs text-espresso/35">{s.store} · {s.country} · {s.submittedAt}</p>
               </div>
             ))}
             {product.confirmations.map((c) => (
               <div key={c.submissionId + c.confirmerName} className="card bg-success-50 border-success-500/20">
                 <span className="text-sm font-medium text-success-700">{c.confirmerName} — {c.vote}</span>
-                <p className="text-sm text-slate-600">{c.comment}</p>
+                <p className="text-sm text-espresso/55">{c.comment}</p>
               </div>
             ))}
             {product.submissions.length === 0 && product.confirmations.length === 0 && (
-              <p className="text-sm text-slate-500">No community reports yet.</p>
+              <p className="text-sm text-espresso/55">No community reports yet.</p>
             )}
           </div>
         )}

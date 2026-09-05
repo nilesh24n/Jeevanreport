@@ -16,28 +16,11 @@ import PrintButton from "@/components/PrintButton";
 import TrustScoreBreakdown from "@/components/TrustScoreBreakdown";
 import ProductImage from "@/components/ProductImage";
 import ProductAnalysisPanel from "@/components/ProductAnalysisPanel";
+import ProductDisclaimerBanner from "@/components/ProductDisclaimerBanner";
+import TrustScoreMeter from "@/components/TrustScoreMeter";
+import { getRatingCardClass, RatingBadge } from "@/lib/rating-ui";
 
-function getRatingCardClass(color: string) {
-  switch (color) {
-    case "green": return "border-emerald-200 bg-emerald-50/15";
-    case "yellow": return "border-amber-200 bg-amber-50/15";
-    case "orange": return "border-orange-200 bg-orange-50/15";
-    case "red":
-    default:
-      return "border-rose-200 bg-rose-50/15";
-  }
-}
-
-function getRatingBadgeText(rating: string, color: string) {
-  switch (color) {
-    case "green": return "🟢 Good Choice";
-    case "yellow": return "🟡 Okay Choice";
-    case "orange": return "🟠 Caution";
-    case "red":
-    default:
-      return "🔴 Be Careful";
-  }
-}
+export const dynamicParams = true;
 
 export function generateStaticParams() {
   return products.map((p) => ({ id: p.id }));
@@ -95,7 +78,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const isHousehold = catMeta.category === "HOUSEHOLD";
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 space-y-6">
+    <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8 space-y-6">
+      <ProductDisclaimerBanner />
       <ProductJsonLd product={product} />
       
       <BackButton productName={product.name} />
@@ -107,39 +91,40 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       ]} />
 
       {/* 1. Simple Visual Overall Result Card */}
-      <div className={`card border-2 flex flex-col md:flex-row items-center gap-6 p-6 ${getRatingCardClass(status.color)}`}>
+      <div className={`card border-2 flex flex-col md:flex-row items-center gap-6 p-4 sm:p-6 ${getRatingCardClass(status.color)}`}>
         <div className="relative mx-auto h-28 w-28 flex-shrink-0 overflow-hidden rounded-2xl bg-white border border-slate-100 shadow-sm md:mx-0">
           <ProductImage src={product.imageUrl} alt={product.name} barcode={product.barcode} category={product.category} fill sizes="112px" priority className="object-cover" />
         </div>
         
         <div className="flex-1 space-y-2 text-center md:text-left">
           <div>
-            <h1 className="text-2xl font-black text-slate-900 leading-tight">{product.name}</h1>
-            <p className="mt-1 text-sm font-semibold text-slate-500">{product.brand} · {product.manufacturer}</p>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">{product.name}</h1>
+            <p className="mt-1 text-xs sm:text-sm font-semibold text-slate-500">{product.brand} · {product.manufacturer}</p>
           </div>
           
           <div className="flex flex-wrap justify-center md:justify-start items-center gap-3 pt-1">
-            <span className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-extrabold shadow-sm ring-2 ${
-              status.color === "green" ? "bg-emerald-50 text-emerald-700 ring-emerald-500/20" :
-              status.color === "yellow" ? "bg-amber-50 text-amber-700 ring-amber-500/20" :
-              status.color === "orange" ? "bg-orange-50 text-orange-700 ring-orange-500/20" :
-              "bg-rose-50 text-rose-700 ring-rose-500/20"
-            }`}>
-              {getRatingBadgeText(status.rating, status.color)}
-            </span>
+            <div className="flex flex-col items-center md:items-start gap-1">
+              <RatingBadge color={status.color} />
+              <span className="text-[10px] text-slate-500 font-medium mt-1">
+                * Based on public label data as of {v.versionDate || "recent check"}.
+              </span>
+            </div>
             <CopyBarcode barcode={product.barcode} />
           </div>
         </div>
 
         {/* Big Product Status Label */}
-        <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-slate-100 shadow-sm w-36 mx-auto md:mx-0">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Choice Level</span>
+        <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-slate-100 shadow-sm w-full sm:w-44 mx-auto md:mx-0 text-center relative group">
+          <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Jeevanreport Assessment</span>
           <span className={`text-base font-black mt-1 ${
             status.color === "green" ? "text-emerald-600" :
             status.color === "yellow" ? "text-amber-600" :
             status.color === "orange" ? "text-orange-500" :
             "text-rose-600"
           }`}>{status.label}</span>
+          <div className="hidden group-hover:block absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 p-2 bg-slate-900 text-white text-[10px] rounded-lg shadow-lg z-30 leading-snug font-normal">
+            This rating is Jeevanreport&apos;s interpretive opinion based on public nutritional formulas. It is not an accusation of brand quality.
+          </div>
         </div>
       </div>
 
@@ -162,10 +147,14 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </section>
         </div>
 
-        {/* Pricing card */}
-        {latestPrice && (
-          <div className="md:col-span-5">
-            <section className="card h-full space-y-3">
+        {/* Sidebar with Score and Pricing */}
+        <div className="md:col-span-5 space-y-6">
+          <div className="card">
+            <TrustScoreMeter score={product.trustScore} level={product.trustLevel} />
+          </div>
+
+          {latestPrice && (
+            <section className="card space-y-3">
               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Pricing Context</h3>
               <div className="space-y-2.5">
                 <div className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
@@ -181,15 +170,15 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 </p>
               </div>
             </section>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Main Analysis and Tabs Panel (with For Everyone / For Gym mode selector) */}
       <ProductAnalysisPanel product={product} />
 
       {/* Trust and recommendations */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
         <TrustScoreBreakdown product={product} />
         <SimilarProducts productId={product.id} />
       </div>
@@ -205,12 +194,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       </section>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-3 print:hidden pt-4 border-t border-slate-100">
-        <Link href={`/scan?barcode=${product.barcode}`} className="btn-primary min-h-[48px]">Scan again</Link>
+      <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 print:hidden pt-4 border-t border-slate-100">
+        <Link href={`/scan?barcode=${product.barcode}`} className="btn-primary min-h-[44px] flex-1 sm:flex-initial text-center">Scan again</Link>
         <WatchlistButton productId={product.id} name={product.name} brand={product.brand} />
         <PrintButton />
-        <Link href={`/compare?ids=${product.id}`} className="btn-secondary min-h-[48px]">Compare</Link>
-        <Link href={`/submit?product=${product.id}`} className="btn-accent min-h-[48px]">Submit evidence</Link>
+        <Link href={`/compare?ids=${product.id}`} className="btn-secondary min-h-[44px] flex-1 sm:flex-initial text-center">Compare</Link>
+        <Link href={`/submit?product=${product.id}`} className="btn-accent min-h-[44px] w-full sm:w-auto text-center">Submit evidence</Link>
       </div>
     </div>
   );

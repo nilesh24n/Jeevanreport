@@ -5,6 +5,8 @@ import ShrinkflationComparison from "@/components/ShrinkflationComparison";
 import { countries, changeFeed } from "@/lib/data/products";
 import { getProductsByCountry, getCountryStats } from "@/lib/countries";
 
+export const dynamicParams = true;
+
 export function generateStaticParams() {
   return countries.map((country) => ({ country }));
 }
@@ -12,34 +14,37 @@ export function generateStaticParams() {
 export default async function CountryPage({ params }: { params: Promise<{ country: string }> }) {
   const { country } = await params;
 
-  if (!countries.includes(country)) notFound();
+  if (!countries.some((c) => c.toLowerCase() === country.toLowerCase())) notFound();
 
-  const countryProducts = getProductsByCountry(country);
-  const stats = getCountryStats(country);
-  const countryChanges = changeFeed.filter((c) => c.country === country);
+  const matchedCountry = countries.find((c) => c.toLowerCase() === country.toLowerCase()) || country;
+  const countryProducts = getProductsByCountry(matchedCountry);
+  const stats = getCountryStats(matchedCountry);
+  const countryChanges = changeFeed.filter((c) => c.country?.toLowerCase() === matchedCountry.toLowerCase());
   const shrinkflationProducts = countryProducts.filter((p) =>
-    p.packSizeChanges.some((c) => c.country === country)
+    (p.packSizeChanges || []).some((c) => c.country?.toLowerCase() === matchedCountry.toLowerCase())
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
       <Breadcrumbs items={[
         { label: "Countries", href: "/countries" },
-        { label: country },
+        { label: matchedCountry },
       ]} />
 
-      <h1 className="text-3xl font-bold text-slate-900">{country} Products</h1>
-      <p className="mt-2 text-slate-600">
-        {stats.productCount} products · {stats.shrinkflationCount} with shrinkflation · {stats.avgTrust}% avg trust
-      </p>
+      <div className="my-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">{matchedCountry} Products</h1>
+        <p className="mt-2 text-sm sm:text-base text-slate-600">
+          {stats.productCount} products · {shrinkflationProducts.length || stats.shrinkflationCount} with shrinkflation · {stats.avgTrust}% avg trust
+        </p>
+      </div>
 
       {countryChanges.length > 0 && (
-        <section className="mt-10">
-          <h2 className="text-lg font-semibold text-slate-900">Recent changes in {country}</h2>
+        <section className="mt-8">
+          <h2 className="text-lg font-semibold text-slate-900">Recent changes in {matchedCountry}</h2>
           <div className="mt-4 space-y-2">
             {countryChanges.slice(0, 5).map((c) => (
-              <div key={c.id} className="card text-sm">
-                <span className="font-medium">{c.productName}</span>
+              <div key={c.id} className="card text-sm p-4">
+                <span className="font-semibold text-espresso">{c.productName}</span>
                 <span className="text-slate-600"> — {c.summary}</span>
               </div>
             ))}
@@ -48,11 +53,12 @@ export default async function CountryPage({ params }: { params: Promise<{ countr
       )}
 
       {shrinkflationProducts.length > 0 && (
-        <section className="mt-10">
-          <h2 className="text-lg font-semibold text-slate-900">Shrinkflation in {country}</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            {shrinkflationProducts.map((p) => {
-              const change = p.packSizeChanges.find((c) => c.country === country)!;
+        <section className="mt-8">
+          <h2 className="text-lg font-semibold text-slate-900">Shrinkflation in {matchedCountry}</h2>
+          <div className="mt-4 grid gap-4 grid-cols-1 md:grid-cols-2">
+            {shrinkflationProducts.slice(0, 8).map((p) => {
+              const change = (p.packSizeChanges || []).find((c) => c.country?.toLowerCase() === matchedCountry.toLowerCase()) || p.packSizeChanges[0];
+              if (!change) return null;
               return (
                 <ShrinkflationComparison
                   key={p.id}
@@ -67,9 +73,9 @@ export default async function CountryPage({ params }: { params: Promise<{ countr
         </section>
       )}
 
-      <section className="mt-10">
+      <section className="mt-8">
         <h2 className="text-lg font-semibold text-slate-900">All products ({countryProducts.length})</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-4 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {countryProducts.map((p) => <ProductCard key={p.id} product={p} />)}
         </div>
       </section>
