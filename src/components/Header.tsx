@@ -47,13 +47,13 @@ export default function Header() {
           <Image
             src="/logo-icon.svg"
             alt="JeevanReport"
-            width={32}
-            height={32}
+            width={36}
+            height={36}
             className="transition-transform duration-150 group-hover:scale-105"
             priority
           />
           <span className="hidden text-base font-semibold text-espresso transition-colors group-hover:text-brand-600 sm:inline">
-            JeevanReport
+            Jeevan<span className="text-amber-500">Report</span>
           </span>
         </Link>
 

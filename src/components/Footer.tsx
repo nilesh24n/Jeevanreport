@@ -50,9 +50,9 @@ export default function Footer() {
               <Image
                 src="/logo-icon.svg"
                 alt="JeevanReport"
-                width={32}
-                height={32}
-                className="brightness-0 invert transition-transform group-hover:scale-105"
+                width={36}
+                height={36}
+                className="transition-transform group-hover:scale-105"
               />
               <span className="text-lg font-semibold text-white">JeevanReport</span>
             </Link>
