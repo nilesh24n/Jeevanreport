@@ -48,7 +48,7 @@ export default function WatchlistPage() {
           <div className="card bg-stone-50/50 py-16 text-center">
             <p className="text-base font-medium text-espresso/55">Your watchlist is empty.</p>
             <p className="mb-6 mt-1 text-xs text-espresso/35">Scan products and click &quot;Add to Watchlist&quot; to keep track of changes.</p>
-            <Link href="/scan" className="btn-primary min-h-[48px]">
+            <Link href="/scan" className="btn-scan min-h-[48px]">
               Go to scanner
             </Link>
           </div>

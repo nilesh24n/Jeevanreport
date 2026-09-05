@@ -32,7 +32,7 @@ export default function FirstVisitBanner() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Link href="/scan" className="btn-primary text-xs py-1.5">Try a scan</Link>
+          <Link href="/scan" className="btn-scan text-xs !py-1.5 !px-3">Try a scan</Link>
           <button type="button" onClick={dismiss} className="btn-secondary text-xs py-1.5">Dismiss</button>
         </div>
       </div>

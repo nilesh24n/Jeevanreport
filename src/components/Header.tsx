@@ -148,9 +148,12 @@ export default function Header() {
           {nav.primaryAction && (
             <Link
               href={nav.primaryAction.href}
-              className="btn-primary !px-4 !py-2 text-sm min-h-[40px]"
+              className="btn-scan !px-4 !py-2 text-sm min-h-[40px] shadow-sm"
             >
-              {t(nav.primaryAction.labelKey)}
+              <svg className="h-4 w-4 text-espresso" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+              </svg>
+              <span>{t(nav.primaryAction.labelKey)}</span>
               {nav.primaryAction.badge ? ` (${nav.primaryAction.badge})` : ""}
             </Link>
           )}
@@ -192,21 +195,33 @@ export default function Header() {
           </div>
 
           <div className="mb-3 grid grid-cols-2 gap-2">
-            {[...nav.visible, ...(nav.primaryAction ? [nav.primaryAction] : [])].map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className={`flex min-h-[44px] items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold ${
-                  pathname === link.href ? "bg-brand-600 text-white" : "border border-latte bg-white text-espresso/70"
-                }`}
-              >
-                {t(link.labelKey)}
-                {link.badge ? (
-                  <span className="rounded-full bg-warning-400 px-1.5 text-[10px] font-bold text-espresso">{link.badge}</span>
-                ) : null}
-              </Link>
-            ))}
+            {[...nav.visible, ...(nav.primaryAction ? [nav.primaryAction] : [])].map((link) => {
+              const isScan = link.href === "/scan";
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`flex min-h-[44px] items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold ${
+                    isScan
+                      ? "bg-warning-400 text-espresso font-bold shadow-sm hover:bg-warning-300"
+                      : pathname === link.href
+                      ? "bg-brand-600 text-white"
+                      : "border border-latte bg-white text-espresso/70"
+                  }`}
+                >
+                  {isScan && (
+                    <svg className="h-4 w-4 text-espresso" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                    </svg>
+                  )}
+                  <span>{t(link.labelKey)}</span>
+                  {link.badge ? (
+                    <span className="rounded-full bg-warning-400 px-1.5 text-[10px] font-bold text-espresso">{link.badge}</span>
+                  ) : null}
+                </Link>
+              );
+            })}
           </div>
 
           {nav.menuSections.map((section) => (

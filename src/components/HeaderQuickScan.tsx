@@ -44,7 +44,7 @@ export default function HeaderQuickScan() {
         onChange={(e) => setValue(e.target.value)}
         autoFocus
       />
-      <button type="submit" className="rounded-lg bg-brand-600 px-2 py-1.5 text-xs text-white hover:bg-brand-700">
+      <button type="submit" className="rounded-lg bg-warning-400 px-2.5 py-1.5 text-xs font-bold text-espresso hover:bg-warning-300 shadow-sm">
         Go
       </button>
       <button type="button" onClick={() => setOpen(false)} className="text-xs text-slate-400 hover:text-slate-600">

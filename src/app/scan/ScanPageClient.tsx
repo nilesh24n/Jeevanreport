@@ -154,8 +154,8 @@ export default function ScanPageClient() {
             placeholder="e.g. 8901058002478"
             style={{ fontSize: "16px" }}
           />
-          <button type="submit" className="btn-primary whitespace-nowrap min-h-[48px]">
-            Search
+          <button type="submit" className="btn-scan whitespace-nowrap min-h-[48px]">
+            Lookup
           </button>
         </form>
       </div>

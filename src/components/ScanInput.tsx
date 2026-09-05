@@ -45,7 +45,7 @@ export default function ScanInput({
           autoFocus={autoFocus}
         />
       </div>
-      <button type="submit" className="btn-primary whitespace-nowrap">
+      <button type="submit" className="btn-scan whitespace-nowrap">
         Scan / Search
       </button>
     </form>
