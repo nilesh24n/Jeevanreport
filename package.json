@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "import:off": "node scripts/import-openfoodfacts.js",
-    "count:db": "node scripts/count-products-db.js"
+    "count:db": "node scripts/count-products-db.js",
+    "migrate:turso": "bun run scripts/migrate-to-turso.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.17.4",

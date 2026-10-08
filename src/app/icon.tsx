@@ -13,36 +13,68 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#FFFBEB",
-          borderRadius: 112,
-          border: "14px solid #D97706",
+          background: "#faf7f2",
+          borderRadius: 128,
+          border: "16px solid #e8ddd0",
+          position: "relative",
         }}
       >
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 200, position: "relative" }}>
-          {[6, 10, 4, 14, 6, 18, 8, 12, 4, 16, 6, 14, 8, 10, 6, 18, 4, 12, 8, 14].map((w, i) => (
-            <div
-              key={i}
-              style={{
-                width: w * 1.4,
-                height: 120 + (i % 5) * 14,
-                backgroundColor: "#292524",
-                borderRadius: 2,
-              }}
-            />
-          ))}
+        {/* Barcode Lines */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "300px",
+            height: "300px",
+            borderRadius: "150px",
+            border: "18px solid #9b7653",
+            background: "white",
+            overflow: "hidden",
+            position: "relative",
+          }}
+        >
+          {/* Vertical Barcode Stripes */}
+          <div style={{ display: "flex", alignItems: "flex-end", gap: "10px", height: "180px" }}>
+            {[6, 12, 4, 10, 16, 6, 12, 8, 14, 4, 16, 10, 6, 14, 8, 12, 4, 16, 8, 12].map((w, i) => (
+              <div
+                key={i}
+                style={{
+                  width: `${w * 1.2}px`,
+                  height: `${70 + (i % 4) * 8}%`,
+                  backgroundColor: "#2c1a0e",
+                  borderRadius: "3px",
+                }}
+              />
+            ))}
+          </div>
+          {/* Scan Line Overlay */}
           <div
             style={{
               position: "absolute",
-              left: -8,
-              top: 88,
-              width: 320,
-              height: 10,
-              backgroundColor: "#F59E0B",
-              borderRadius: 5,
-              opacity: 0.95,
+              top: "140px",
+              left: "20px",
+              width: "260px",
+              height: "15px",
+              backgroundColor: "#9b7653",
+              opacity: 0.6,
+              borderRadius: "4px",
             }}
           />
         </div>
+        {/* Handle */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "60px",
+            right: "60px",
+            width: "18px",
+            height: "90px",
+            backgroundColor: "#9b7653",
+            transform: "rotate(-45deg)",
+            borderRadius: "9px",
+          }}
+        />
       </div>
     ),
     { ...size }

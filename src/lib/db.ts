@@ -38,28 +38,28 @@ if (SUPABASE_URL && SUPABASE_KEY) {
   }
 }
 
-// Local SQLite DB (Lazy)
+// Local products.db via libsql file: (no native better-sqlite3 required)
 const DB_PATH = path.resolve(process.cwd(), "products.db");
-let localDb: any = null;
-let localDbAvailable = false;
+let fileArchiveClient: any = null;
+let fileArchiveReady = false;
 
-function initLocalDb() {
-  if (localDbAvailable) return true;
+/** Turso in production, or local products.db on dev machines. */
+function getArchiveSqlClient(): any | null {
+  if (tursoClient) return tursoClient;
+  if (fileArchiveReady) return fileArchiveClient;
+  if (typeof window !== "undefined") return null;
   try {
-    // Only attempt on server environment
-    if (typeof window === "undefined") {
-      const fs = require("fs");
-      if (fs.existsSync(DB_PATH)) {
-        const BetterSqlite3 = eval('require("better-sqlite3")');
-        localDb = new BetterSqlite3(DB_PATH, { readonly: true });
-        localDbAvailable = true;
-        return true;
-      }
-    }
+    const fs = require("fs");
+    if (!fs.existsSync(DB_PATH)) return null;
+    const { createClient } = require("@libsql/client");
+    const fileUrl = `file:${DB_PATH.replace(/\\/g, "/")}`;
+    fileArchiveClient = createClient({ url: fileUrl });
+    fileArchiveReady = true;
+    return fileArchiveClient;
   } catch (err) {
-    // ignore
+    console.error("Failed to open local products.db:", err);
   }
-  return false;
+  return null;
 }
 
 export async function dbGetProductById(id: string): Promise<Product | null> {
@@ -68,19 +68,19 @@ export async function dbGetProductById(id: string): Promise<Product | null> {
 }
 
 async function rawGetProductById(id: string): Promise<Product | null> {
-  // 1. Try Turso
-  if (tursoClient) {
+  const archive = getArchiveSqlClient();
+  if (archive) {
     try {
-      const result = await tursoClient.execute({
+      const result = await archive.execute({
         sql: "SELECT data FROM products WHERE id = ?",
         args: [id],
       });
       if (result.rows.length > 0) {
-        const row = result.rows[0];
-        return JSON.parse(row.data as string) as Product;
+        const p = parseProductRowData(result.rows[0].data);
+        if (p) return p;
       }
     } catch (e) {
-      console.error("Turso error in dbGetProductById:", e);
+      console.error("Archive SQL error in dbGetProductById:", e);
     }
   }
 
@@ -100,19 +100,7 @@ async function rawGetProductById(id: string): Promise<Product | null> {
     }
   }
 
-  // 3. Try Local SQLite
-  if (initLocalDb() && localDb) {
-    try {
-      const row = localDb.prepare("SELECT data FROM products WHERE id = ?").get(id);
-      if (row?.data) {
-        return JSON.parse(row.data) as Product;
-      }
-    } catch (e) {
-      console.error("Local SQLite error in dbGetProductById:", e);
-    }
-  }
-
-  // 4. Try JSON products fallback (5000+ products)
+  // 3. Try JSON products fallback (5000+ products)
   const jsonResult = jsonProducts.getProductById(id);
   if (jsonResult) return jsonResult;
 
@@ -129,63 +117,111 @@ export async function dbGetProductByBarcode(barcode: string): Promise<Product | 
   return enrichProduct(p);
 }
 
-async function rawGetProductByBarcode(barcode: string): Promise<Product | null> {
+/** EAN/UPC variants (leading zeros, id-as-barcode) for archive lookup. */
+function barcodeLookupKeys(barcode: string): string[] {
   const clean = barcode.replace(/\D/g, "");
+  if (!clean) return [];
+  const keys = new Set<string>([clean]);
+  if (clean.length < 13) keys.add(clean.padStart(13, "0"));
+  if (clean.length === 13 && clean.startsWith("0")) {
+    const trimmed = clean.replace(/^0+/, "");
+    if (trimmed) keys.add(trimmed);
+  }
+  if (clean.length > 13) keys.add(clean.slice(-13));
+  return [...keys];
+}
 
-  // 1. Try Turso
-  if (tursoClient) {
+function parseProductRowData(data: unknown): Product | null {
+  if (!data) return null;
+  try {
+    return (typeof data === "string" ? JSON.parse(data) : data) as Product;
+  } catch {
+    return null;
+  }
+}
+
+async function rawGetProductByBarcode(barcode: string): Promise<Product | null> {
+  const keys = barcodeLookupKeys(barcode);
+  if (keys.length === 0) return null;
+
+  const archive = getArchiveSqlClient();
+  if (archive) {
     try {
-      const result = await tursoClient.execute({
-        sql: "SELECT data FROM products WHERE barcode = ?",
-        args: [clean],
-      });
-      if (result.rows.length > 0) {
-        const row = result.rows[0];
-        return JSON.parse(row.data as string) as Product;
+      for (const key of keys) {
+        const result = await archive.execute({
+          sql: "SELECT data FROM products WHERE barcode = ? OR id = ? LIMIT 1",
+          args: [key, key],
+        });
+        if (result.rows.length > 0) {
+          const p = parseProductRowData(result.rows[0].data);
+          if (p) return p;
+        }
       }
     } catch (e) {
-      console.error("Turso error in dbGetProductByBarcode:", e);
+      console.error("Archive SQL error in dbGetProductByBarcode:", e);
     }
   }
 
   // 2. Try Supabase
   if (supabaseClient) {
     try {
-      const { data, error } = await supabaseClient
-        .from("products")
-        .select("data")
-        .eq("barcode", clean)
-        .single();
-      if (!error && data?.data) {
-        return (typeof data.data === "string" ? JSON.parse(data.data) : data.data) as Product;
+      for (const key of keys) {
+        const { data, error } = await supabaseClient
+          .from("products")
+          .select("data")
+          .or(`barcode.eq.${key},id.eq.${key}`)
+          .limit(1)
+          .maybeSingle();
+        if (!error && data?.data) {
+          const p = parseProductRowData(data.data);
+          if (p) return p;
+        }
       }
     } catch (e) {
       console.error("Supabase error in dbGetProductByBarcode:", e);
     }
   }
 
-  // 3. Try Local SQLite
-  if (initLocalDb() && localDb) {
-    try {
-      const row = localDb.prepare("SELECT data FROM products WHERE barcode = ?").get(clean);
-      if (row?.data) {
-        return JSON.parse(row.data) as Product;
-      }
-    } catch (e) {
-      console.error("Local SQLite error in dbGetProductByBarcode:", e);
-    }
+  // 3. Try JSON products first (5000+ products)
+  for (const key of keys) {
+    const jsonResult = jsonProducts.getProductByBarcode(key);
+    if (jsonResult) return jsonResult;
   }
 
-  // 4. Try JSON products first (5000+ products)
-  const jsonResult = jsonProducts.getProductByBarcode(clean);
-  if (jsonResult) return jsonResult;
-
   // 5. Try Open Food Facts API (real-time global database fallback)
-  const offResult = await fetchProductFromOpenFoodFacts(clean);
-  if (offResult) return offResult;
+  for (const key of keys) {
+    const offResult = await fetchProductFromOpenFoodFacts(key);
+    if (offResult) return offResult;
+  }
 
   // 6. Fall back to static dataset (15 products)
-  return getProductByBarcode(clean) || null;
+  for (const key of keys) {
+    const curated = getProductByBarcode(key);
+    if (curated) return curated;
+  }
+  return null;
+}
+
+export type DataBackendStatus = {
+  turso: boolean;
+  supabase: boolean;
+  localSqlite: boolean;
+  productCount: number | null;
+};
+
+export async function getDataBackendStatus(): Promise<DataBackendStatus> {
+  const status: DataBackendStatus = {
+    turso: Boolean(TURSO_URL && tursoClient),
+    supabase: Boolean(supabaseClient),
+    localSqlite: Boolean(!TURSO_URL && getArchiveSqlClient()),
+    productCount: null,
+  };
+  try {
+    status.productCount = await dbGetProductCount();
+  } catch {
+    status.productCount = null;
+  }
+  return status;
 }
 
 export interface DbSearchFilters {
@@ -206,8 +242,8 @@ export async function dbSearchProducts(query: string, filters?: DbSearchFilters)
 async function rawSearchProducts(query: string, filters?: DbSearchFilters): Promise<Product[]> {
   const q = (query || "").trim();
 
-  // 1. Try Turso
-  if (tursoClient) {
+  const archive = getArchiveSqlClient();
+  if (archive) {
     try {
       let sql = "SELECT data FROM products WHERE 1=1";
       const params: any[] = [];
@@ -240,15 +276,15 @@ async function rawSearchProducts(query: string, filters?: DbSearchFilters): Prom
 
       sql += " LIMIT 150";
 
-      const result = await tursoClient.execute({ sql, args: params });
+      const result = await archive.execute({ sql, args: params });
       const results: Product[] = [];
       for (const row of result.rows) {
         try {
-          const p = JSON.parse(row.data as string) as Product;
+          const p = parseProductRowData(row.data);
+          if (!p) continue;
           if (filters?.onlyChanged) {
             if ((p.packSizeChanges?.length || 0) === 0 && (p.formulaChanges?.length || 0) === 0) continue;
           }
-          // Only include consumable products
           if (isConsumableProduct(p)) {
             results.push(p);
           }
@@ -256,7 +292,7 @@ async function rawSearchProducts(query: string, filters?: DbSearchFilters): Prom
       }
       return sortResults(results, filters?.sort);
     } catch (e) {
-      console.error("Turso error in dbSearchProducts:", e);
+      console.error("Archive SQL error in dbSearchProducts:", e);
     }
   }
 
@@ -306,62 +342,7 @@ async function rawSearchProducts(query: string, filters?: DbSearchFilters): Prom
     }
   }
 
-  // 3. Try Local SQLite
-  if (initLocalDb() && localDb) {
-    try {
-      let sql = "SELECT data FROM products WHERE 1=1";
-      const params: any[] = [];
-
-      if (q) {
-        sql += " AND (name LIKE ? OR brand LIKE ? OR barcode LIKE ? OR ingredients_text LIKE ?)";
-        const like = `%${q}%`;
-        params.push(like, like, like, like);
-      }
-      if (filters?.country) {
-        sql += " AND countries LIKE ?";
-        params.push(`%${filters.country}%`);
-      }
-      if (filters?.category) {
-        sql += " AND category = ?";
-        params.push(filters.category);
-      }
-      if (filters?.brand) {
-        sql += " AND brand LIKE ?";
-        params.push(`%${filters.brand}%`);
-      }
-      if (filters?.minTrustScore) {
-        sql += " AND trust_score >= ?";
-        params.push(filters.minTrustScore);
-      }
-      if (filters?.nutritionFlag) {
-        sql += " AND badges LIKE ?";
-        params.push(`%${filters.nutritionFlag.toLowerCase()}%`);
-      }
-
-      sql += " LIMIT 150";
-
-      const stmt = localDb.prepare(sql);
-      const rows = stmt.all(...params);
-      const results: Product[] = [];
-      for (const row of rows) {
-        try {
-          const p = JSON.parse(row.data) as Product;
-          if (filters?.onlyChanged) {
-            if ((p.packSizeChanges?.length || 0) === 0 && (p.formulaChanges?.length || 0) === 0) continue;
-          }
-          // Only include consumable products
-          if (isConsumableProduct(p)) {
-            results.push(p);
-          }
-        } catch (_) {}
-      }
-      return sortResults(results, filters?.sort);
-    } catch (e) {
-      console.error("Local SQLite error in dbSearchProducts:", e);
-    }
-  }
-
-  // 4. Try JSON products search (5000+ products)
+  // 3. Try JSON products search (5000+ products)
   let jsonResults = jsonProducts.searchProducts(q || "", 150);
   // Filter to only consumable products
   jsonResults = jsonResults.filter(p => isConsumableProduct(p));
@@ -384,15 +365,15 @@ async function rawSearchProducts(query: string, filters?: DbSearchFilters): Prom
 }
 
 export async function dbGetProductCount(): Promise<number> {
-  // 1. Try Turso
-  if (tursoClient) {
+  const archive = getArchiveSqlClient();
+  if (archive) {
     try {
-      const result = await tursoClient.execute("SELECT COUNT(*) as count FROM products");
+      const result = await archive.execute("SELECT COUNT(*) as count FROM products");
       if (result.rows.length > 0) {
         return Number(result.rows[0].count);
       }
     } catch (e) {
-      console.error("Turso error in dbGetProductCount:", e);
+      console.error("Archive SQL error in dbGetProductCount:", e);
     }
   }
 
@@ -410,17 +391,7 @@ export async function dbGetProductCount(): Promise<number> {
     }
   }
 
-  // 3. Try Local SQLite
-  if (initLocalDb() && localDb) {
-    try {
-      const row = localDb.prepare("SELECT COUNT(*) as count FROM products").get();
-      if (row) return Number(row.count);
-    } catch (e) {
-      console.error("Local SQLite error in dbGetProductCount:", e);
-    }
-  }
-
-  // 4. Try JSON products count
+  // 3. Try JSON products count
   return jsonProducts.getTotalProductCount() || products.length;
 }
 

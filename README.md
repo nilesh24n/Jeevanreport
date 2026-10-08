@@ -11,6 +11,24 @@ bun run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+Place your imported `products.db` in the project root (gitignored). Local dev reads it via SQLite when Turso is not configured.
+
+### Product archive on Netlify (required)
+
+The ~800k-row `products.db` is **not** uploaded with the site. Production must use **Turso**:
+
+1. Create a database at [turso.tech](https://turso.tech) and create an auth token.
+2. On your PC (with `products.db` in the repo root):
+
+   ```bash
+   set TURSO_DATABASE_URL=libsql://...
+   set TURSO_AUTH_TOKEN=...
+   bun run migrate:turso
+   ```
+
+3. In Netlify → Site → Environment variables (production), set `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`.
+4. Redeploy. Check `GET /api/data-status` — `archiveReady` should be `true`.
+
 ## Production
 
 ```bash

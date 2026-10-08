@@ -5,6 +5,9 @@ import { calculateFrequencyAndReasoning } from "./frequency-engine";
 
 export function enrichProduct(product: Product | null | undefined): Product | null {
   if (!product) return null;
+  if (!product.versions || !Array.isArray(product.versions) || product.versions.length === 0) {
+    return product;
+  }
 
   const enrichedVersions = product.versions.map((version) => {
     // 1. Build structured ingredients from text/simplified array

@@ -69,10 +69,16 @@ export default function ScanPageClient() {
             return;
           }
 
-          const firstProduct = data.products[0];
-          const detailRes = await fetch(`/api/products/${firstProduct.id}`);
+          const firstProduct = data.products[0] as Product;
+          // List endpoint already returns full enriched product from archive/Turso
+          if (firstProduct.versions?.length) {
+            setProduct(firstProduct);
+            setLoading(false);
+            return;
+          }
+          const detailRes = await fetch(`/api/products/${encodeURIComponent(firstProduct.id)}`);
           if (!detailRes.ok) throw new Error("Failed to fetch full product details");
-          const fullProduct = await detailRes.json();
+          const fullProduct = (await detailRes.json()) as Product;
 
           setProduct(fullProduct);
           setLoading(false);
