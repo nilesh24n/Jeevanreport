@@ -1,5 +1,6 @@
 import { products, changeFeed, countries, categories } from "./data/products";
 import { dbGetProductCount } from "./db";
+import { resolvePublicProductCount } from "./catalog-count.server";
 
 export async function getPlatformStats() {
   const shrinkflationCount = products.filter((p) => p.packSizeChanges.length > 0).length;
@@ -14,10 +15,7 @@ export async function getPlatformStats() {
     console.error("Failed to get product count", e);
   }
 
-  // Fallback to global database capacity if database returns default mock/local sizes (<= 5000)
-  const productCount = productCountVal > 5000 
-    ? `${productCountVal.toLocaleString()}+` 
-    : "3,000,000+";
+  const productCount = await resolvePublicProductCount(productCountVal);
 
   return {
     productCount,

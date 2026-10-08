@@ -3,9 +3,17 @@ import type { Product } from "./types";
 // Categories of edible/consumable products
 const CONSUMABLE_CATEGORIES = [
   "drinks",
+  "beverages",
   "snacks",
   "dairy",
   "instant-foods",
+  "packaged-food",
+  "food",
+  "noodles",
+  "biscuits",
+  "chocolates",
+  "sweets",
+  "cereals",
   "otc-health", // Over-the-counter health products (vitamins, supplements)
   "pet-food",
   "spices",
@@ -14,7 +22,9 @@ const CONSUMABLE_CATEGORIES = [
   "spreads",
   "bakery",
   "baking",
-  "groceries"
+  "groceries",
+  "confectionery",
+  "frozen-foods",
 ];
 
 // Categories that are explicitly NON-consumable
@@ -45,6 +55,9 @@ export const CONSUMABLE_KEYWORDS = [
   "sauce", "ketchup", "mustard", "mayo", "oil", "vinegar", "pepper sauce", "salsa", "gravy",
   // Prepared Foods
   "salad", "stew", "soup", "applesauce", "pudding", "gelatin", "dessert", "snack", "cookie", "cracker", "chip",
+  "instant", "masala", "tastemaker", "ready to eat", "rte", "namkeen", "munch", "biscuit", "rusk",
+  // Common Indian FMCG (helps when category slugs are generic)
+  "maggi", "amul", "parle", "britannia", "kurkure", "haldiram", "mtr", "bournvita", "horlicks", "boost",
   // Sweets
   "candy", "chocolate", "caramel", "fudge", "cookie", "cake", "brownie", "wafer",
   // Spices & Seasonings
@@ -159,7 +172,16 @@ export function isConsumableProduct(product: Product | null): boolean {
     return true;
   }
 
-  // If none of the above, it's not consumable
+  // 5. Open Food Facts and imports often use generic food slugs
+  if (category.includes("food") || category.includes("drink") || category.includes("beverage")) {
+    return true;
+  }
+
+  // 6. Barcoded grocery with no personal-care signals — allow (better false positive than blocking real food)
+  if (product.barcode && /^\d{8,14}$/.test(product.barcode.trim())) {
+    return true;
+  }
+
   return false;
 }
 

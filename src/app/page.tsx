@@ -9,13 +9,12 @@ import { getScanHistory, clearScanHistory, type ScanHistoryEntry } from "@/lib/s
 import { useLang } from "@/components/LanguageContext";
 import { useToast } from "@/components/Toast";
 import { RatingBadge } from "@/lib/rating-ui";
-import AnimatedMascot from "@/components/AnimatedMascot";
+import { formatProductCount } from "@/lib/catalog-count";
 
 const tickerItems = [
-  "Maggi 2-Minute Noodles", "Amul Butter", "Dettol Handwash",
-  "Kurkure Masala Munch", "Britannia Good Day", "Parle-G Biscuits",
-  "Lay's Classic Salted", "Nestle KitKat", "Bournvita", "Horlicks",
-  "Colgate MaxFresh", "Surf Excel", "Tata Salt", "Aavin Milk",
+  "Maggi 2-Minute Noodles", "Amul Butter", "Kurkure Masala Munch",
+  "Britannia Good Day", "Parle-G Biscuits", "Lay's Classic Salted",
+  "Nestle KitKat", "Bournvita", "Horlicks", "Tata Salt", "Aavin Milk",
   "Amul Cheese Slices",
 ];
 
@@ -136,12 +135,21 @@ function ScanPreviewCard() {
 export default function HomePage() {
   const [history, setHistory] = useState<ScanHistoryEntry[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [catalogLabel, setCatalogLabel] = useState("5,000+");
   const { t } = useLang();
   const { toast } = useToast();
 
   useEffect(() => {
     setMounted(true);
     setHistory(getScanHistory());
+    fetch("/data/products_index.json")
+      .then((r) => r.json())
+      .then((data: { total?: number }) => {
+        if (typeof data.total === "number") {
+          setCatalogLabel(formatProductCount(data.total));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const recentActivity = changeFeed.slice(0, 4);
@@ -160,7 +168,6 @@ export default function HomePage() {
 
   return (
     <>
-      <AnimatedMascot />
       {/* Hero */}
       <section className="border-b border-latte bg-brand-50">
         <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
@@ -262,7 +269,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs font-medium text-espresso/45">
-                  <span>3M+ products</span>
+                  <span>{catalogLabel} products indexed</span>
                   <span>6 countries</span>
                   <span>Free forever</span>
                   <span>No login needed</span>
@@ -375,10 +382,10 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid grid-cols-2 gap-8 text-center lg:grid-cols-4">
             {[
-              { value: "3M+", label: "Products archived" },
-              { value: "6", label: "Countries covered" },
-              { value: "100%", label: "Free — always" },
-              { value: "0", label: "Hidden agendas" },
+              { value: catalogLabel, label: "Products indexed" },
+              { value: "6", label: "Countries in catalog" },
+              { value: "Free", label: "No paywall" },
+              { value: "Open", label: "Community evidence" },
             ].map((s) => (
               <div key={s.label} className="space-y-1">
                 <p className="text-3xl font-semibold text-warning-300 sm:text-4xl">{s.value}</p>

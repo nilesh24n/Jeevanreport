@@ -99,7 +99,7 @@ export default function ScanPageClient() {
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
         <div className="flex flex-col items-center justify-center gap-3 py-20 text-slate-500">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-200 border-t-brand-600" />
-          <div className="text-sm font-semibold">Querying product transparency database…</div>
+          <div className="text-sm font-semibold">Looking up this barcode…</div>
         </div>
       </div>
     );

@@ -16,10 +16,10 @@ import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
 } from "recharts";
 
-const tabs = ["Overview", "Nutrition", "Ingredients", "Body Impact", "Shrinkflation API", "Unit Price", "Photos", "Countries", "Reports"] as const;
+const tabs = ["Overview", "Nutrition", "Ingredients", "Body Impact", "Pack history", "Unit Price", "Photos", "Countries", "Reports"] as const;
 type Tab = (typeof tabs)[number];
 
-const primaryTabs: Tab[] = ["Overview", "Nutrition", "Ingredients", "Body Impact", "Shrinkflation API", "Unit Price"];
+const primaryTabs: Tab[] = ["Overview", "Nutrition", "Ingredients", "Body Impact", "Pack history", "Unit Price"];
 const moreTabs: Tab[] = ["Photos", "Countries", "Reports"];
 
 export default function ProductDetailTabs({ product }: { product: Product }) {
@@ -205,7 +205,7 @@ export default function ProductDetailTabs({ product }: { product: Product }) {
           </div>
         )}
 
-        {active === "Shrinkflation API" && (
+        {active === "Pack history" && (
           <ShrinkflationApiPanel productId={product.id} initialProduct={product} />
         )}
 

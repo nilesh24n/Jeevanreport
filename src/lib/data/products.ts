@@ -75,8 +75,8 @@ const productsRaw: Product[] = [
       ingredientComplexity: "Complex",
       formulaNotes: "Sodium content adjusted slightly; spice ratio changed in late 2023 formulation.",
       versionDate: "2024-02-15",
-      nutrition: makeNutrition(310, 1, 11.8, 5.5, 43.5, 1.2, 2.0, 6.2, 980),
-      bodyImpact: computeBodyImpact(makeNutrition(310, 1, 11.8, 5.5, 43.5, 1.2, 2.0, 6.2, 980), "High"),
+      nutrition: makeNutrition(310, 1, 12.8, 5.5, 42.2, 1.2, 1.2, 4.2, 980),
+      bodyImpact: computeBodyImpact(makeNutrition(310, 1, 12.8, 5.5, 42.2, 1.2, 1.2, 4.2, 980), "High"),
     }],
     prices: [
       { store: "Reliance Smart", country: "India", price: 12, currency: "INR", dateObserved: "2023-01-10", unitPrice: 0.16, unitPriceLabel: "₹/g" },

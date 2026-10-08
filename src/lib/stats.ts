@@ -1,5 +1,6 @@
 import { products, changeFeed, countries, categories } from "./data/products";
 import * as jsonProducts from "./products-json";
+import { formatProductCount, getCuratedProductCount } from "./catalog-count";
 
 export function getPlatformStats() {
   const shrinkflationCount = products.filter((p) => p.packSizeChanges.length > 0).length;
@@ -7,8 +8,13 @@ export function getPlatformStats() {
   const priceChangeCount = products.filter((p) => p.prices.length >= 2).length;
   const totalChanges = changeFeed.length;
 
+  const jsonCount = jsonProducts.getTotalProductCount();
+  const productCount = formatProductCount(
+    Math.max(jsonCount, getCuratedProductCount())
+  );
+
   return {
-    productCount: "3,000,000+",
+    productCount,
     countryCount: countries.length,
     categoryCount: categories.length,
     shrinkflationCount,
