@@ -83,10 +83,16 @@ const productsRaw: Product[] = [
       { store: "Reliance Smart", country: "India", price: 14, currency: "INR", dateObserved: "2025-02-01", unitPrice: 0.20, unitPriceLabel: "₹/g" },
       { store: "Blinkit", country: "India", price: 14, currency: "INR", dateObserved: "2025-03-01", unitPrice: 0.20, unitPriceLabel: "₹/g" },
     ],
-    packSizeChanges: [{
-      date: "2024-05-10", oldSize: "75g", newSize: "70g", percentChange: -6.7, country: "India",
-      notes: "Pack size reduced from 75g to 70g while maintaining the ₹14 magic price point."
-    }],
+    packSizeChanges: [
+      {
+        date: "2026-07-01", oldSize: "75g", newSize: "70g", percentChange: -6.7, country: "India",
+        notes: "July 2026 cuts across Maggi line: ₹7 pack cut from 35g to 32g (-8.6%), ₹10 pack cut from 52g to 48g (-7.7%), ₹15 standard pack cut from 75g to 70g (-6.7%), larger 4-pack/6-pack/8-pack cut by ~6.7% at unchanged MRPs."
+      },
+      {
+        date: "2024-05-10", oldSize: "75g", newSize: "70g", percentChange: -6.7, country: "India",
+        notes: "Pack size reduced from 75g to 70g while maintaining the ₹14 magic price point."
+      }
+    ],
     formulaChanges: [{
       date: "2023-08-01", country: "India",
       added: ["Ferric Pyrophosphate"],
@@ -803,6 +809,243 @@ const productsRaw: Product[] = [
     submissions: [],
     confirmations: [],
     countryComparisons: []
+  },
+  {
+    id: "parle-g-biscuits",
+    name: "Parle-G Original Gluco Biscuits",
+    brand: "Parle",
+    barcode: "8901719101037",
+    category: "snacks",
+    manufacturer: "Parle Products Pvt. Ltd.",
+    baseDescription: "India's iconic glucose biscuit, staple tea-time accompaniment since 1939.",
+    imageUrl: "https://placehold.co/400x400/fffbeb/d97706?text=Parle-G",
+    trustScore: 92,
+    trustLevel: "Verified",
+    badges: ["Staple candidate", "Smaller pack"],
+    versions: [{
+      id: "parleg-in-v1",
+      country: "India",
+      packSize: "48g",
+      unit: "g",
+      servingSize: "24g (approx. 5 biscuits)",
+      servingsPerPack: 2,
+      ingredientsText: "Wheat Flour (Maida) (67%), Sugar, Edible Vegetable Oil (Palm Oil), Invert Sugar Syrup, Raising Agents, Salt, Milk Solids, Emulsifiers, Dough Conditioner.",
+      simplifiedIngredients: ["Wheat flour (Maida)", "Sugar", "Palm oil", "Invert sugar syrup", "Milk solids", "Salt"],
+      highlightedIngredients: [
+        { name: "Sugar", type: "Sweetener", note: "High sugar content for energy" },
+        { name: "Palm Oil", type: "Vegetable Fat", note: "Primary shortening oil" }
+      ],
+      allergens: ["Wheat", "Milk"],
+      ingredientComplexity: "Simple",
+      versionDate: "2024-01-01",
+      nutrition: makeNutrition(110, 2, 3.2, 1.5, 18.2, 6.4, 0.4, 1.6, 68),
+      bodyImpact: computeBodyImpact(makeNutrition(110, 2, 3.2, 1.5, 18.2, 6.4, 0.4, 1.6, 68), "Moderate"),
+    }],
+    prices: [
+      { store: "Kirana", country: "India", price: 5, currency: "INR", dateObserved: "2023-01-01", unitPrice: 0.09, unitPriceLabel: "₹/g" },
+      { store: "Kirana", country: "India", price: 5, currency: "INR", dateObserved: "2026-07-01", unitPrice: 0.104, unitPriceLabel: "₹/g" }
+    ],
+    packSizeChanges: [
+      {
+        date: "2026-07-01", oldSize: "100g", newSize: "48g", percentChange: -52.0, country: "India",
+        notes: "Parle-G ₹5 coin pack weight halved over the long run from 100g to ~48g today (effectively +100% rise in price per gram)."
+      },
+      {
+        date: "2018-08-01", oldSize: "80g", newSize: "76g", percentChange: -5.0, country: "India",
+        notes: "Pack size cut from 80g to 76g following the 2017 GST 18% levy on biscuits."
+      }
+    ],
+    formulaChanges: [],
+    submissions: [],
+    confirmations: [],
+    countryComparisons: []
+  },
+  {
+    id: "haldirams-aloo-bhujia",
+    name: "Haldiram's Aloo Bhujia",
+    brand: "Haldiram's",
+    barcode: "8904063200409",
+    category: "snacks",
+    manufacturer: "Haldiram Snacks Pvt. Ltd.",
+    baseDescription: "Crispy and spicy potato and chickpea flour noodles seasoned with mint and spices.",
+    imageUrl: "https://placehold.co/400x400/fffbeb/d97706?text=Aloo+Bhujia",
+    trustScore: 88,
+    trustLevel: "Verified",
+    badges: ["High sodium", "Smaller pack"],
+    versions: [{
+      id: "haldiram-aloobhujia-v1",
+      country: "India",
+      packSize: "42g",
+      unit: "g",
+      servingSize: "21g",
+      servingsPerPack: 2,
+      ingredientsText: "Potatoes (22%), Edible Vegetable Oil (Cotton Seed, Corn & Palmolein Oil), Gram Flour (Besan) (20%), Tepary Beans Flour, Rice Powder, Iodised Salt, Spices & Condiments, Mint Powder.",
+      simplifiedIngredients: ["Potatoes", "Palmolein/Cottonseed oil", "Chickpea flour", "Tepary bean flour", "Salt", "Mint and Indian spices"],
+      highlightedIngredients: [
+        { name: "Edible Vegetable Oil", type: "Fat", note: "Deep frying oil blend" },
+        { name: "Spices & Condiments", type: "Seasoning", note: "Signature spicy tangy seasoning" }
+      ],
+      allergens: [],
+      ingredientComplexity: "Moderate",
+      versionDate: "2024-01-01",
+      nutrition: makeNutrition(120, 2, 8.5, 2.8, 8.9, 0.4, 0.8, 2.1, 190),
+      bodyImpact: computeBodyImpact(makeNutrition(120, 2, 8.5, 2.8, 8.9, 0.4, 0.8, 2.1, 190), "High"),
+    }],
+    prices: [
+      { store: "Blinkit", country: "India", price: 10, currency: "INR", dateObserved: "2022-01-01", unitPrice: 0.18, unitPriceLabel: "₹/g" },
+      { store: "Blinkit", country: "India", price: 10, currency: "INR", dateObserved: "2022-06-01", unitPrice: 0.238, unitPriceLabel: "₹/g" }
+    ],
+    packSizeChanges: [{
+      date: "2022-05-01", oldSize: "55g", newSize: "42g", percentChange: -23.6, country: "India",
+      notes: "Severe 13g reduction (-23.6%) at same shelf price during 2022 edible oil price surge (+31% effective price per gram)."
+    }],
+    formulaChanges: [],
+    submissions: [],
+    confirmations: [],
+    countryComparisons: []
+  },
+  {
+    id: "vim-dishwash-bar",
+    name: "Vim Dish-wash Bar",
+    brand: "Vim",
+    barcode: "8901030383120",
+    category: "toiletries",
+    manufacturer: "Hindustan Unilever Ltd. (HUL)",
+    baseDescription: "Lemon-powered degreasing dishwashing bar with mineral abrasive.",
+    imageUrl: "https://placehold.co/400x400/eef3ff/1a5bdb?text=Vim+Bar",
+    trustScore: 89,
+    trustLevel: "Verified",
+    badges: ["Lemon Power", "Smaller pack"],
+    versions: [{
+      id: "vim-bar-v1",
+      country: "India",
+      packSize: "135g",
+      unit: "g",
+      servingSize: "N/A",
+      servingsPerPack: 1,
+      ingredientsText: "Sodium LAS, Mineral Scourers, Sodium Carbonate, Lemon Extract, Color, Perfume.",
+      simplifiedIngredients: ["Surfactant cleanser", "Natural mineral scourers", "Soda ash", "Lemon extract"],
+      highlightedIngredients: [
+        { name: "Sodium LAS", type: "Surfactant", note: "Active grease-cutting detergent" }
+      ],
+      allergens: [],
+      ingredientComplexity: "Simple",
+      versionDate: "2024-01-01",
+      nutrition: makeNutrition(0, 1, 0, 0, 0, 0, 0, 0, 0),
+      bodyImpact: {
+        energyDensityLabel: "Low",
+        satietyLabel: "Moderately filling",
+        sugarFlag: "Low",
+        sodiumFlag: "Low",
+        saturatedFatFlag: "Low",
+        processingFlag: "Moderate",
+        proteinFlag: "Low",
+        fiberFlag: "Low",
+        balanceLabel: "Moderately balanced",
+        occasionLabel: "Moderate frequency",
+        summaryText: "Household dishwashing bar. Not food. Keep away from eyes and children.",
+        disclaimerText: "Cleaning product only."
+      }
+    }],
+    prices: [
+      { store: "Kirana", country: "India", price: 10, currency: "INR", dateObserved: "2022-01-01", unitPrice: 0.064, unitPriceLabel: "₹/g" },
+      { store: "Kirana", country: "India", price: 10, currency: "INR", dateObserved: "2022-06-01", unitPrice: 0.074, unitPriceLabel: "₹/g" }
+    ],
+    packSizeChanges: [{
+      date: "2022-06-01", oldSize: "155g", newSize: "135g", percentChange: -12.9, country: "India",
+      notes: "₹10 bar size reduced from 155g to 135g (-12.9%), documented by Associated Press and Business Today (+14.8% price per gram)."
+    }],
+    formulaChanges: [],
+    submissions: [],
+    confirmations: [],
+    countryComparisons: []
+  },
+  {
+    id: "lays-classic-salted",
+    name: "Lay's Classic Salted Potato Chips",
+    brand: "Lay's",
+    barcode: "8901491101916",
+    category: "snacks",
+    manufacturer: "PepsiCo India Holdings Pvt. Ltd.",
+    baseDescription: "Crispy thinly sliced golden salted potato chips.",
+    imageUrl: "https://placehold.co/400x400/fffbeb/d97706?text=Lays+Chips",
+    trustScore: 87,
+    trustLevel: "Verified",
+    badges: ["High sodium", "Smaller pack"],
+    versions: [{
+      id: "lays-classic-v1",
+      country: "India",
+      packSize: "30g",
+      unit: "g",
+      servingSize: "30g",
+      servingsPerPack: 1,
+      ingredientsText: "Potato, Edible Vegetable Oil (Palmolein, Rice Bran Oil), Iodised Salt (1%).",
+      simplifiedIngredients: ["Potatoes", "Palmolein and rice bran oil", "Iodised salt"],
+      highlightedIngredients: [
+        { name: "Edible Vegetable Oil", type: "Oil", note: "High saturated fat frying oil blend" }
+      ],
+      allergens: [],
+      ingredientComplexity: "Simple",
+      versionDate: "2024-01-01",
+      nutrition: makeNutrition(162, 1, 10.2, 4.3, 15.6, 0.4, 0.9, 2.0, 160),
+      bodyImpact: computeBodyImpact(makeNutrition(162, 1, 10.2, 4.3, 15.6, 0.4, 0.9, 2.0, 160), "High"),
+    }],
+    prices: [
+      { store: "Kirana", country: "India", price: 10, currency: "INR", dateObserved: "2022-01-01", unitPrice: 0.25, unitPriceLabel: "₹/g" },
+      { store: "Kirana", country: "India", price: 10, currency: "INR", dateObserved: "2023-01-01", unitPrice: 0.33, unitPriceLabel: "₹/g" }
+    ],
+    packSizeChanges: [{
+      date: "2023-01-15", oldSize: "40g", newSize: "30g", percentChange: -25.0, country: "India",
+      notes: "Bag size trimmed from 40g to 30g (-25%) at same price point, equivalent to a 33.3% hike in price per gram."
+    }],
+    formulaChanges: [],
+    submissions: [],
+    confirmations: [],
+    countryComparisons: []
+  },
+  {
+    id: "lahori-zeera",
+    name: "Lahori Zeera Carbonated Drink",
+    brand: "Lahori",
+    barcode: "8908012351010",
+    category: "drinks",
+    manufacturer: "Archian Foods Pvt. Ltd.",
+    baseDescription: "Desi digestive fizzy beverage flavored with roasted cumin, rock salt, and spices.",
+    imageUrl: "https://placehold.co/400x400/eef3ff/1a5bdb?text=Lahori+Zeera",
+    trustScore: 88,
+    trustLevel: "Verified",
+    badges: ["Desi digestive", "Smaller pack"],
+    versions: [{
+      id: "lahori-zeera-v1",
+      country: "India",
+      packSize: "160ml",
+      unit: "ml",
+      servingSize: "160ml",
+      servingsPerPack: 1,
+      ingredientsText: "Purified Water, Sugar, Cumin Seeds (Zeera) Extract, Rock Salt, Black Salt, Acidity Regulators (330, 296), Permitted Preservatives.",
+      simplifiedIngredients: ["Water", "Sugar", "Cumin seed extract", "Rock salt & Black salt", "Citric acid"],
+      highlightedIngredients: [
+        { name: "Cumin Seeds Extract", type: "Spice extract", note: "Traditional Indian digestive" },
+        { name: "Sugar", type: "Sweetener", note: "Added for taste balance" }
+      ],
+      allergens: [],
+      ingredientComplexity: "Simple",
+      versionDate: "2024-01-01",
+      nutrition: makeNutrition(68, 1, 0, 0, 16.8, 15.5, 0, 0.2, 140),
+      bodyImpact: computeBodyImpact(makeNutrition(68, 1, 0, 0, 16.8, 15.5, 0, 0.2, 140), "Low"),
+    }],
+    prices: [
+      { store: "Kirana", country: "India", price: 10, currency: "INR", dateObserved: "2021-01-01", unitPrice: 0.05, unitPriceLabel: "₹/ml" },
+      { store: "Kirana", country: "India", price: 10, currency: "INR", dateObserved: "2022-06-01", unitPrice: 0.0625, unitPriceLabel: "₹/ml" }
+    ],
+    packSizeChanges: [{
+      date: "2022-04-10", oldSize: "200ml", newSize: "160ml", percentChange: -20.0, country: "India",
+      notes: "Bottle volume trimmed from 200ml to 160ml (-20%) while keeping shelf price unchanged (+25% price per ml)."
+    }],
+    formulaChanges: [],
+    submissions: [],
+    confirmations: [],
+    countryComparisons: []
   }
 ];
 
@@ -900,6 +1143,12 @@ export const categories: Category[] = [
 ];
 
 export const changeFeed: ChangeFeedItem[] = [
+  { id: "cf-maggi-2026", type: "shrinkflation", productId: "maggi-masala-noodles", productName: "Maggi 2-Minute Masala Noodles", brand: "Maggi", country: "India", date: "2026-07-01", summary: "Portfolio cut across ₹7, ₹10, ₹15, ₹30 packs (-6.7% to -8.6%) at unchanged MRPs", trustScore: 94 },
+  { id: "cf-parleg-2026", type: "shrinkflation", productId: "parle-g-biscuits", productName: "Parle-G Original Gluco Biscuits", brand: "Parle", country: "India", date: "2026-07-01", summary: "₹5 coin pack weight halved from historical 100g down to ~48g (-52%)", trustScore: 92 },
+  { id: "cf-haldiram-2022", type: "shrinkflation", productId: "haldirams-aloo-bhujia", productName: "Haldiram's Aloo Bhujia", brand: "Haldiram's", country: "India", date: "2022-05-01", summary: "Pack size reduced from 55g to 42g (-23.6%) at same price point (+31% price/g)", trustScore: 88 },
+  { id: "cf-vim-2022", type: "shrinkflation", productId: "vim-dishwash-bar", productName: "Vim Dish-wash Bar", brand: "Vim", country: "India", date: "2022-06-01", summary: "₹10 bar size reduced from 155g to 135g (-12.9%) by HUL", trustScore: 89 },
+  { id: "cf-lays-2023", type: "shrinkflation", productId: "lays-classic-salted", productName: "Lay's Classic Salted Potato Chips", brand: "Lay's", country: "India", date: "2023-01-15", summary: "Standard pouch trimmed from 40g to 30g (-25%) at same price point", trustScore: 87 },
+  { id: "cf-lahori-2022", type: "shrinkflation", productId: "lahori-zeera", productName: "Lahori Zeera Carbonated Drink", brand: "Lahori", country: "India", date: "2022-04-10", summary: "Bottle size trimmed from 200ml to 160ml (-20%) at same shelf price", trustScore: 88 },
   { id: "cf1", type: "shrinkflation", productId: "maggi-masala-noodles", productName: "Maggi 2-Minute Masala Noodles", brand: "Maggi", country: "India", date: "2024-05-10", summary: "Pack size reduced from 75g to 70g (-6.7%) at ₹14", trustScore: 94 },
   { id: "cf2", type: "shrinkflation", productId: "good-day-butter-cookies", productName: "Britannia Good Day Butter Cookies", brand: "Britannia", country: "India", date: "2024-08-01", summary: "₹10 pack size reduced from 72g to 66g (-8.3%)", trustScore: 91 },
   { id: "cf3", type: "shrinkflation", productId: "kurkure-masala-munch", productName: "Kurkure Masala Munch", brand: "Kurkure", country: "India", date: "2024-09-15", summary: "₹20 pack size reduced from 90g to 82g (-8.9%)", trustScore: 89 },

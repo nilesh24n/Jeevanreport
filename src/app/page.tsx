@@ -58,11 +58,12 @@ const features = [
 ];
 
 const worstShrinkflation = [
-  { name: "Dettol Liquid Handwash", brand: "Dettol", oldSize: "200ml", newSize: "175ml", change: "-12.5%" },
-  { name: "Epigamia Mango Greek Yogurt", brand: "Epigamia", oldSize: "100g", newSize: "90g", change: "-10.0%" },
-  { name: "Kurkure Masala Munch", brand: "Kurkure", oldSize: "90g", newSize: "82g", change: "-8.9%" },
-  { name: "Britannia Good Day Butter Cookies", brand: "Britannia", oldSize: "72g", newSize: "66g", change: "-8.3%" },
-  { name: "Maggi 2-Minute Noodles", brand: "Maggi", oldSize: "75g", newSize: "70g", change: "-6.7%" },
+  { name: "Parle-G Gluco Biscuits", brand: "Parle", oldSize: "100g", newSize: "~48g", change: "-52.0%", pricePoint: "₹5 coin pack" },
+  { name: "Lay's Classic Salted", brand: "Lay's", oldSize: "40g", newSize: "30g", change: "-25.0%", pricePoint: "Standard pouch" },
+  { name: "Haldiram's Aloo Bhujia", brand: "Haldiram's", oldSize: "55g", newSize: "42g", change: "-23.6%", pricePoint: "Same price" },
+  { name: "Lahori Zeera Beverage", brand: "Lahori", oldSize: "200ml", newSize: "160ml", change: "-20.0%", pricePoint: "Bottle" },
+  { name: "Vim Dish-wash Bar", brand: "HUL", oldSize: "155g", newSize: "135g", change: "-12.9%", pricePoint: "₹10 bar" },
+  { name: "Maggi 2-Minute Noodles", brand: "Nestlé India", oldSize: "35g", newSize: "32g", change: "-8.6%", pricePoint: "₹7 mini pack" },
 ];
 
 const learnItems = [
@@ -323,25 +324,34 @@ export default function HomePage() {
               <h2 className="section-title">Getting less for the same price</h2>
               <p className="section-subtitle !mx-0 mt-2">Indian brands quietly reducing pack sizes — with proof.</p>
             </div>
-            <Link href="/leaderboard" className="btn-secondary shrink-0 text-sm">View leaderboard</Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link href="/shrinkflation" className="btn-primary shrink-0 text-xs font-semibold !px-4 !py-2 shadow-sm flex items-center gap-1.5">
+                <span>Explore 2018–2026 Report</span>
+                <span>↗</span>
+              </Link>
+              <Link href="/leaderboard" className="btn-secondary shrink-0 text-xs font-semibold !px-4 !py-2">
+                Leaderboard
+              </Link>
+            </div>
           </div>
 
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+          <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
             {worstShrinkflation.map((p) => (
-              <div key={p.name} className="card relative !p-4">
-                <span className="absolute right-3 top-3 rounded-lg bg-rose-600 px-2 py-0.5 text-[11px] font-bold text-white">
+              <div key={p.name} className="card relative !p-3.5 flex flex-col justify-between">
+                <span className="absolute right-2.5 top-2.5 rounded-lg bg-rose-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
                   {p.change}
                 </span>
-                <div className="mb-3 flex h-16 items-end">
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-espresso/35">{p.brand}</p>
-                    <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-espresso">{p.name}</h3>
-                  </div>
+                <div className="mb-2 pt-2">
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-espresso/40">{p.brand}</p>
+                  <h3 className="line-clamp-2 text-xs font-semibold leading-tight text-espresso mt-0.5">{p.name}</h3>
+                  <span className="inline-block mt-1 text-[10px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded">
+                    {p.pricePoint}
+                  </span>
                 </div>
-                <div className="border-t border-latte pt-3 text-xs font-medium text-espresso/60">
-                  <span className="text-espresso/40">{p.oldSize}</span>
-                  <span className="mx-1.5 text-espresso/25">→</span>
-                  <span className="font-semibold text-rose-600">{p.newSize}</span>
+                <div className="border-t border-latte pt-2 text-[11px] font-medium text-espresso/60 flex items-center justify-between">
+                  <span className="line-through text-espresso/40">{p.oldSize}</span>
+                  <span className="text-espresso/30">→</span>
+                  <span className="font-bold text-rose-600">{p.newSize}</span>
                 </div>
               </div>
             ))}

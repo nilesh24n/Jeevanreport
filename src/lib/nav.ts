@@ -28,6 +28,7 @@ const CORE: NavItem[] = [
 
 const BROWSE: NavItem[] = [
   { href: "/products", labelKey: "nav.products" },
+  { href: "/shrinkflation", labelKey: "nav.shrinkflation" },
   { href: "/brands", labelKey: "nav.brands" },
   { href: "/categories", labelKey: "nav.categories" },
   { href: "/countries", labelKey: "nav.countries" },

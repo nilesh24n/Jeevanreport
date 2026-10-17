@@ -6,6 +6,7 @@ import FooterLangToggle from "./FooterLangToggle";
 const platformLinks = [
   { href: "/scan",           label: "Scan Product" },
   { href: "/search",         label: "Search Database" },
+  { href: "/shrinkflation",  label: "Shrinkflation Report 2018–2026" },
   { href: "/compare",        label: "Compare Products" },
   { href: "/leaderboard",    label: "Shrinkflation Leaderboard" },
   { href: "/dashboard",      label: "Dashboard" },

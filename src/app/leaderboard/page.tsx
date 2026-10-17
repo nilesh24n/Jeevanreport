@@ -14,11 +14,38 @@ export default function LeaderboardPage() {
   const priceIncreases = getPriceIncreaseLeaderboard();
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <h1 className="text-3xl font-bold text-slate-900">Shrinkflation Leaderboard</h1>
-      <p className="mt-2 text-slate-600">
-        Biggest documented pack-size reductions and unit-price increases in the public archive
-      </p>
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900">Shrinkflation Leaderboard</h1>
+        <p className="mt-2 text-slate-600">
+          Biggest documented pack-size reductions and unit-price increases in India and global consumer markets.
+        </p>
+      </div>
+
+      {/* Featured Research Report Banner */}
+      <div className="relative overflow-hidden rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-500/10 via-amber-50 to-orange-50 p-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/20 px-2.5 py-0.5 text-[11px] font-bold text-amber-900 border border-amber-400/30">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-600 animate-pulse" />
+              Special Investigation Dossier · 2018–2026
+            </div>
+            <h2 className="text-lg font-bold text-espresso">
+              Shrinkflation in Indian Packaged Foods: Full Documented Report
+            </h2>
+            <p className="text-xs text-espresso/70 max-w-2xl">
+              Covers documented cuts across Nestlé Maggi (July 2026), Parle-G, Haldiram&apos;s, Vim bar, Kurkure, Lay&apos;s, and Lahori Zeera with 19 verified sources, corporate disclosures, and interactive calculator.
+            </p>
+          </div>
+          <Link
+            href="/shrinkflation"
+            className="btn-primary shrink-0 text-xs font-semibold !px-5 !py-2.5 shadow-md flex items-center gap-1.5"
+          >
+            <span>Read 2018–2026 Dossier</span>
+            <span>→</span>
+          </Link>
+        </div>
+      </div>
 
       <section className="mt-10">
         <h2 className="text-xl font-semibold text-slate-900">Largest pack-size reductions</h2>

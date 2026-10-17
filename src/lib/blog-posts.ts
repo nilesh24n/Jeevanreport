@@ -10,6 +10,70 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "shrinkflation-in-indian-packaged-foods-2018-2026-report",
+    title: "Shrinkflation in Indian Packaged Foods (2018–2026): The Sacred Price Points & The Parle-G Economic Index",
+    excerpt: "From Maggi's July 2026 portfolio cuts to Parle-G's 50% 30-year weight drop, explore our comprehensive public report on pack-size reductions in India.",
+    date: "2026-10-17",
+    author: "JeevanReport Research Desk",
+    tags: ["Shrinkflation", "FMCG", "Consumer Rights", "Data Analysis", "Parle-G", "Maggi"],
+    content: `
+No official or industry body publishes a complete list of pack-weight changes for every packaged product sold in India. There are hundreds of thousands of SKUs, and consumer goods companies are not legally required to publicly trumpet package reductions. 
+
+At JeevanReport, our research team compiled publicly documented cases of shrinkflation across biscuits, noodles, snacks, soaps, and beverages from 2018 through late 2026. Here is the unvarnished analysis of what the data shows.
+
+[Read the interactive 2018–2026 Shrinkflation Investigation Dossier with live calculator and 19 verified sources here](/shrinkflation).
+
+---
+
+### Key Findings at a Glance
+
+1. **The 'Sacred' & 'Magic' Price Points (₹5, ₹10, ₹20):** Dabur's CEO calls ₹1, ₹5, and ₹10 "sacred" price points, while Hindustan Unilever (HUL) terms them "magic" price thresholds. Because small coins define daily cash purchases in India's 1.2+ crore kiranas, brands cannot raise nominal prices without causing catastrophic volume drops. Weight is what moves.
+2. **Maggi July 2026 Cuts Across Portfolio:** Nestlé India revised net weights across virtually its entire Maggi line in July 2026 while leaving MRPs untouched. The ₹7 pack dropped from 35g to 32g (-8.6%), the ₹10 pack dropped from 52g to 48g (-7.7%), and family 4-packs/8-packs dropped by ~6.7%, creating an immediate 7–9.4% effective hike in price per gram.
+3. **The Parle-G Economic Index:** In 1994, a 100g pack of Parle-G sold for ₹4 (₹0.04/g). Over three decades, the pack reduced to 80g, 76g in 2018, 55g in 2021 at ₹5, and today sits at 45–50g in mid-2020s retail checks. The ₹5 pack has literally halved in size, doubling the real cost per gram.
+4. **2026 Crude & Palm Oil Pressure:** High crude oil prices, edible palm oil surges, and plastic polymer costs have driven companies like Dabur, Britannia, Godrej Consumer, and Marico to implement a dual strategy: grammage cuts on ₹10 and ₹20 packs alongside direct price increases on larger SKUs.
+5. **The GST 2.0 Episode:** When GST on biscuits, soaps, and noodles was reduced from 18% to 5% on 22 September 2025, odd-coin pricing (e.g. ₹4.45 Parle-G, 88 paise candy) caused retail friction. While CBIC clarified that firms could add 6–12% more weight at standard price points, subsequent 2026 cost pressures quickly reclaimed those temporary gains.
+
+---
+
+### Top Documented Pack-Size Cuts
+
+| Product & SKU | Brand | Price Point | Before | After | Pack Cut % | Price/g Rise % | Period |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Parle-G Gluco Biscuits** | Parle | ₹5 | 100g | ~48g | **-52.0%** | **+100.0%** | Multi-decade |
+| **Lay's Potato Chips** | PepsiCo | Standard | 40g | 30g | **-25.0%** | **+33.3%** | 2021–2023 |
+| **Haldiram's Aloo Bhujia** | Haldiram's | Same price | 55g | 42g | **-23.6%** | **+31.0%** | 2022 |
+| **Lahori Zeera Beverage** | Lahori | Same price | 200ml | 160ml | **-20.0%** | **+25.0%** | 2020–2022 |
+| **Vim Dish-wash Bar** | HUL | ₹10 | 155g | 135g | **-12.9%** | **+14.8%** | 2022 |
+| **Kurkure Masala Munch** | PepsiCo | ₹10 | 55g | 50g | **-9.1%** | **+10.0%** | 2020–2024 |
+| **Maggi Noodles (Mini)** | Nestlé India | ₹7 | 35g | 32g | **-8.6%** | **+9.4%** | July 2026 |
+| **Maggi Noodles (Small)** | Nestlé India | ₹10 | 52g | 48g | **-7.7%** | **+8.3%** | July 2026 |
+| **Maggi Standard Single** | Nestlé India | ₹15 | 75g | 70g | **-6.7%** | **+7.1%** | July 2026 |
+| **Good Day Butter Cookies** | Britannia | ₹10 | 72g | 66g | **-8.3%** | **+9.1%** | 2024 |
+
+---
+
+### Why Small Packs Matter to Indian Households
+
+Small packs are not minor impulse treats in India; they are how the country consumes FMCG essentials. In September 2025 retail checks:
+- **79% of shampoo sales** come from sachets (₹1, ₹2, ₹3).
+- **64% of all biscuit sales** come from packs priced ₹10 or below.
+- **58% of chocolates** and **44% of salty namkeen snacks** sit in low-value price points.
+
+For low-income and working-class families, shaving 5g from a ₹10 pack is an invisible 10% tax on essential nutrition and home hygiene.
+
+---
+
+### Know Your Rights Under Legal Metrology
+
+Under the **Legal Metrology (Packaged Commodities) Rules, 2011** (effective 1 April 2022), manufacturers are legally required to declare the **unit sale price** (₹ per gram or ₹ per millilitre) on every retail packet alongside the MRP. 
+
+If you suspect short quantity, deceptive packaging, or misleading weight declarations:
+1. Note the net weight and MRP printed on the back panel.
+2. Calculate price per 100g: \`(MRP ÷ Weight) × 100\`.
+3. Report violations directly to the Government of India's **National Consumer Helpline (1915)** at [consumerhelpline.gov.in](https://consumerhelpline.gov.in).
+    `
+  },
+  {
     slug: "what-is-shrinkflation-indian-brands",
     title: "What is Shrinkflation? How Indian Brands Adjust Pack Sizes",
     excerpt: "Have you noticed your favorite biscuit packet feels lighter or soap bar got smaller, but the price remained exactly the same? That is shrinkflation. Learn how it works in India.",

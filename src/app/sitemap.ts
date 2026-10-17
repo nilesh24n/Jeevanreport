@@ -8,7 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticPages = [
     "", "scan", "search", "products", "countries", "brands", "ingredients", "compare", "submit", "methodology",
-    "dashboard", "latest-changes", "leaderboard", "categories", "about", "faq", "contact", "api-docs",
+    "dashboard", "latest-changes", "leaderboard", "shrinkflation", "categories", "about", "faq", "contact", "api-docs",
     "privacy", "terms", "disclaimer", "data-sources", "community-guidelines",
   ];
 
