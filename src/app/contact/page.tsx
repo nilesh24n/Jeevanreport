@@ -24,10 +24,10 @@ export default function ContactPage() {
           <div className="card space-y-2">
             <h2 className="font-semibold text-slate-900">📧 Email</h2>
             <a
-              href="mailto:contact@jeevanreport.in"
+              href="mailto:supportjeevanreport@gmail.com"
               className="text-brand-600 hover:underline font-medium text-sm break-all"
             >
-              contact@jeevanreport.in
+              supportjeevanreport@gmail.com
             </a>
             <p className="text-xs text-slate-500">Response within 2–3 business days</p>
           </div>

@@ -148,8 +148,8 @@ export default function Footer() {
 
         <div className="mt-6 flex flex-col items-center justify-between gap-2 border-t border-white/10 pt-6 text-xs text-white/35 sm:flex-row">
           <p>© {new Date().getFullYear()} JeevanReport · Built for India</p>
-          <a href="mailto:contact@jeevanreport.in" className="transition-colors hover:text-white/70">
-            contact@jeevanreport.in
+          <a href="mailto:supportjeevanreport@gmail.com" className="transition-colors hover:text-white/70">
+            supportjeevanreport@gmail.com
           </a>
         </div>
       </div>

@@ -11,7 +11,7 @@ const SUBJECTS = [
   { value: "other", label: "Other" },
 ];
 
-const CONTACT_EMAIL = "contact@jeevanreport.in";
+const CONTACT_EMAIL = "supportjeevanreport@gmail.com";
 
 interface FormState {
   name: string;

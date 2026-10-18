@@ -205,4 +205,4 @@ export const SHORT_LEGAL_DISCLAIMER =
   "🛡️ Consumer Transparency Notice: All ratings and ingredient flags are independent editorial evaluations based strictly on the manufacturer's own public label and peer-reviewed health guidance (FSSAI/ICMR/WHO). We assert no defamatory intent, commercial endorsement, or legal allegations against any brand.";
 
 export const LEGAL_SAFE_HARBOR_NOTICE =
-  "JeevanReport operates under Section 79 of the Information Technology Act, 2000 (Intermediary Safe Harbor) and the Consumer Protection Act, 2019. We maintain a zero-malice policy and invite immediate right-of-reply or verified packaging corrections at corrections@jeevanreport.in.";
+  "JeevanReport operates under Section 79 of the Information Technology Act, 2000 (Intermediary Safe Harbor) and the Consumer Protection Act, 2019. We maintain a zero-malice policy and invite immediate right-of-reply or verified packaging corrections at supportjeevanreport@gmail.com.";

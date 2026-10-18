@@ -73,7 +73,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "footer.platform": "Platform",
     "footer.company": "Company",
     "footer.legal": "Legal",
-    "footer.copyright": "© 2026 Jeevanreport · Built for India · contact@jeevanreport.in",
+    "footer.copyright": "© 2026 Jeevanreport · Built for India · supportjeevanreport@gmail.com",
   },
   hi: {
     // Nav
@@ -146,7 +146,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "footer.platform": "प्लेटफ़ॉर्म",
     "footer.company": "कंपनी",
     "footer.legal": "कानूनी",
-    "footer.copyright": "© 2026 Jeevanreport · भारत के लिए बनाया · contact@jeevanreport.in",
+    "footer.copyright": "© 2026 Jeevanreport · भारत के लिए बनाया · supportjeevanreport@gmail.com",
   },
 };
 
