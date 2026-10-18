@@ -23,6 +23,7 @@ import ShareButton from "./ShareButton";
 import HighlightedIngredient from "./HighlightedIngredient";
 import GymModePanel from "./GymModePanel";
 import ShrinkflationApiPanel from "./ShrinkflationApiPanel";
+import Disclaimer from "./Disclaimer";
 import ProductDisclaimerBanner from "./ProductDisclaimerBanner";
 import { getRatingCardClass, RatingBadge } from "@/lib/rating-ui";
 import { MEDICAL_DISCLAIMER } from "@/lib/types";
@@ -308,6 +309,11 @@ export default function ScanResult({ product }: { product: Product }) {
           </div>
         )}
       </section>
+
+      {/* Legal & Consumer Transparency Notice */}
+      <div className="pt-2">
+        <Disclaimer compact />
+      </div>
     </div>
   );
 }

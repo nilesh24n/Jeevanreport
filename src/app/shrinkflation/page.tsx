@@ -142,7 +142,10 @@ export default function ShrinkflationReportPage() {
                   {SHRINKFLATION_METADATA.scopeText}
                 </p>
                 <p className="text-xs text-amber-800/80 pt-1">
-                  Confidence ratings (High, Medium, Low) indicate verification levels. Figures originate in news reports, market audits, and company calls.
+                  Confidence ratings (High, Medium, Low) indicate verification levels. Figures originate in public news reports, distributor audits, and corporate earnings calls. Trademarks and brand names belong exclusively to their respective owners and are displayed strictly for nominative identification and consumer reporting (Nominative Fair Use). See our{" "}
+                  <Link href="/disclaimer" className="underline font-bold text-amber-950 hover:text-black">
+                    Platform Legal Disclaimer & Consumer Protection Charter
+                  </Link>.
                 </p>
               </div>
             </div>

@@ -17,6 +17,7 @@ import TrustScoreBreakdown from "@/components/TrustScoreBreakdown";
 import ProductImage from "@/components/ProductImage";
 import ProductAnalysisPanel from "@/components/ProductAnalysisPanel";
 import ProductDisclaimerBanner from "@/components/ProductDisclaimerBanner";
+import Disclaimer from "@/components/Disclaimer";
 import TrustScoreMeter from "@/components/TrustScoreMeter";
 import { getRatingCardClass, RatingBadge } from "@/lib/rating-ui";
 
@@ -200,6 +201,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         <PrintButton />
         <Link href={`/compare?ids=${product.id}`} className="btn-secondary min-h-[44px] flex-1 sm:flex-initial text-center">Compare</Link>
         <Link href={`/submit?product=${product.id}`} className="btn-accent min-h-[44px] w-full sm:w-auto text-center">Submit evidence</Link>
+      </div>
+
+      {/* Persistent Legal & Consumer Transparency Notice */}
+      <div className="pt-2">
+        <Disclaimer compact />
       </div>
     </div>
   );

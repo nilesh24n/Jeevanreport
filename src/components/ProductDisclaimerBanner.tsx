@@ -21,10 +21,14 @@ export default function ProductDisclaimerBanner() {
   if (!visible) return null;
 
   return (
-    <div className="bg-slate-900 text-white px-4 py-2 text-xs rounded-xl flex items-center justify-between gap-3 shadow-md border border-slate-800 transition-all duration-300">
-      <span className="leading-normal flex-1">
-        ⚖️ <strong>Disclaimer:</strong> Assessments are editorial opinions based on public FSSAI label data. We do not allege legal violations by any manufacturer.{" "}
-        <Link href="/corrections" className="underline hover:text-brand-300 font-bold transition-colors">
+    <div className="bg-slate-900 text-white px-4 py-2.5 text-xs rounded-xl flex items-center justify-between gap-3 shadow-md border border-slate-800 transition-all duration-300">
+      <span className="leading-normal flex-1 text-white/90">
+        ⚖️ <strong>Legal & Fair Use Notice:</strong> Product ratings, ingredient analyses, and shrinkflation records are independent editorial evaluations based strictly on public packaging declarations and FSSAI standards. Trademarks belong to their respective owners (Nominative Fair Use).{" "}
+        <Link href="/disclaimer" className="underline text-amber-300 hover:text-white font-semibold transition-colors">
+          Full Legal Disclaimer
+        </Link>
+        {" · "}
+        <Link href="/corrections" className="underline text-white/70 hover:text-white transition-colors">
           Correction request?
         </Link>
       </span>

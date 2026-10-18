@@ -118,13 +118,32 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 md:grid-cols-2">
-          <p className="text-[11px] leading-relaxed text-white/40">
-            <strong className="text-white/60">Content:</strong> {CONTENT_DISCLAIMER}
-          </p>
-          <p className="text-[11px] leading-relaxed text-white/40 md:border-l md:border-white/10 md:pl-4">
-            <strong className="text-white/60">Medical:</strong> {MEDICAL_DISCLAIMER}
-          </p>
+        <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2.5 mb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="text-amber-400 font-bold">⚖️</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-white/80">
+                Legal Safe Harbor & Consumer Protection Notice
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-[11px] text-white/60">
+              <Link href="/disclaimer" className="text-amber-300 hover:text-white underline font-semibold">
+                View Full Legal Disclaimer →
+              </Link>
+              <span>·</span>
+              <Link href="/corrections" className="text-white/70 hover:text-white underline">
+                Manufacturer Corrections
+              </Link>
+            </div>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2 text-[11px] leading-relaxed text-white/45">
+            <p>
+              <strong className="text-white/70">Consumer Right to Know & Fair Use:</strong> {CONTENT_DISCLAIMER}
+            </p>
+            <p className="md:border-l md:border-white/10 md:pl-4">
+              <strong className="text-white/70">Educational Health Guidance:</strong> {MEDICAL_DISCLAIMER}
+            </p>
+          </div>
         </div>
 
         <div className="mt-6 flex flex-col items-center justify-between gap-2 border-t border-white/10 pt-6 text-xs text-white/35 sm:flex-row">
