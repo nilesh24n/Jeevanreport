@@ -148,9 +148,6 @@ export default function DisclaimerPage() {
             <p>
               This platform is published and maintained in India. Any dispute, grievance, or legal inquiry arising out of the content on this website shall be subject to the exclusive jurisdiction of the competent courts in India, governed by the laws of India.
             </p>
-            <p className="text-xs text-espresso/60">
-              For official legal correspondence, notices may be dispatched to: <code className="rounded bg-latte/50 px-1 py-0.5 font-mono text-espresso font-semibold">legal@jeevanreport.in</code> with a copy to <code className="rounded bg-latte/50 px-1 py-0.5 font-mono text-espresso font-semibold">corrections@jeevanreport.in</code>.
-            </p>
           </section>
         </div>
 
