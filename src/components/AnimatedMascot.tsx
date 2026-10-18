@@ -1,626 +1,604 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import Link from "next/link";
 
-type Phase = "hanging" | "jumping-to-btn" | "walking-btn" | "hopping-down" | "walking-page" | "climbing";
+interface FoodTip {
+  tag: string;
+  tagColor: string;
+  icon: string;
+  fact: string;
+  actionText?: string;
+  actionHref?: string;
+}
+
+const FOOD_TIPS: FoodTip[] = [
+  {
+    tag: "Palm Oil Watch",
+    tagColor: "bg-amber-100 text-amber-800 border-amber-300",
+    icon: "🌴",
+    fact: "Over 65% of popular biscuits & instant noodles use cheap hydrogenated palm oil. Always check the fat source!",
+    actionText: "Search Biscuits",
+    actionHref: "/categories/snacks",
+  },
+  {
+    tag: "Sneaky Sugars",
+    tagColor: "bg-rose-100 text-rose-800 border-rose-300",
+    icon: "🍬",
+    fact: "'No Added Sugar' labels often conceal Maltodextrin, Dextrose, or Invert Syrup that spike blood sugar just as fast.",
+    actionText: "Scan Label",
+    actionHref: "/scan",
+  },
+  {
+    tag: "Shrinkflation Alert",
+    tagColor: "bg-purple-100 text-purple-800 border-purple-300",
+    icon: "📉",
+    fact: "Brands quietly shrink 100g packs to 85g while charging the exact same price. We track pack weight changes daily!",
+    actionText: "View Shrinkflation",
+    actionHref: "/shrinkflation",
+  },
+  {
+    tag: "Clean Label Rule",
+    tagColor: "bg-emerald-100 text-emerald-800 border-emerald-300",
+    icon: "🌿",
+    fact: "Gold Standard Rule: If your grandmother wouldn't recognize an ingredient on the box, think twice before eating it.",
+    actionText: "Browse Top Rated",
+    actionHref: "/products",
+  },
+  {
+    tag: "Ultra-Processed (UPF)",
+    tagColor: "bg-red-100 text-red-800 border-red-300",
+    icon: "⚠️",
+    fact: "Emulsifiers like INS 471 and INS 472 can alter gut microbiota. Check the JeevanReport Trust Score before buying.",
+    actionText: "Our Methodology",
+    actionHref: "/methodology",
+  },
+  {
+    tag: "Baby Food Alert",
+    tagColor: "bg-blue-100 text-blue-800 border-blue-300",
+    icon: "🍼",
+    fact: "Several cereal powders marketed for toddlers contain up to 30% added refined sugars. Keep little ones safe!",
+    actionText: "Baby Care Panel",
+    actionHref: "/categories/dairy",
+  },
+];
 
 export default function AnimatedMascot() {
-  const [phase, setPhase] = useState<Phase>("hanging");
-  const [pos, setPos] = useState({ x: 0, y: 0, visible: false, flipped: false });
-  const [walkLegStep, setWalkLegStep] = useState(0); // 0 or 1 for leg animation
-  const [climbStep, setClimbStep] = useState(0); // 0 or 1 for hand-over-hand climbing
-  const phaseRef = useRef<Phase>("hanging");
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const intervalsRef = useRef<ReturnType<typeof setInterval>[]>([]);
+  const [mounted, setMounted] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [showSpeechBubble, setShowSpeechBubble] = useState(false);
+  const [tipIndex, setTipIndex] = useState(0);
+  const [hovered, setHovered] = useState(false);
+  const [droneMood, setDroneMood] = useState<"happy" | "scanning" | "curious" | "winking">("curious");
 
-  function clearAllTimers() {
-    timersRef.current.forEach((t) => clearTimeout(t));
-    timersRef.current = [];
-    intervalsRef.current.forEach((i) => clearInterval(i));
-    intervalsRef.current = [];
-  }
+  // Eye pupil tracking relative to drone center
+  const [eyeOffset, setEyeOffset] = useState({ x: 0, y: 0 });
+  const droneRef = useRef<HTMLDivElement>(null);
+  const scanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Returns exact screen coordinates for the handle midpoint of #site-logo
-  // Logo viewBox is 0 0 56 58, handle midpoint is (33, 29.5)
-  // Mascot hand grip center inside its 32x42 box is at (11.8, 5)
-  const getLogoGripPos = useCallback(() => {
-    const logo = document.querySelector("#site-logo") as HTMLElement | null;
-    if (!logo) return null;
-    const rect = logo.getBoundingClientRect();
-    const handleMidX = (33 / 56) * rect.width;
-    const handleMidY = (29.5 / 58) * rect.height;
-    return {
-      x: rect.left + handleMidX - 11.8,
-      y: rect.top + handleMidY - 5,
-    };
-  }, []);
-
-  // Returns button coordinates for the mascot to stand on top of #hero-scan-btn
-  const getBtnBounds = useCallback(() => {
-    const btn = document.querySelector("#hero-scan-btn") as HTMLElement | null;
-    if (!btn) return null;
-    const rect = btn.getBoundingClientRect();
-    return {
-      left: rect.left + 16,
-      right: rect.right - 36,
-      top: rect.top - 36,
-      width: rect.width,
-    };
-  }, []);
-
-  // Forward references to chain animation functions cleanly
-  const startJumpToBtnRef = useRef<() => void>(() => {});
-  const startWalkingBtnRef = useRef<() => void>(() => {});
-  const startHopDownRef = useRef<() => void>(() => {});
-  const startWalkingPageRef = useRef<() => void>(() => {});
-  const startClimbingUpRef = useRef<() => void>(() => {});
-
-  // -------------------------------------------------------------
-  // 1. REAL PERSON HAND-OVER-HAND CLIMBING UP FROM PAGE TO LOGO
-  // -------------------------------------------------------------
-  const startClimbingUp = useCallback(() => {
-    clearAllTimers();
-    phaseRef.current = "climbing";
-    setPhase("climbing");
-
-    const grip = getLogoGripPos();
-    if (!grip) return;
-
-    // Get current position where mascot is standing down the page
-    const currentX = pos.x;
-    const currentY = pos.y;
-    const targetX = grip.x;
-    const targetY = grip.y;
-
-    // Total distance to climb
-    const totalDistY = currentY - targetY;
-    // Perform 8 realistic hand-over-hand climbing pulls
-    const numSteps = 8;
-    const stepDuration = 320; // 320ms per climbing pull
-    let currentStepIndex = 0;
-
-    // Alternating hand/foot climbing animation (swaps every 160ms)
-    const climbInterval = setInterval(() => {
-      setClimbStep((s) => (s === 0 ? 1 : 0));
-    }, 160);
-    intervalsRef.current.push(climbInterval);
-
-    function doClimbStep() {
-      if (phaseRef.current !== "climbing") return;
-
-      currentStepIndex++;
-      const progress = Math.min(1, currentStepIndex / numSteps);
-
-      // Realistic climbing sway (weight shifts left-right as arms pull)
-      const swayOffset = currentStepIndex % 2 === 0 ? 4 : -4;
-      const nextX = currentX + (targetX - currentX) * progress + (progress < 0.95 ? swayOffset : 0);
-      const nextY = currentY - totalDistY * progress;
-
-      setPos({
-        x: nextX,
-        y: nextY,
-        visible: true,
-        flipped: false,
-      });
-
-      if (progress < 1) {
-        const nextTimer = setTimeout(doClimbStep, stepDuration);
-        timersRef.current.push(nextTimer);
-      } else {
-        // Reached the logo! Catch the handle and hang
-        const finishTimer = setTimeout(() => {
-          clearInterval(climbInterval);
-          phaseRef.current = "hanging";
-          setPhase("hanging");
-
-          const finalGrip = getLogoGripPos();
-          setPos({
-            x: finalGrip?.x ?? targetX,
-            y: finalGrip?.y ?? targetY,
-            visible: true,
-            flipped: false,
-          });
-
-          // Hang at the logo for 3.5 seconds, then jump down to begin the journey again!
-          const nextCycleTimer = setTimeout(() => {
-            startJumpToBtnRef.current();
-          }, 3500);
-          timersRef.current.push(nextCycleTimer);
-        }, 250);
-        timersRef.current.push(finishTimer);
-      }
-    }
-
-    // Begin first climbing reach
-    doClimbStep();
-  }, [getLogoGripPos, pos.x, pos.y]);
-
-  startClimbingUpRef.current = startClimbingUp;
-
-  // -------------------------------------------------------------
-  // 2. WALKING DOWN THROUGH THE PAGE (From Hero down to lower page)
-  // -------------------------------------------------------------
-  const startWalkingPage = useCallback(() => {
-    phaseRef.current = "walking-page";
-    setPhase("walking-page");
-
-    // Natural human leg stride interval (swaps legs every 170ms)
-    const legInterval = setInterval(() => {
-      setWalkLegStep((s) => (s === 0 ? 1 : 0));
-    }, 170);
-    intervalsRef.current.push(legInterval);
-
-    // Mascot walks across lower page from left to right, then pauses, then begins climbing!
-    const screenWidth = typeof window !== "undefined" ? window.innerWidth : 1200;
-    const lowerY = Math.min(typeof window !== "undefined" ? window.innerHeight - 80 : 540, 560);
-    const walkRightX = Math.min(screenWidth - 100, pos.x + 220);
-
-    // Stride across to the right
-    setPos({
-      x: walkRightX,
-      y: lowerY,
-      visible: true,
-      flipped: false,
-    });
-
-    // Walk for 3.0 seconds to right
-    const walk1 = setTimeout(() => {
-      if (phaseRef.current !== "walking-page") return;
-
-      // Turn around and walk slightly left toward the climb line
-      const grip = getLogoGripPos();
-      const climbBaseX = grip ? grip.x + 30 : pos.x;
-
-      setPos({
-        x: climbBaseX,
-        y: lowerY,
-        visible: true,
-        flipped: true,
-      });
-
-      // Walk back for 2.6 seconds, then start climbing up!
-      const walk2 = setTimeout(() => {
-        clearInterval(legInterval);
-        startClimbingUpRef.current();
-      }, 2600);
-      timersRef.current.push(walk2);
-    }, 3000);
-    timersRef.current.push(walk1);
-  }, [getLogoGripPos, pos.x]);
-
-  startWalkingPageRef.current = startWalkingPage;
-
-  // -------------------------------------------------------------
-  // 3. HOPPING DOWN FROM THE BUTTON TO LOWER PAGE
-  // -------------------------------------------------------------
-  const startHopDown = useCallback(() => {
-    phaseRef.current = "hopping-down";
-    setPhase("hopping-down");
-
-    const btn = getBtnBounds();
-    const hopTargetX = btn ? btn.right + 20 : pos.x + 40;
-    const hopTargetY = btn ? btn.top + 130 : pos.y + 130;
-
-    // Little jump down off the edge
-    setPos({
-      x: hopTargetX,
-      y: hopTargetY,
-      visible: true,
-      flipped: false,
-    });
-
-    const hopTimer = setTimeout(() => {
-      startWalkingPageRef.current();
-    }, 550);
-    timersRef.current.push(hopTimer);
-  }, [getBtnBounds, pos.x, pos.y]);
-
-  startHopDownRef.current = startHopDown;
-
-  // -------------------------------------------------------------
-  // 4. WALKING ON TOP OF SCAN BUTTON FOR ~3 SECONDS
-  // -------------------------------------------------------------
-  const startWalkingBtn = useCallback(() => {
-    phaseRef.current = "walking-btn";
-    setPhase("walking-btn");
-
-    const legInterval = setInterval(() => {
-      setWalkLegStep((s) => (s === 0 ? 1 : 0));
-    }, 180);
-    intervalsRef.current.push(legInterval);
-
-    const bounds = getBtnBounds();
-    if (bounds) {
-      // Walk across from left side to right side of button
-      setPos({
-        x: bounds.right,
-        y: bounds.top,
-        visible: true,
-        flipped: false,
-      });
-    }
-
-    // Walk across button for 2.6s, then hop down to walk the page!
-    const btnWalkTimer = setTimeout(() => {
-      clearInterval(legInterval);
-      startHopDownRef.current();
-    }, 2600);
-    timersRef.current.push(btnWalkTimer);
-  }, [getBtnBounds]);
-
-  startWalkingBtnRef.current = startWalkingBtn;
-
-  // -------------------------------------------------------------
-  // 5. JUMP FROM LOGO DOWN TO SCAN BARCODE BUTTON
-  // -------------------------------------------------------------
-  const startJumpToBtn = useCallback(() => {
-    clearAllTimers();
-    phaseRef.current = "jumping-to-btn";
-    setPhase("jumping-to-btn");
-
-    const bounds = getBtnBounds();
-    if (!bounds) {
-      // If button not on screen, retry in 2.5s
-      const retry = setTimeout(() => startJumpToBtnRef.current(), 2500);
-      timersRef.current.push(retry);
-      return;
-    }
-
-    // Jump and land on left side of the button
-    setPos({
-      x: bounds.left,
-      y: bounds.top,
-      visible: true,
-      flipped: false,
-    });
-
-    // Jump trajectory duration 800ms, then start walking on button
-    const jumpTimer = setTimeout(() => {
-      startWalkingBtnRef.current();
-    }, 800);
-    timersRef.current.push(jumpTimer);
-  }, [getBtnBounds]);
-
-  startJumpToBtnRef.current = startJumpToBtn;
-
-  // -------------------------------------------------------------
-  // INITIAL MOUNT & RESIZE LISTENER
-  // -------------------------------------------------------------
   useEffect(() => {
-    function alignToLogo() {
-      const grip = getLogoGripPos();
-      if (grip) {
-        setPos({ x: grip.x, y: grip.y, visible: true, flipped: false });
-        return true;
+    setMounted(true);
+  }, []);
+
+  // Track mouse coordinates to let Byte's glowing LED eyes follow the cursor
+  useEffect(() => {
+    function handleMouseMove(e: MouseEvent) {
+      if (!droneRef.current || isScanning || isMinimized) return;
+      const rect = droneRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const dx = e.clientX - centerX;
+      const dy = e.clientY - centerY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < 1) {
+        setEyeOffset({ x: 0, y: 0 });
+        return;
       }
-      return false;
+
+      // Max eye travel distance inside visor
+      const maxOffset = 3.2;
+      const normalizedX = (dx / distance) * Math.min(maxOffset, distance / 40);
+      const normalizedY = (dy / distance) * Math.min(maxOffset, distance / 40);
+
+      setEyeOffset({ x: normalizedX, y: normalizedY });
     }
 
-    // Align to logo on mount
-    const initTimer = setTimeout(() => {
-      const found = alignToLogo();
-      if (!found) {
-        const retryTimer = setTimeout(alignToLogo, 200);
-        timersRef.current.push(retryTimer);
-      }
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [isScanning, isMinimized]);
 
-      // Hang at the logo for 3.0 seconds, then start the journey!
-      const firstJump = setTimeout(() => {
-        startJumpToBtnRef.current();
-      }, 3000);
-      timersRef.current.push(firstJump);
-    }, 150);
-    timersRef.current.push(initTimer);
+  // Periodic autonomous mood shifts (Byte winks or looks happy)
+  useEffect(() => {
+    const moodInterval = setInterval(() => {
+      if (isScanning || showSpeechBubble) return;
+      const moods: Array<"happy" | "curious" | "winking"> = ["curious", "happy", "winking", "curious"];
+      const nextMood = moods[Math.floor(Math.random() * moods.length)];
+      setDroneMood(nextMood);
 
-    function handleScrollOrResize() {
-      if (phaseRef.current === "hanging") {
-        const grip = getLogoGripPos();
-        if (grip) {
-          setPos((prev) => ({ ...prev, x: grip.x, y: grip.y, visible: true }));
-        }
-      }
-    }
+      setTimeout(() => {
+        setDroneMood("curious");
+      }, 2200);
+    }, 8000);
 
-    window.addEventListener("scroll", handleScrollOrResize, { passive: true });
-    window.addEventListener("resize", handleScrollOrResize, { passive: true });
+    return () => clearInterval(moodInterval);
+  }, [isScanning, showSpeechBubble]);
 
-    return () => {
-      clearAllTimers();
-      window.removeEventListener("scroll", handleScrollOrResize);
-      window.removeEventListener("resize", handleScrollOrResize);
-    };
-  }, [getLogoGripPos]);
+  // Interactive Trigger: Click Byte to do a 360 barrel-roll, fire scanner beam, and reveal Food Detective Tip
+  const triggerDroneAction = useCallback(() => {
+    if (isScanning) return;
 
-  if (!pos.visible) return null;
+    setIsSpinning(true);
+    setIsScanning(true);
+    setDroneMood("scanning");
 
-  const isHanging = phase === "hanging";
-  const isJumping = phase === "jumping-to-btn" || phase === "hopping-down";
-  const isWalking = phase === "walking-btn" || phase === "walking-page";
-  const isClimbing = phase === "climbing";
+    // Barrel roll spin
+    setTimeout(() => {
+      setIsSpinning(false);
+    }, 700);
 
-  // Transition dynamics
-  let transitionStyle = "none";
-  if (phase === "jumping-to-btn") {
-    transitionStyle =
-      "left 0.8s cubic-bezier(0.22, 1, 0.36, 1), top 0.8s cubic-bezier(0.34, 1.25, 0.64, 1)";
-  } else if (phase === "hopping-down") {
-    transitionStyle = "left 0.55s ease-out, top 0.55s cubic-bezier(0.5, 0, 0.75, 1.2)";
-  } else if (phase === "walking-btn") {
-    transitionStyle = "left 2.6s linear, top 0.2s ease";
-  } else if (phase === "walking-page") {
-    transitionStyle = "left 2.8s linear, top 0.6s ease";
-  } else if (isClimbing) {
-    // Smooth, rhythmic climbing pull (takes 320ms per pull)
-    transitionStyle = "left 0.32s ease-in-out, top 0.32s cubic-bezier(0.25, 1, 0.5, 1)";
-  }
+    // Laser scan wave lasts 1.4s
+    if (scanTimerRef.current) clearTimeout(scanTimerRef.current);
+    scanTimerRef.current = setTimeout(() => {
+      setIsScanning(false);
+      setDroneMood("happy");
+      setShowSpeechBubble(true);
+      // Pick next food tip
+      setTipIndex((prev) => (prev + 1) % FOOD_TIPS.length);
+    }, 1300);
+  }, [isScanning]);
+
+  const nextTip = () => {
+    setTipIndex((prev) => (prev + 1) % FOOD_TIPS.length);
+  };
+
+  if (!mounted) return null;
+
+  const currentTip = FOOD_TIPS[tipIndex];
 
   return (
-    <div
-      aria-label="JeevanReport Animated Mascot"
-      title={
-        isClimbing
-          ? "Climbing up like a real person to the logo handle!"
-          : isWalking
-          ? "Exploring and walking through the page! Click to climb."
-          : "Hanging from the JeevanReport scanner handle."
-      }
-      onClick={isWalking ? () => startClimbingUpRef.current() : undefined}
-      style={{
-        position: "fixed",
-        left: pos.x,
-        top: pos.y,
-        width: 32,
-        height: 42,
-        zIndex: 9999,
-        pointerEvents: isWalking ? "auto" : "none",
-        cursor: isWalking ? "pointer" : "default",
-        transition: transitionStyle,
-        transform: pos.flipped ? "scaleX(-1)" : "scaleX(1)",
-      }}
-    >
-      <svg
-        viewBox="0 0 32 42"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{
-          width: 32,
-          height: 42,
-          overflow: "visible",
-          filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))",
-        }}
-      >
-        {/* =================== 1. HANGING ON LOGO POSE =================== */}
-        {isHanging && (
-          <g id="pose-hanging">
-            {/* Left Arm grasping handle of logo */}
-            <path d="M 10 18 L 11.8 6.5" stroke="#2563eb" strokeWidth={3.4} strokeLinecap="round" />
-            <path
-              d="M 9.5 8 L 9.5 3 C 9.5 1.5, 14 1.5, 14 3 L 14 8 Z"
-              fill="#fed7aa"
-              stroke="#d97706"
-              strokeWidth={0.8}
+    <>
+      {/* 1. FULL-SCREEN HOLOGRAPHIC SCANNER GRID (Fired when Byte is clicked) */}
+      {isScanning && (
+        <div
+          className="fixed inset-0 pointer-events-none z-[9998] transition-opacity duration-500"
+          style={{
+            background:
+              "radial-gradient(ellipse at bottom right, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.08) 50%, transparent 80%)",
+          }}
+        >
+          {/* Sweeping Neon Green Laser Beam */}
+          <div
+            className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_18px_#10b981]"
+            style={{
+              animation: "scannerSweep 1.3s cubic-bezier(0.4, 0, 0.2, 1) infinite",
+            }}
+          />
+          {/* Grid lines overlay */}
+          <div
+            className="absolute inset-0 opacity-15"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, #10b981 1px, transparent 1px), linear-gradient(to bottom, #10b981 1px, transparent 1px)",
+              backgroundSize: "36px 36px",
+            }}
+          />
+        </div>
+      )}
+
+      {/* 2. COMPACT MINIMIZED REST BADGE (If user toggled minimize) */}
+      {isMinimized ? (
+        <button
+          onClick={() => {
+            setIsMinimized(false);
+            setDroneMood("happy");
+          }}
+          className="fixed bottom-6 right-6 z-[9999] flex items-center gap-2 rounded-full border border-emerald-500/40 bg-slate-900/90 px-3 py-2 text-xs font-semibold text-emerald-400 shadow-xl backdrop-blur-md transition-all hover:scale-105 hover:border-emerald-400 hover:text-white"
+          title="Wake up Byte (Your Health Detective Drone)"
+          aria-label="Wake up Byte Mascot"
+        >
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+          </span>
+          <span>🤖 Byte (Detective)</span>
+        </button>
+      ) : (
+        /* 3. FULL FLOATING "BYTE" DRONE COMPANION */
+        <div
+          ref={droneRef}
+          className="fixed z-[9999] select-none"
+          style={{
+            bottom: "28px",
+            right: "24px",
+            filter: "drop-shadow(0 10px 25px rgba(0, 0, 0, 0.18))",
+          }}
+        >
+          {/* A. SPEECH BUBBLE / FOOD DETECTIVE INTEL CARD */}
+          {showSpeechBubble && (
+            <div
+              className="absolute bottom-[96px] right-0 w-[300px] sm:w-[340px] rounded-2xl border border-latte bg-white/95 p-4 shadow-2xl backdrop-blur-lg transition-all animate-in fade-in zoom-in-95 duration-200"
+              style={{
+                fontFamily: "inherit",
+              }}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-latte pb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-500 text-xs text-white">
+                    🤖
+                  </span>
+                  <div>
+                    <div className="text-xs font-bold text-espresso flex items-center gap-1.5">
+                      Byte Detective Intel
+                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    </div>
+                    <span className="text-[10px] text-espresso/50">JeevanReport AI Scanner</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setIsMinimized(true)}
+                    className="rounded p-1 text-[11px] text-espresso/40 hover:bg-latte hover:text-espresso"
+                    title="Minimize Byte"
+                  >
+                    Minimize
+                  </button>
+                  <button
+                    onClick={() => setShowSpeechBubble(false)}
+                    className="rounded p-1 text-espresso/40 hover:bg-latte hover:text-espresso"
+                    title="Close tip"
+                    aria-label="Close tip"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+
+              {/* Tag & Fact Content */}
+              <div className="mt-3 space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ${currentTip.tagColor}`}
+                  >
+                    <span>{currentTip.icon}</span>
+                    <span>{currentTip.tag}</span>
+                  </span>
+                </div>
+                <p className="text-xs leading-relaxed text-espresso/85 font-medium">{currentTip.fact}</p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-3.5 flex items-center justify-between gap-2 border-t border-latte pt-2.5">
+                <button
+                  onClick={nextTip}
+                  className="inline-flex items-center gap-1 rounded-lg bg-latte px-2.5 py-1.5 text-[11px] font-semibold text-espresso hover:bg-latte-dark transition-colors"
+                >
+                  <span>Next Fact</span>
+                  <span>💡</span>
+                </button>
+
+                {currentTip.actionHref && (
+                  <Link
+                    href={currentTip.actionHref}
+                    onClick={() => setShowSpeechBubble(false)}
+                    className="inline-flex items-center gap-1 rounded-lg bg-brand-600 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-brand-700 transition-colors shadow-sm"
+                  >
+                    <span>{currentTip.actionText ?? "Explore"}</span>
+                    <span>→</span>
+                  </Link>
+                )}
+              </div>
+
+              {/* Speech bubble pointer arrow */}
+              <div
+                className="absolute -bottom-2 right-9 h-4 w-4 rotate-45 border-b border-r border-latte bg-white"
+                style={{ zIndex: -1 }}
+              />
+            </div>
+          )}
+
+          {/* B. HOVER GREETING TOOLTIP (When speech bubble is closed) */}
+          {!showSpeechBubble && hovered && (
+            <div className="absolute bottom-[86px] right-2 whitespace-nowrap rounded-xl bg-slate-900/90 px-3 py-1.5 text-[11px] font-semibold text-white shadow-lg backdrop-blur-md transition-all animate-in fade-in slide-in-from-bottom-2 duration-150">
+              <span className="text-emerald-400">⚡ Click me:</span> Scan page & get food intel!
+              <div className="absolute -bottom-1.5 right-6 h-3 w-3 rotate-45 bg-slate-900/90" />
+            </div>
+          )}
+
+          {/* C. DRONE CHASSIS & SVG AVATAR (Interactive & Animated) */}
+          <div
+            onClick={triggerDroneAction}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            role="button"
+            tabIndex={0}
+            aria-label="Byte the AI Health Detective Mascot"
+            className="group relative cursor-pointer outline-none"
+            style={{
+              width: "78px",
+              height: "78px",
+              animation: isSpinning
+                ? "droneBarrelRoll 0.7s cubic-bezier(0.4, 0, 0.2, 1)"
+                : "droneFloatingHover 3.2s ease-in-out infinite",
+            }}
+          >
+            {/* Outer Pulsing Halo / Scanner Ring */}
+            <div
+              className={`absolute inset-0 rounded-full transition-opacity duration-300 ${
+                isScanning
+                  ? "bg-emerald-500/30 scale-125 animate-ping"
+                  : hovered
+                  ? "bg-brand-500/20 scale-110"
+                  : "bg-brand-500/10 scale-100"
+              }`}
             />
-            <line x1="11" y1="2.5" x2="11" y2="6.5" stroke="#d97706" strokeWidth={0.6} strokeLinecap="round" />
-            <line x1="12.5" y1="2.5" x2="12.5" y2="6.5" stroke="#d97706" strokeWidth={0.6} strokeLinecap="round" />
 
-            {/* Blue Hoodie Body */}
-            <path d="M 10 19 C 9 23, 10 26, 12 27 L 17 27 C 19 26, 20 23, 19 19 Z" fill="#2563eb" />
-            <line x1="14.5" y1="19" x2="14.5" y2="24" stroke="#fbbf24" strokeWidth={1.2} strokeLinecap="round" />
+            {/* HIGH-RES SVG OF BYTE (THE SCANNER COMPANION DRONE) */}
+            <svg
+              viewBox="0 0 100 100"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="relative h-full w-full overflow-visible transition-transform duration-200 group-hover:scale-105"
+            >
+              <defs>
+                {/* Ceramic White Body Gradient */}
+                <linearGradient id="chassisGrad" x1="20" y1="20" x2="80" y2="85" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#ffffff" />
+                  <stop offset="70%" stopColor="#f1f5f9" />
+                  <stop offset="100%" stopColor="#cbd5e1" />
+                </linearGradient>
 
-            {/* Dangling Kicking Legs */}
-            <rect x="11" y="26.5" width="2.4" height="4.5" rx="1" fill="#1d4ed8" />
-            <ellipse cx="12" cy="31.5" rx="2" ry="1.4" fill="#0f172a" />
-            <path d="M 15.5 26.5 L 18.5 30.5" stroke="#1d4ed8" strokeWidth={2.4} strokeLinecap="round" />
-            <ellipse cx="19.5" cy="31" rx="2" ry="1.4" fill="#0f172a" transform="rotate(-20 19.5 31)" />
+                {/* Dark Curved Visor Glass Gradient */}
+                <linearGradient id="visorGrad" x1="25" y1="36" x2="75" y2="60" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#0f172a" />
+                  <stop offset="60%" stopColor="#1e293b" />
+                  <stop offset="100%" stopColor="#090d16" />
+                </linearGradient>
 
-            {/* Chibi Head */}
-            <circle cx="15" cy="13.5" r="6.2" fill="#fed7aa" />
-            <path
-              d="M 9.5 12.5 C 9 8, 12 6.5, 15 6.5 C 18 6.5, 21 8, 20.5 12.5 C 19 11.2, 17 11.2, 15 12 C 13 11.2, 11 11.2, 9.5 12.5 Z"
-              fill="#0f172a"
-            />
-            <circle cx="18.5" cy="8.5" r="1.1" fill="#fbbf24" />
+                {/* Neon Emerald Glowing Eyes Filter */}
+                <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="1.6" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
 
-            {/* Eyes */}
-            <circle cx="13" cy="14" r="1.2" fill="#0f172a" />
-            <circle cx="12.7" cy="13.6" r="0.45" fill="#ffffff" />
-            <circle cx="17" cy="14" r="1.2" fill="#0f172a" />
-            <circle cx="16.7" cy="13.6" r="0.45" fill="#ffffff" />
+                {/* Anti-Gravity Energy Ring Gradient */}
+                <linearGradient id="ringGrad" x1="10" y1="50" x2="90" y2="50" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#06b6d4" />
+                  <stop offset="50%" stopColor="#10b981" />
+                  <stop offset="100%" stopColor="#3b82f6" />
+                </linearGradient>
 
-            {/* Cheeks & Smile */}
-            <ellipse cx="11.5" cy="16" rx="1" ry="0.6" fill="#f43f5e" opacity="0.6" />
-            <ellipse cx="18.5" cy="16" rx="1" ry="0.6" fill="#f43f5e" opacity="0.6" />
-            <path d="M 14 16.2 Q 15 17.4 16 16.2" stroke="#9a3412" strokeWidth={0.8} strokeLinecap="round" fill="none" />
+                {/* Ion Thruster Glow */}
+                <linearGradient id="ionGlow" x1="50" y1="78" x2="50" y2="95" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.9" />
+                  <stop offset="50%" stopColor="#10b981" stopOpacity="0.6" />
+                  <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                </linearGradient>
+              </defs>
 
-            {/* Right Arm Waving */}
-            <path d="M 18 19 Q 21 16 24 12" stroke="#2563eb" strokeWidth={3.2} strokeLinecap="round" />
-            <circle cx="25" cy="10" r="2.6" fill="#fed7aa" stroke="#d97706" strokeWidth={0.7} />
-            <line x1="24.2" y1="8" x2="24.2" y2="5.5" stroke="#d97706" strokeWidth={0.8} strokeLinecap="round" />
-            <line x1="25.5" y1="7.5" x2="25.9" y2="5.2" stroke="#d97706" strokeWidth={0.8} strokeLinecap="round" />
+              {/* 1. ION THRUSTER BEAMS (Bottom propulsion flame) */}
+              <g id="thrusters" opacity={isScanning ? 1 : 0.85}>
+                {/* Left Thruster Jet */}
+                <ellipse cx="37" cy="80" rx="4" ry="2" fill="#0f172a" />
+                <path d="M 33 81 Q 37 94 41 81 Z" fill="url(#ionGlow)">
+                  <animate attributeName="d" dur="0.4s" repeatCount="indefinite" values="M 33 81 Q 37 94 41 81 Z; M 34 81 Q 37 90 40 81 Z; M 33 81 Q 37 94 41 81 Z" />
+                </path>
 
-            {/* Sparkle */}
-            <path d="M 29 4.5 Q 30.2 6.5 29 8.5" stroke="#fbbf24" strokeWidth={0.9} strokeLinecap="round" fill="none" />
-          </g>
-        )}
+                {/* Right Thruster Jet */}
+                <ellipse cx="63" cy="80" rx="4" ry="2" fill="#0f172a" />
+                <path d="M 59 81 Q 63 94 67 81 Z" fill="url(#ionGlow)">
+                  <animate attributeName="d" dur="0.4s" repeatCount="indefinite" values="M 59 81 Q 63 94 67 81 Z; M 60 81 Q 63 90 66 81 Z; M 59 81 Q 63 94 67 81 Z" />
+                </path>
+              </g>
 
-        {/* =================== 2. JUMPING / HOPPING POSE =================== */}
-        {isJumping && (
-          <g id="pose-jumping">
-            <circle cx="16" cy="12" r="6.2" fill="#fed7aa" />
-            <path
-              d="M 10.5 11 C 10 6.5, 13 5, 16 5 C 19 5, 22 6.5, 21.5 11 C 20 9.8, 18 9.8, 16 10.5 C 14 9.8, 12 9.8, 10.5 11 Z"
-              fill="#0f172a"
-            />
-            <circle cx="19.5" cy="7" r="1.1" fill="#fbbf24" />
+              {/* 2. REAR PROPULSION / FLOATING HOVER RING */}
+              <ellipse
+                cx="50"
+                cy="52"
+                rx="42"
+                ry="16"
+                stroke="url(#ringGrad)"
+                strokeWidth={isScanning ? 3.5 : 2.5}
+                strokeDasharray={isScanning ? "6 3" : "none"}
+                fill="none"
+                opacity={0.8}
+              >
+                {isScanning && (
+                  <animateTransform
+                    attributeName="transform"
+                    type="rotate"
+                    from="0 50 52"
+                    to="360 50 52"
+                    dur="1.2s"
+                    repeatCount="indefinite"
+                  />
+                )}
+              </ellipse>
 
-            {/* Wide Happy Eyes & Smile */}
-            <circle cx="14" cy="12.5" r="1.3" fill="#0f172a" />
-            <circle cx="13.7" cy="12" r="0.5" fill="#ffffff" />
-            <circle cx="18" cy="12.5" r="1.3" fill="#0f172a" />
-            <circle cx="17.7" cy="12" r="0.5" fill="#ffffff" />
-            <path d="M 14.5 14.5 Q 16 17 17.5 14.5 Z" fill="#9a3412" />
+              {/* 3. ANTENNA & STATUS SATELLITE BEACON */}
+              <line x1="50" y1="23" x2="50" y2="10" stroke="#94a3b8" strokeWidth={2.4} strokeLinecap="round" />
+              {/* Antenna Top Beacon Light */}
+              <circle
+                cx="50"
+                cy="9"
+                r={isScanning ? 4.2 : 3.4}
+                fill={isScanning ? "#10b981" : "#06b6d4"}
+                filter="url(#neonGlow)"
+              >
+                <animate
+                  attributeName="opacity"
+                  values="0.4;1;0.4"
+                  dur={isScanning ? "0.3s" : "1.6s"}
+                  repeatCount="indefinite"
+                />
+              </circle>
 
-            {/* Hoodie */}
-            <path d="M 11 17 C 10 21, 11 24, 13 25 L 19 25 C 21 24, 22 21, 21 17 Z" fill="#2563eb" />
-            <line x1="16" y1="17" x2="16" y2="23" stroke="#fbbf24" strokeWidth={1.2} strokeLinecap="round" />
+              {/* 4. MAIN CHASSIS (Sleek Round Aerodynamic Body) */}
+              <ellipse cx="50" cy="50" rx="31" ry="29" fill="url(#chassisGrad)" stroke="#e2e8f0" strokeWidth={1.5} />
 
-            {/* Arms up in air */}
-            <path d="M 11 18 Q 8 13 6 8" stroke="#2563eb" strokeWidth={3.2} strokeLinecap="round" />
-            <circle cx="5" cy="7" r="2.3" fill="#fed7aa" stroke="#d97706" strokeWidth={0.6} />
-            <path d="M 21 18 Q 24 13 26 8" stroke="#2563eb" strokeWidth={3.2} strokeLinecap="round" />
-            <circle cx="27" cy="7" r="2.3" fill="#fed7aa" stroke="#d97706" strokeWidth={0.6} />
+              {/* Top Highlight on Body */}
+              <path
+                d="M 28 36 C 35 27, 65 27, 72 36"
+                stroke="#ffffff"
+                strokeWidth={2.2}
+                strokeLinecap="round"
+                opacity={0.8}
+                fill="none"
+              />
 
-            {/* Tucked jumping legs */}
-            <path d="M 12 25 Q 9 29 12 31" stroke="#1d4ed8" strokeWidth={2.8} strokeLinecap="round" />
-            <ellipse cx="12" cy="32" rx="2" ry="1.4" fill="#0f172a" />
-            <path d="M 20 25 Q 23 29 20 31" stroke="#1d4ed8" strokeWidth={2.8} strokeLinecap="round" />
-            <ellipse cx="20" cy="32" rx="2" ry="1.4" fill="#0f172a" />
-          </g>
-        )}
+              {/* Side Accent Jet Fins */}
+              <path d="M 19 46 C 14 47, 13 54, 19 56 Z" fill="#2563eb" />
+              <path d="M 81 46 C 86 47, 87 54, 81 56 Z" fill="#2563eb" />
 
-        {/* =================== 3. WALKING THROUGH PAGE POSE =================== */}
-        {isWalking && (
-          <g id="pose-walking">
-            <circle cx="16" cy="11.5" r="6.2" fill="#fed7aa" />
-            <path
-              d="M 10.5 10.5 C 10 6, 13 4.5, 16 4.5 C 19 4.5, 22 6, 21.5 10.5 C 20 9.2, 18 9.2, 16 10 C 14 9.2, 12 9.2, 10.5 10.5 Z"
-              fill="#0f172a"
-            />
-            <circle cx="19.5" cy="6.5" r="1.1" fill="#fbbf24" />
+              {/* 5. BLACK CURVED CYBER VISOR */}
+              <path
+                d="M 26 43 C 26 35, 74 35, 74 43 C 74 57, 26 57, 26 43 Z"
+                fill="url(#visorGrad)"
+                stroke="#0284c7"
+                strokeWidth={1.2}
+              />
 
-            {/* Happy Walking Eyes & Smile */}
-            <circle cx="14" cy="12" r="1.2" fill="#0f172a" />
-            <circle cx="13.7" cy="11.6" r="0.45" fill="#ffffff" />
-            <circle cx="18" cy="12" r="1.2" fill="#0f172a" />
-            <circle cx="17.7" cy="11.6" r="0.45" fill="#ffffff" />
-            <path d="M 14.8 14 Q 16 15.2 17.2 14" stroke="#9a3412" strokeWidth={0.8} strokeLinecap="round" fill="none" />
+              {/* Visor Glass Reflection Arc */}
+              <path
+                d="M 29 41 C 36 38, 64 38, 71 41"
+                stroke="#38bdf8"
+                strokeWidth={1}
+                strokeLinecap="round"
+                opacity={0.4}
+                fill="none"
+              />
 
-            {/* Hoodie */}
-            <path d="M 11 16.5 C 10 20.5, 11 23.5, 13 24.5 L 19 24.5 C 21 23.5, 22 20.5, 21 16.5 Z" fill="#2563eb" />
-            <line x1="16" y1="16.5" x2="16" y2="22" stroke="#fbbf24" strokeWidth={1.2} strokeLinecap="round" />
+              {/* 6. DYNAMIC DIGITAL LED EYES & EXPRESSIONS */}
+              {isScanning ? (
+                /* SCANNER MODE: RADAR BEAM SWEEP INSIDE VISOR */
+                <g id="scanner-eyes" filter="url(#neonGlow)">
+                  {/* Left Scan Matrix */}
+                  <rect x="34" y="44" width="12" height="4" rx="2" fill="#10b981" />
+                  {/* Right Scan Matrix */}
+                  <rect x="54" y="44" width="12" height="4" rx="2" fill="#10b981" />
+                  {/* Sweeping Laser Beam in Visor */}
+                  <line x1="28" y1="46" x2="72" y2="46" stroke="#34d399" strokeWidth={1.8}>
+                    <animate attributeName="y1" values="40;52;40" dur="0.6s" repeatCount="indefinite" />
+                    <animate attributeName="y2" values="40;52;40" dur="0.6s" repeatCount="indefinite" />
+                  </line>
+                </g>
+              ) : droneMood === "happy" ? (
+                /* HAPPY MODE: CUTE CURVED EYE ARCS ^ ^ */
+                <g id="happy-eyes" filter="url(#neonGlow)">
+                  <path
+                    d="M 35 47 Q 40 40 45 47"
+                    stroke="#10b981"
+                    strokeWidth={2.6}
+                    strokeLinecap="round"
+                    fill="none"
+                  />
+                  <path
+                    d="M 55 47 Q 60 40 65 47"
+                    stroke="#10b981"
+                    strokeWidth={2.6}
+                    strokeLinecap="round"
+                    fill="none"
+                  />
+                  {/* Rosy Cheeks */}
+                  <circle cx="33" cy="51" r="2.2" fill="#f43f5e" opacity={0.6} />
+                  <circle cx="67" cy="51" r="2.2" fill="#f43f5e" opacity={0.6} />
+                </g>
+              ) : droneMood === "winking" ? (
+                /* WINKING MOOD */
+                <g id="winking-eyes" filter="url(#neonGlow)">
+                  {/* Left Eye Open */}
+                  <circle cx={40 + eyeOffset.x} cy={46 + eyeOffset.y} r="3.2" fill="#06b6d4" />
+                  <circle cx={39 + eyeOffset.x} cy={45 + eyeOffset.y} r="1.1" fill="#ffffff" />
+                  {/* Right Eye Winking Line */}
+                  <path d="M 55 46 Q 60 49 65 46" stroke="#06b6d4" strokeWidth={2.4} strokeLinecap="round" fill="none" />
+                </g>
+              ) : (
+                /* CURIOUS MODE: LED EYES TRACKING CURSOR */
+                <g id="curious-eyes" filter="url(#neonGlow)">
+                  {/* Left Eye */}
+                  <ellipse
+                    cx={40 + eyeOffset.x}
+                    cy={46 + eyeOffset.y}
+                    rx="3.6"
+                    ry="4.2"
+                    fill="#06b6d4"
+                  />
+                  {/* Pupil Highlight */}
+                  <circle cx={38.8 + eyeOffset.x} cy={44.8 + eyeOffset.y} r="1.3" fill="#ffffff" />
 
-            {/* Natural Swinging Human Arms (opposing legs) */}
-            {walkLegStep === 0 ? (
-              <>
-                {/* Left arm forward */}
-                <path d="M 11 17 Q 8 20 7 24" stroke="#2563eb" strokeWidth={3} strokeLinecap="round" />
-                <circle cx="6.5" cy="24.5" r="2" fill="#fed7aa" stroke="#d97706" strokeWidth={0.5} />
-                {/* Right arm back */}
-                <path d="M 21 17 Q 24 19 25 22" stroke="#2563eb" strokeWidth={2.8} strokeLinecap="round" />
-                <circle cx="25.5" cy="22.5" r="2" fill="#fed7aa" stroke="#d97706" strokeWidth={0.5} />
-                {/* Legs: Left forward, Right back */}
-                <path d="M 13 24.5 L 9.5 32" stroke="#1d4ed8" strokeWidth={2.6} strokeLinecap="round" />
-                <ellipse cx="9" cy="33.2" rx="2.4" ry="1.4" fill="#0f172a" />
-                <path d="M 19 24.5 L 22 31" stroke="#1d4ed8" strokeWidth={2.6} strokeLinecap="round" />
-                <ellipse cx="23" cy="32" rx="2.4" ry="1.4" fill="#0f172a" />
-              </>
-            ) : (
-              <>
-                {/* Left arm back */}
-                <path d="M 11 17 Q 9 20 10 24" stroke="#2563eb" strokeWidth={3} strokeLinecap="round" />
-                <circle cx="10.2" cy="24.5" r="2" fill="#fed7aa" stroke="#d97706" strokeWidth={0.5} />
-                {/* Right arm forward */}
-                <path d="M 21 17 Q 24 15 25 19" stroke="#2563eb" strokeWidth={2.8} strokeLinecap="round" />
-                <circle cx="25.5" cy="19.5" r="2" fill="#fed7aa" stroke="#d97706" strokeWidth={0.5} />
-                {/* Legs: Right forward, Left back */}
-                <path d="M 13 24.5 L 11 31" stroke="#1d4ed8" strokeWidth={2.6} strokeLinecap="round" />
-                <ellipse cx="10.5" cy="32" rx="2.4" ry="1.4" fill="#0f172a" />
-                <path d="M 19 24.5 L 22.5 32" stroke="#1d4ed8" strokeWidth={2.6} strokeLinecap="round" />
-                <ellipse cx="23.5" cy="33.2" rx="2.4" ry="1.4" fill="#0f172a" />
-              </>
-            )}
-          </g>
-        )}
+                  {/* Right Eye */}
+                  <ellipse
+                    cx={60 + eyeOffset.x}
+                    cy={46 + eyeOffset.y}
+                    rx="3.6"
+                    ry="4.2"
+                    fill="#06b6d4"
+                  />
+                  {/* Pupil Highlight */}
+                  <circle cx={58.8 + eyeOffset.x} cy={44.8 + eyeOffset.y} r="1.3" fill="#ffffff" />
+                </g>
+              )}
 
-        {/* =================== 4. REAL PERSON CLIMBING POSE =================== */}
-        {isClimbing && (
-          <g id="pose-climbing-real">
-            {/* Chibi Head Tilted Back Looking Straight UP at Handhold */}
-            <circle cx="16" cy="13" r="6.2" fill="#fed7aa" />
+              {/* 7. JEEVANREPORT BRAND CHEST BADGE */}
+              <circle cx="50" cy="67" r="4.5" fill="#2563eb" />
+              {/* Little scanner barcode lines on chest */}
+              <line x1="47.5" y1="65" x2="47.5" y2="69" stroke="#ffffff" strokeWidth={1} strokeLinecap="round" />
+              <line x1="50" y1="64.5" x2="50" y2="69.5" stroke="#fbbf24" strokeWidth={1} strokeLinecap="round" />
+              <line x1="52.5" y1="65" x2="52.5" y2="69" stroke="#ffffff" strokeWidth={1} strokeLinecap="round" />
+            </svg>
+          </div>
+        </div>
+      )}
 
-            {/* Cap Tilted Back */}
-            <path
-              d="M 10 11.5 C 10 6.5, 13 4.5, 16 4.5 C 19 4.5, 22 6.5, 22 11.5 C 20.5 10.2, 18 10.2, 16 10.8 C 14 10.2, 11.5 10.2, 10 11.5 Z"
-              fill="#0f172a"
-            />
-            <circle cx="16" cy="6.2" r="1.2" fill="#fbbf24" />
+      {/* 4. KEYFRAME STYLES FOR DRONE HOVER, BARREL ROLL & LASER SWEEP */}
+      <style jsx global>{`
+        @keyframes droneFloatingHover {
+          0%,
+          100% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          50% {
+            transform: translateY(-8px) rotate(1.5deg);
+          }
+        }
 
-            {/* Eyes looking UP at reaching hands */}
-            <circle cx="13.5" cy="11.8" r="1.3" fill="#0f172a" />
-            <circle cx="13.5" cy="11.1" r="0.5" fill="#ffffff" />
-            <circle cx="18.5" cy="11.8" r="1.3" fill="#0f172a" />
-            <circle cx="18.5" cy="11.1" r="0.5" fill="#ffffff" />
+        @keyframes droneBarrelRoll {
+          0% {
+            transform: translateY(0) rotate(0deg) scale(1);
+          }
+          40% {
+            transform: translateY(-20px) rotate(180deg) scale(1.15);
+          }
+          80% {
+            transform: translateY(-6px) rotate(340deg) scale(1.05);
+          }
+          100% {
+            transform: translateY(0) rotate(360deg) scale(1);
+          }
+        }
 
-            {/* Determined Cheerful Grin */}
-            <path d="M 14.5 15.6 Q 16 17.2 17.5 15.6" stroke="#9a3412" strokeWidth={1} strokeLinecap="round" fill="none" />
-            <ellipse cx="11.5" cy="14" rx="1.1" ry="0.6" fill="#f43f5e" opacity="0.6" />
-            <ellipse cx="20.5" cy="14" rx="1.1" ry="0.6" fill="#f43f5e" opacity="0.6" />
-
-            {/* Athletic Torso with Chalk Bag Belt */}
-            <path d="M 11 18 C 10 22, 11 25, 13 26 L 19 26 C 21 25, 22 22, 21 18 Z" fill="#2563eb" />
-            <line x1="16" y1="18" x2="16" y2="24" stroke="#fbbf24" strokeWidth={1.2} strokeLinecap="round" />
-            {/* Chalk bag on back belt */}
-            <rect x="14" y="25" width="4" height="3" rx="1" fill="#f59e0b" />
-
-            {/* REALISTIC HAND-OVER-HAND CLIMBING ARMS & LEGS */}
-            {climbStep === 0 ? (
-              // STROKE A: LEFT ARM REACHES WAY UP OVERHEAD; RIGHT ARM PULLS AT CHEST; LEFT KNEE HIGH
-              <>
-                {/* Left Arm extended HIGH UP overhead grasping hold */}
-                <path d="M 11 18 L 8 4" stroke="#2563eb" strokeWidth={3.4} strokeLinecap="round" />
-                {/* Left Hand gripping handhold */}
-                <circle cx="7.8" cy="2.8" r="2.4" fill="#fed7aa" stroke="#d97706" strokeWidth={0.7} />
-                <line x1="6.8" y1="2" x2="6.8" y2="0.5" stroke="#d97706" strokeWidth={0.7} strokeLinecap="round" />
-                <line x1="8.2" y1="1.8" x2="8.2" y2="0.3" stroke="#d97706" strokeWidth={0.7} strokeLinecap="round" />
-
-                {/* Right Arm bent sharply at chest level, pulling climber body up */}
-                <path d="M 21 18 Q 24 16 23 11" stroke="#2563eb" strokeWidth={3.4} strokeLinecap="round" />
-                <circle cx="23" cy="9.5" r="2.4" fill="#fed7aa" stroke="#d97706" strokeWidth={0.7} />
-
-                {/* Left Leg: Knee bent high near waist, finding new foothold */}
-                <path d="M 12 26 L 8 29 L 9 33" stroke="#1d4ed8" strokeWidth={3} strokeLinecap="round" />
-                <ellipse cx="9" cy="34" rx="2.4" ry="1.4" fill="#0f172a" />
-
-                {/* Right Leg: Extended downward pushing off foothold */}
-                <path d="M 19 26 L 22 34" stroke="#1d4ed8" strokeWidth={3} strokeLinecap="round" />
-                <ellipse cx="22" cy="35" rx="2.4" ry="1.4" fill="#0f172a" />
-
-                {/* Climbing chalk puff at grip */}
-                <circle cx="8" cy="1" r="1.2" fill="#ffffff" opacity={0.7} />
-              </>
-            ) : (
-              // STROKE B: RIGHT ARM REACHES WAY UP OVERHEAD; LEFT ARM PULLS AT CHEST; RIGHT KNEE HIGH
-              <>
-                {/* Left Arm bent sharply at chest level, pulling climber body up */}
-                <path d="M 11 18 Q 8 16 9 11" stroke="#2563eb" strokeWidth={3.4} strokeLinecap="round" />
-                <circle cx="9" cy="9.5" r="2.4" fill="#fed7aa" stroke="#d97706" strokeWidth={0.7} />
-
-                {/* Right Arm extended HIGH UP overhead grasping hold */}
-                <path d="M 21 18 L 24 4" stroke="#2563eb" strokeWidth={3.4} strokeLinecap="round" />
-                {/* Right Hand gripping handhold */}
-                <circle cx="24.2" cy="2.8" r="2.4" fill="#fed7aa" stroke="#d97706" strokeWidth={0.7} />
-                <line x1="23.8" y1="2" x2="23.8" y2="0.5" stroke="#d97706" strokeWidth={0.7} strokeLinecap="round" />
-                <line x1="25.2" y1="1.8" x2="25.2" y2="0.3" stroke="#d97706" strokeWidth={0.7} strokeLinecap="round" />
-
-                {/* Left Leg: Extended downward pushing off foothold */}
-                <path d="M 13 26 L 10 34" stroke="#1d4ed8" strokeWidth={3} strokeLinecap="round" />
-                <ellipse cx="10" cy="35" rx="2.4" ry="1.4" fill="#0f172a" />
-
-                {/* Right Leg: Knee bent high near waist, finding new foothold */}
-                <path d="M 20 26 L 24 29 L 23 33" stroke="#1d4ed8" strokeWidth={3} strokeLinecap="round" />
-                <ellipse cx="23" cy="34" rx="2.4" ry="1.4" fill="#0f172a" />
-
-                {/* Climbing chalk puff at grip */}
-                <circle cx="24" cy="1" r="1.2" fill="#ffffff" opacity={0.7} />
-              </>
-            )}
-
-            {/* Dynamic Upward Climbing Motion Streaks */}
-            <line x1="4" y1="28" x2="4" y2="34" stroke="#f59e0b" strokeWidth={1} strokeLinecap="round" opacity={0.6} />
-            <line x1="28" y1="28" x2="28" y2="34" stroke="#f59e0b" strokeWidth={1} strokeLinecap="round" opacity={0.6} />
-          </g>
-        )}
-      </svg>
-    </div>
+        @keyframes scannerSweep {
+          0% {
+            top: 0%;
+            opacity: 0.2;
+          }
+          50% {
+            top: 50%;
+            opacity: 1;
+          }
+          100% {
+            top: 100%;
+            opacity: 0.2;
+          }
+        }
+      `}</style>
+    </>
   );
 }
