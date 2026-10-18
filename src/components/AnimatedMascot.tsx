@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 
-type Phase = "hanging" | "jumping-to-btn" | "walking" | "jumping-back";
+type Phase = "hanging" | "jumping-to-btn" | "walking" | "climbing";
 
 export default function AnimatedMascot() {
   const [phase, setPhase] = useState<Phase>("hanging");
   const [pos, setPos] = useState({ x: 0, y: 0, visible: false, flipped: false, isMoving: false });
-  const [walkLegStep, setWalkLegStep] = useState(0); // 0 or 1 for leg animation
+  const [walkLegStep, setWalkLegStep] = useState(0); // 0 or 1 for walking leg animation
+  const [climbStep, setClimbStep] = useState(0); // 0 or 1 for climbing hands/feet alternation
   const phaseRef = useRef<Phase>("hanging");
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const intervalsRef = useRef<ReturnType<typeof setInterval>[]>([]);
@@ -42,37 +43,104 @@ export default function AnimatedMascot() {
     return {
       left: rect.left + 16,
       right: rect.right - 36,
-      top: rect.top - 34,
+      top: rect.top - 36,
       width: rect.width,
     };
   }, []);
 
-  // Jump from button back to logo
-  const triggerJumpBack = useCallback(() => {
+  // Forward declarations for the animation loop
+  const startJumpToBtnRef = useRef<() => void>(() => {});
+  const startWalkingLoopRef = useRef<() => void>(() => {});
+  const startClimbingUpRef = useRef<() => void>(() => {});
+
+  // 1. CLIMBING UP TO THE LOGO ("climb and climb and climb and finally hang")
+  const startClimbingUp = useCallback(() => {
     clearAllTimers();
-    phaseRef.current = "jumping-back";
-    setPhase("jumping-back");
+    phaseRef.current = "climbing";
+    setPhase("climbing");
 
     const grip = getLogoGripPos();
-    if (grip) {
-      setPos({ x: grip.x, y: grip.y, visible: true, flipped: false, isMoving: true });
-    }
+    const btn = getBtnBounds();
+    if (!grip) return;
 
-    const t = setTimeout(() => {
-      phaseRef.current = "hanging";
-      setPhase("hanging");
-      setPos((prev) => ({ ...prev, isMoving: false }));
+    const startX = btn ? btn.left + 24 : grip.x;
+    const startY = btn ? btn.top : grip.y + 180;
 
-      // Hang at logo for 3 seconds, then jump again
-      const nextJump = setTimeout(() => {
-        startJumpToBtn();
-      }, 3000);
-      timersRef.current.push(nextJump);
-    }, 850);
-    timersRef.current.push(t);
-  }, [getLogoGripPos]);
+    // Alternating climb hand/foot stride (every 160ms)
+    const climbInterval = setInterval(() => {
+      setClimbStep((s) => (s === 0 ? 1 : 0));
+    }, 160);
+    intervalsRef.current.push(climbInterval);
 
-  // Start walking back and forth along the top of the button for 3 minutes (180 seconds)
+    // 4 Sequential climb stages: Reach up, pull, reach higher, catch logo!
+    // Stage 1: Climb 28% up with slight left reach
+    setPos({
+      x: startX + (grip.x - startX) * 0.28 - 4,
+      y: startY - (startY - grip.y) * 0.28,
+      visible: true,
+      flipped: false,
+      isMoving: true,
+    });
+
+    // Stage 2: Climb to 58% up with right reach
+    const t1 = setTimeout(() => {
+      if (phaseRef.current !== "climbing") return;
+      setPos({
+        x: startX + (grip.x - startX) * 0.58 + 4,
+        y: startY - (startY - grip.y) * 0.58,
+        visible: true,
+        flipped: false,
+        isMoving: true,
+      });
+    }, 550);
+    timersRef.current.push(t1);
+
+    // Stage 3: Climb to 85% up right below logo handle
+    const t2 = setTimeout(() => {
+      if (phaseRef.current !== "climbing") return;
+      setPos({
+        x: startX + (grip.x - startX) * 0.85 - 2,
+        y: startY - (startY - grip.y) * 0.85,
+        visible: true,
+        flipped: false,
+        isMoving: true,
+      });
+    }, 1100);
+    timersRef.current.push(t2);
+
+    // Stage 4: Grab the handle of the logo!
+    const t3 = setTimeout(() => {
+      if (phaseRef.current !== "climbing") return;
+      const latestGrip = getLogoGripPos() || grip;
+      setPos({
+        x: latestGrip.x,
+        y: latestGrip.y,
+        visible: true,
+        flipped: false,
+        isMoving: true,
+      });
+
+      // Finish climbing: hang on the handle!
+      const tHang = setTimeout(() => {
+        clearInterval(climbInterval);
+        phaseRef.current = "hanging";
+        setPhase("hanging");
+        setPos((prev) => ({ ...prev, isMoving: false }));
+
+        // Hang on the logo for 3.5 seconds, then jump down to the button again
+        const nextJump = setTimeout(() => {
+          startJumpToBtnRef.current();
+        }, 3500);
+        timersRef.current.push(nextJump);
+      }, 550);
+      timersRef.current.push(tHang);
+    }, 1650);
+    timersRef.current.push(t3);
+  }, [getLogoGripPos, getBtnBounds]);
+
+  startClimbingUpRef.current = startClimbingUp;
+
+  // 2. WALKING ON TOP OF SCAN BUTTON FOR A COUPLE OF SECONDS (~6 seconds)
   const startWalkingLoop = useCallback(() => {
     phaseRef.current = "walking";
     setPhase("walking");
@@ -93,40 +161,43 @@ export default function AnimatedMascot() {
       const targetX = walkDirection === "right" ? bounds.right : bounds.left;
       const targetFlipped = walkDirection === "left";
 
-      setPos((prev) => ({
+      setPos({
         x: targetX,
         y: bounds.top,
         visible: true,
         flipped: targetFlipped,
         isMoving: true,
-      }));
+      });
 
-      // Time to cross the button (~3.2 seconds)
+      // Time to cross the button (~2.4s)
       const crossTimer = setTimeout(() => {
         if (phaseRef.current !== "walking") return;
 
-        // Brief pause at the edge (400ms), then turn around
+        // Brief pause at the edge (350ms), then turn around
         walkDirection = walkDirection === "right" ? "left" : "right";
         const pauseTimer = setTimeout(() => {
           if (phaseRef.current !== "walking") return;
           stepWalk();
-        }, 400);
+        }, 350);
         timersRef.current.push(pauseTimer);
-      }, 3200);
+      }, 2400);
       timersRef.current.push(crossTimer);
     }
 
     // Begin first cross
     stepWalk();
 
-    // The user requested: "reduce the walking time to 30 sec only" (30 seconds = 30,000 ms)
-    const thirtySecTimer = setTimeout(() => {
-      triggerJumpBack();
-    }, 30000);
-    timersRef.current.push(thirtySecTimer);
-  }, [getBtnBounds, triggerJumpBack]);
+    // Walk for a couple of seconds (approx 6 seconds: crosses right, pauses, crosses left, then climbs)
+    const climbTimer = setTimeout(() => {
+      clearInterval(legInterval);
+      startClimbingUpRef.current();
+    }, 6000);
+    timersRef.current.push(climbTimer);
+  }, [getBtnBounds]);
 
-  // Jump from logo down to scan barcode button
+  startWalkingLoopRef.current = startWalkingLoop;
+
+  // 3. JUMP FROM LOGO DOWN TO SCAN BARCODE BUTTON
   const startJumpToBtn = useCallback(() => {
     clearAllTimers();
     phaseRef.current = "jumping-to-btn";
@@ -134,8 +205,8 @@ export default function AnimatedMascot() {
 
     const bounds = getBtnBounds();
     if (!bounds) {
-      // If button not on screen, retry in 3 seconds
-      const retry = setTimeout(startJumpToBtn, 3000);
+      // If button not on screen, retry in 2.5 seconds
+      const retry = setTimeout(() => startJumpToBtnRef.current(), 2500);
       timersRef.current.push(retry);
       return;
     }
@@ -143,31 +214,39 @@ export default function AnimatedMascot() {
     // Land on left side of button
     setPos({ x: bounds.left, y: bounds.top, visible: true, flipped: false, isMoving: true });
 
-    // Jump duration 850ms, then start 3-minute walking loop
+    // Jump duration 850ms, then start walking loop
     const t = setTimeout(() => {
-      startWalkingLoop();
+      startWalkingLoopRef.current();
     }, 850);
     timersRef.current.push(t);
-  }, [getBtnBounds, startWalkingLoop]);
+  }, [getBtnBounds]);
+
+  startJumpToBtnRef.current = startJumpToBtn;
 
   // Initial positioning & cycle trigger on mount
   useEffect(() => {
-    // Initial mount: position mascot at the middle of the scanner handle
     function alignToLogo() {
       const grip = getLogoGripPos();
       if (grip) {
         setPos({ x: grip.x, y: grip.y, visible: true, flipped: false, isMoving: false });
+        return true;
       }
+      return false;
     }
 
-    // Wait 150ms for initial DOM layout to settle
+    // Initial check and retry if logo is still rendering
     const initTimer = setTimeout(() => {
-      alignToLogo();
+      const found = alignToLogo();
+      if (!found) {
+        // Retry after 200ms
+        const retryTimer = setTimeout(alignToLogo, 200);
+        timersRef.current.push(retryTimer);
+      }
 
-      // Hang at the logo for 2.5 seconds, then leap to the button
+      // Hang at the logo for 3.0 seconds, then leap to the button
       const firstJump = setTimeout(() => {
-        startJumpToBtn();
-      }, 2500);
+        startJumpToBtnRef.current();
+      }, 3000);
       timersRef.current.push(firstJump);
     }, 150);
     timersRef.current.push(initTimer);
@@ -195,13 +274,14 @@ export default function AnimatedMascot() {
       window.removeEventListener("scroll", handleScrollOrResize);
       window.removeEventListener("resize", handleScrollOrResize);
     };
-  }, [getLogoGripPos, getBtnBounds, startJumpToBtn]);
+  }, [getLogoGripPos, getBtnBounds]);
 
   if (!pos.visible) return null;
 
   const isHanging = phase === "hanging";
-  const isJumping = phase === "jumping-to-btn" || phase === "jumping-back";
+  const isJumping = phase === "jumping-to-btn";
   const isWalking = phase === "walking";
+  const isClimbing = phase === "climbing";
 
   // Transition dynamics
   let transitionStyle = "none";
@@ -209,14 +289,23 @@ export default function AnimatedMascot() {
     transitionStyle =
       "left 0.85s cubic-bezier(0.22, 1, 0.36, 1), top 0.85s cubic-bezier(0.34, 1.25, 0.64, 1)";
   } else if (isWalking) {
-    transitionStyle = "left 3.2s linear, top 0.2s ease";
+    transitionStyle = "left 2.4s linear, top 0.2s ease";
+  } else if (isClimbing) {
+    // Energetic upward climbing steps
+    transitionStyle = "left 0.5s ease-in-out, top 0.52s cubic-bezier(0.25, 1, 0.5, 1)";
   }
 
   return (
     <div
       aria-label="JeevanReport Animated Mascot"
-      title={isWalking ? "Mascot walking on Scan button! Click me to jump back to logo anytime, or wait for the 30-second stroll." : undefined}
-      onClick={isWalking ? triggerJumpBack : undefined}
+      title={
+        isWalking
+          ? "Mascot walking on Scan button! Getting ready to climb back to logo."
+          : isClimbing
+          ? "Climbing back up to the logo handle!"
+          : "Mascot hanging from the JeevanReport scanner handle."
+      }
+      onClick={isWalking ? () => startClimbingUpRef.current() : undefined}
       style={{
         position: "fixed",
         left: pos.x,
@@ -238,7 +327,7 @@ export default function AnimatedMascot() {
           width: 32,
           height: 42,
           overflow: "visible",
-          filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.12))",
+          filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.14))",
         }}
       >
         {/* =================== HANGING POSE =================== */}
@@ -290,7 +379,7 @@ export default function AnimatedMascot() {
             {/* Smile */}
             <path d="M 14 16.2 Q 15 17.4 16 16.2" stroke="#9a3412" strokeWidth={0.8} strokeLinecap="round" fill="none" />
 
-            {/* Right Arm from shoulder (18, 19) reaching up to WAVE */}
+            {/* Right Arm reaching up to WAVE */}
             <path d="M 18 19 Q 21 16 24 12" stroke="#2563eb" strokeWidth={3.2} strokeLinecap="round" />
 
             {/* Waving Palm and Fingers */}
@@ -299,12 +388,12 @@ export default function AnimatedMascot() {
             <line x1="25.5" y1="7.5" x2="25.9" y2="5.2" stroke="#d97706" strokeWidth={0.8} strokeLinecap="round" />
             <line x1="26.8" y1="8.2" x2="27.6" y2="6.2" stroke="#d97706" strokeWidth={0.8} strokeLinecap="round" />
 
-            {/* Gold Sparkles */}
+            {/* Gold Sparkle */}
             <path d="M 29 4.5 Q 30.2 6.5 29 8.5" stroke="#fbbf24" strokeWidth={0.9} strokeLinecap="round" fill="none" />
           </g>
         )}
 
-        {/* =================== JUMPING POSE =================== */}
+        {/* =================== JUMPING DOWN POSE =================== */}
         {isJumping && (
           <g id="pose-jumping">
             {/* Chibi Head */}
@@ -346,7 +435,7 @@ export default function AnimatedMascot() {
           </g>
         )}
 
-        {/* =================== WALKING POSE =================== */}
+        {/* =================== WALKING ON BUTTON POSE =================== */}
         {isWalking && (
           <g id="pose-walking">
             {/* Chibi Head */}
@@ -412,6 +501,85 @@ export default function AnimatedMascot() {
                 <ellipse cx="23.5" cy="33.2" rx="2.4" ry="1.4" fill="#0f172a" />
               </>
             )}
+          </g>
+        )}
+
+        {/* =================== CLIMBING UP POSE ("climb and climb and climb") =================== */}
+        {isClimbing && (
+          <g id="pose-climbing">
+            {/* Chibi Head looking UPWARD toward logo */}
+            <circle cx="16" cy="13" r="6.2" fill="#fed7aa" />
+
+            {/* Cap tilted up */}
+            <path
+              d="M 10 11 C 10 6.5, 13 4.5, 16 4.5 C 19 4.5, 22 6.5, 22 11 C 20.5 10, 18 10, 16 10.5 C 14 10, 11.5 10, 10 11 Z"
+              fill="#0f172a"
+            />
+            <circle cx="16" cy="6" r="1.2" fill="#fbbf24" />
+
+            {/* Eyes looking UP */}
+            <circle cx="13.5" cy="11.5" r="1.3" fill="#0f172a" />
+            <circle cx="13.5" cy="10.9" r="0.5" fill="#ffffff" />
+            <circle cx="18.5" cy="11.5" r="1.3" fill="#0f172a" />
+            <circle cx="18.5" cy="10.9" r="0.5" fill="#ffffff" />
+
+            {/* Determined Happy Grin */}
+            <path d="M 14.5 15.5 Q 16 17 17.5 15.5" stroke="#9a3412" strokeWidth={1} strokeLinecap="round" fill="none" />
+            <ellipse cx="11.5" cy="14" rx="1.1" ry="0.6" fill="#f43f5e" opacity="0.6" />
+            <ellipse cx="20.5" cy="14" rx="1.1" ry="0.6" fill="#f43f5e" opacity="0.6" />
+
+            {/* Blue Hoodie Body */}
+            <path d="M 11 18 C 10 22, 11 25, 13 26 L 19 26 C 21 25, 22 22, 21 18 Z" fill="#2563eb" />
+            <line x1="16" y1="18" x2="16" y2="24" stroke="#fbbf24" strokeWidth={1.2} strokeLinecap="round" />
+
+            {/* CLIMBING ARMS (Alternating reach high vs pull) */}
+            {climbStep === 0 ? (
+              // Step A: Left hand reaches HIGH UP to pull; Right hand grips midway
+              <>
+                {/* Left arm stretching straight UP */}
+                <path d="M 11 19 L 9 7" stroke="#2563eb" strokeWidth={3.2} strokeLinecap="round" />
+                <circle cx="8.5" cy="5.5" r="2.4" fill="#fed7aa" stroke="#d97706" strokeWidth={0.7} />
+                <line x1="7.5" y1="4.5" x2="7.5" y2="2.5" stroke="#d97706" strokeWidth={0.7} strokeLinecap="round" />
+                <line x1="9" y1="4.2" x2="9" y2="2.2" stroke="#d97706" strokeWidth={0.7} strokeLinecap="round" />
+
+                {/* Right arm bent pulling at chest */}
+                <path d="M 21 19 Q 24 16 23 12" stroke="#2563eb" strokeWidth={3.2} strokeLinecap="round" />
+                <circle cx="23" cy="10.5" r="2.4" fill="#fed7aa" stroke="#d97706" strokeWidth={0.7} />
+
+                {/* Left knee bent high climbing up */}
+                <path d="M 12 26 L 9 29 L 10 33" stroke="#1d4ed8" strokeWidth={2.8} strokeLinecap="round" />
+                <ellipse cx="10" cy="34" rx="2.2" ry="1.3" fill="#0f172a" />
+
+                {/* Right leg pushing down */}
+                <path d="M 19 26 L 21 33" stroke="#1d4ed8" strokeWidth={2.8} strokeLinecap="round" />
+                <ellipse cx="21" cy="34" rx="2.2" ry="1.3" fill="#0f172a" />
+              </>
+            ) : (
+              // Step B: Right hand reaches HIGH UP to pull; Left hand grips midway
+              <>
+                {/* Left arm bent pulling at chest */}
+                <path d="M 11 19 Q 8 16 9 12" stroke="#2563eb" strokeWidth={3.2} strokeLinecap="round" />
+                <circle cx="9" cy="10.5" r="2.4" fill="#fed7aa" stroke="#d97706" strokeWidth={0.7} />
+
+                {/* Right arm stretching straight UP */}
+                <path d="M 21 19 L 23 7" stroke="#2563eb" strokeWidth={3.2} strokeLinecap="round" />
+                <circle cx="23.5" cy="5.5" r="2.4" fill="#fed7aa" stroke="#d97706" strokeWidth={0.7} />
+                <line x1="23" y1="4.5" x2="23" y2="2.5" stroke="#d97706" strokeWidth={0.7} strokeLinecap="round" />
+                <line x1="24.5" y1="4.2" x2="24.5" y2="2.2" stroke="#d97706" strokeWidth={0.7} strokeLinecap="round" />
+
+                {/* Left leg pushing down */}
+                <path d="M 13 26 L 11 33" stroke="#1d4ed8" strokeWidth={2.8} strokeLinecap="round" />
+                <ellipse cx="11" cy="34" rx="2.2" ry="1.3" fill="#0f172a" />
+
+                {/* Right knee bent high climbing up */}
+                <path d="M 20 26 L 23 29 L 22 33" stroke="#1d4ed8" strokeWidth={2.8} strokeLinecap="round" />
+                <ellipse cx="22" cy="34" rx="2.2" ry="1.3" fill="#0f172a" />
+              </>
+            )}
+
+            {/* Upward climbing motion wind puffs */}
+            <path d="M 5 26 Q 3 28 5 30" stroke="#f59e0b" strokeWidth={0.8} strokeLinecap="round" fill="none" opacity={0.6} />
+            <path d="M 27 26 Q 29 28 27 30" stroke="#f59e0b" strokeWidth={0.8} strokeLinecap="round" fill="none" opacity={0.6} />
           </g>
         )}
       </svg>

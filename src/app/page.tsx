@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import TabbedBrowseHubClient from "@/components/TabbedBrowseHub";
 import FloatingScanButton from "@/components/FloatingScanButton";
+import AnimatedMascot from "@/components/AnimatedMascot";
 import { changeFeed } from "@/lib/data/products";
 import { getScanHistory, clearScanHistory, type ScanHistoryEntry } from "@/lib/storage";
 import { useLang } from "@/components/LanguageContext";
@@ -169,6 +170,7 @@ export default function HomePage() {
 
   return (
     <>
+      <AnimatedMascot />
       {/* Hero */}
       <section className="border-b border-latte bg-brand-50">
         <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
