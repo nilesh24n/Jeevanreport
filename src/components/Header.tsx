@@ -198,8 +198,10 @@ export default function Header() {
           </div>
 
           <div className="mb-3 grid grid-cols-2 gap-2">
-            {[...nav.visible, ...(nav.primaryAction ? [nav.primaryAction] : [])].map((link) => {
-              const isScan = link.href === "/scan";
+            {[...nav.visible, ...(nav.primaryAction ? [nav.primaryAction] : [])]
+              .filter((link, idx, arr) => idx === arr.findIndex((item) => item.href === link.href))
+              .map((link) => {
+                const isScan = link.href === "/scan";
               return (
                 <Link
                   key={link.href}
