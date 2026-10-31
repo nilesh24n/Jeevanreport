@@ -11,10 +11,10 @@ type Pose =
   | "pointing-hand"
   | "climbing-up";
 
-interface Coord {
+interface TargetResult {
   x: number;
   y: number;
-  flipped?: boolean;
+  el?: HTMLElement;
 }
 
 export default function AnimatedMascot() {
@@ -23,28 +23,15 @@ export default function AnimatedMascot() {
   const [pos, setPos] = useState({ x: 0, y: 0, visible: false, flipped: false });
   const [walkLegStep, setWalkLegStep] = useState<0 | 1>(0);
   const [climbStep, setClimbStep] = useState<0 | 1>(0);
-  const [transitionSpeed, setTransitionSpeed] = useState<string>("0.5s");
+  const [transitionMs, setTransitionMs] = useState(400);
 
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const intervalsRef = useRef<ReturnType<typeof setInterval>[]>([]);
-  const activeBtnRef = useRef<HTMLElement | null>(null);
-  const isRunningRef = useRef(false);
+  const mountedRef = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const limbIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const activeHighlightedElRef = useRef<HTMLElement | null>(null);
 
-  function clearAll() {
-    timersRef.current.forEach((t) => clearTimeout(t));
-    timersRef.current = [];
-    intervalsRef.current.forEach((i) => clearInterval(i));
-    intervalsRef.current = [];
-    if (activeBtnRef.current) {
-      activeBtnRef.current.classList.remove("ring-4", "ring-amber-400", "ring-offset-2");
-      activeBtnRef.current = null;
-    }
-  }
-
-  // Returns exact screen coordinates for the handle midpoint of #site-logo
-  // Logo viewBox is 0 0 56 58, handle midpoint is (33, 29.5)
-  // Mascot hand grip center inside its 36x44 box is at (12.8, 4)
-  const getLogoGripPos = useCallback((): Coord | null => {
+  // Helper to query element coordinates relative to viewport (matches position: fixed)
+  const getLogoGrip = useCallback((): TargetResult | null => {
     if (typeof window === "undefined") return null;
     const logo = document.querySelector("#site-logo") as HTMLElement | null;
     if (!logo) return null;
@@ -53,377 +40,260 @@ export default function AnimatedMascot() {
     const handleMidX = (33 / 56) * rect.width;
     const handleMidY = (29.5 / 58) * rect.height;
     return {
-      x: rect.left + handleMidX - 12.8,
-      y: rect.top + handleMidY - 4,
-      flipped: false,
+      x: Math.round(rect.left + handleMidX - 12.8),
+      y: Math.round(rect.top + handleMidY - 4),
+      el: logo,
     };
   }, []);
 
-  // Finds real DOM elements on the page that serve as physical monkey supports/ledges
-  const getPhysicalLedges = useCallback(() => {
-    if (typeof window === "undefined") return [];
+  const getElementTop = useCallback(
+    (selector: string, xOffset = 0, yOffset = -36): TargetResult | null => {
+      if (typeof window === "undefined") return null;
+      const el = document.querySelector(selector) as HTMLElement | null;
+      if (!el) return null;
+      const rect = el.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return null;
+      return {
+        x: Math.round(rect.left + xOffset),
+        y: Math.round(rect.top + yOffset),
+        el,
+      };
+    },
+    []
+  );
 
-    const ledges: { name: string; coord: Coord; element?: HTMLElement }[] = [];
-
-    // 1. Logo
-    const logoGrip = getLogoGripPos();
-    if (logoGrip) {
-      ledges.push({ name: "logo", coord: logoGrip });
-    }
-
-    // 2. Brand text in header
-    const brand = document.querySelector("#site-brand") as HTMLElement | null;
-    if (brand) {
-      const r = brand.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) {
-        ledges.push({
-          name: "brand",
-          element: brand,
-          coord: { x: r.left + 10, y: r.top - 18, flipped: false },
-        });
-      }
-    }
-
-    // 3. Hero transparency pill badge
-    const badge = document.querySelector("#hero-transparency-badge") as HTMLElement | null;
-    if (badge) {
-      const r = badge.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) {
-        ledges.push({
-          name: "badge",
-          element: badge,
-          coord: { x: r.left + 30, y: r.top - 36, flipped: false },
-        });
-      }
-    }
-
-    // 4. Hero headline text
-    const headline = document.querySelector("#hero-headline, #recent-scans-headline") as HTMLElement | null;
-    if (headline) {
-      const r = headline.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) {
-        ledges.push({
-          name: "headline",
-          element: headline,
-          coord: { x: r.left + 45, y: r.top - 34, flipped: false },
-        });
-      }
-    }
-
-    // 5. Hero Scan Button (the primary target)
-    const scanBtn = (document.querySelector("#hero-scan-btn") ||
-      document.querySelector("#recent-scan-btn") ||
-      document.querySelector("#header-scan-btn") ||
-      document.querySelector(".btn-scan")) as HTMLElement | null;
-
-    if (scanBtn) {
-      const r = scanBtn.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) {
-        ledges.push({
-          name: "scan-btn",
-          element: scanBtn,
-          coord: { x: r.left + 16, y: r.top - 36, flipped: false },
-        });
-        ledges.push({
-          name: "scan-btn-center",
-          element: scanBtn,
-          coord: { x: r.left + Math.min(80, r.width / 2), y: r.top - 36, flipped: false },
-        });
-      }
-    }
-
-    // 6. Next support: Search Button or search box
-    const searchBtn = (document.querySelector("#hero-search-btn") ||
-      document.querySelector("#hero-search-box")) as HTMLElement | null;
-    if (searchBtn) {
-      const r = searchBtn.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) {
-        ledges.push({
-          name: "search-btn",
-          element: searchBtn,
-          coord: { x: r.left + 24, y: r.top - 36, flipped: false },
-        });
-      }
-    }
-
-    return ledges;
-  }, [getLogoGripPos]);
-
-  // Main monkey choreography routine
-  const runMonkeyCycle = useCallback(() => {
-    clearAll();
-    isRunningRef.current = true;
-
-    const ledges = getPhysicalLedges();
-    const logoLedge = ledges.find((l) => l.name === "logo");
-    const brandLedge = ledges.find((l) => l.name === "brand");
-    const badgeLedge = ledges.find((l) => l.name === "badge");
-    const headlineLedge = ledges.find((l) => l.name === "headline");
-    const scanBtnLedge = ledges.find((l) => l.name === "scan-btn");
-    const scanBtnCenter = ledges.find((l) => l.name === "scan-btn-center");
-    const searchBtnLedge = ledges.find((l) => l.name === "search-btn");
-
-    if (!logoLedge || !scanBtnLedge) {
-      // Retry if DOM elements are still rendering
-      const retry = setTimeout(runMonkeyCycle, 1500);
-      timersRef.current.push(retry);
-      return;
-    }
-
-    // Walking / climbing alternating animation interval
-    const stepInterval = setInterval(() => {
-      setWalkLegStep((s) => (s === 0 ? 1 : 0));
-      setClimbStep((s) => (s === 0 ? 1 : 0));
-    }, 160);
-    intervalsRef.current.push(stepInterval);
-
-    // =========================================================
-    // STEP 1: HANGING ON LOGO HANDLE (2.6s)
-    // =========================================================
-    setPose("hanging");
-    setPos({
-      x: logoLedge.coord.x,
-      y: logoLedge.coord.y,
-      visible: true,
-      flipped: false,
-    });
-    setTransitionSpeed("0.4s");
-
-    // =========================================================
-    // STEP 2: REACH OVER TO HEADER BRAND TEXT (500ms)
-    // Monkey reaches hand over from logo to the header bar
-    // =========================================================
-    const t1 = setTimeout(() => {
-      if (!isRunningRef.current) return;
-      setPose("stepping-down");
-      const target = brandLedge?.coord || { x: logoLedge.coord.x + 35, y: logoLedge.coord.y + 12 };
-      setPos({ x: target.x, y: target.y, visible: true, flipped: false });
-      setTransitionSpeed("0.5s");
-
-      // =========================================================
-      // STEP 3: STEP DOWN TO HERO TRANSPARENCY BADGE (550ms)
-      // Monkey steps down holding badge ledge
-      // =========================================================
-      const t2 = setTimeout(() => {
-        if (!isRunningRef.current) return;
-        setPose("stepping-down");
-        const target = badgeLedge?.coord || headlineLedge?.coord || scanBtnLedge.coord;
-        setPos({ x: target.x, y: target.y, visible: true, flipped: false });
-        setTransitionSpeed("0.55s");
-
-        // =========================================================
-        // STEP 4: STEP DOWN TO HERO HEADLINE (550ms)
-        // Monkey steps down holding headline top surface
-        // =========================================================
-        const t3 = setTimeout(() => {
-          if (!isRunningRef.current) return;
-          setPose("perched");
-          const target = headlineLedge?.coord || scanBtnLedge.coord;
-          setPos({ x: target.x, y: target.y, visible: true, flipped: false });
-          setTransitionSpeed("0.55s");
-
-          // =========================================================
-          // STEP 5: STEP DOWN ONTO SCAN BUTTON (550ms)
-          // Monkey steps down directly onto the top edge of the scan button!
-          // =========================================================
-          const t4 = setTimeout(() => {
-            if (!isRunningRef.current) return;
-            setPose("perched");
-            setPos({
-              x: scanBtnLedge.coord.x,
-              y: scanBtnLedge.coord.y,
-              visible: true,
-              flipped: false,
-            });
-            setTransitionSpeed("0.5s");
-
-            // =========================================================
-            // STEP 6: WALK ACROSS TOP OF SCAN BUTTON (1.2s)
-            // =========================================================
-            const t5 = setTimeout(() => {
-              if (!isRunningRef.current) return;
-              setPose("walking");
-              const walkTarget = scanBtnCenter?.coord || { x: scanBtnLedge.coord.x + 45, y: scanBtnLedge.coord.y };
-              setPos({
-                x: walkTarget.x,
-                y: walkTarget.y,
-                visible: true,
-                flipped: false,
-              });
-              setTransitionSpeed("1.2s");
-
-              // =========================================================
-              // STEP 7: SHOW SCAN BUTTON BY HIS OWN HAND! (3.6s)
-              // NO EMOJIS! Monkey crouches, grips edge with left hand,
-              // and physically points his right arm and index finger DOWN
-              // at the scan button! The button glows with amber highlight.
-              // =========================================================
-              const t6 = setTimeout(() => {
-                if (!isRunningRef.current) return;
-                setPose("pointing-hand");
-                setTransitionSpeed("0.2s");
-
-                if (scanBtnLedge.element) {
-                  scanBtnLedge.element.classList.add("ring-4", "ring-amber-400", "ring-offset-2", "transition-all");
-                  activeBtnRef.current = scanBtnLedge.element;
-                }
-
-                // =========================================================
-                // STEP 8: STEP OVER TO SEARCH BUTTON (SURFACE TO SURFACE)
-                // Monkey hops across from scan button to search button
-                // =========================================================
-                const t7 = setTimeout(() => {
-                  if (!isRunningRef.current) return;
-                  if (activeBtnRef.current) {
-                    activeBtnRef.current.classList.remove("ring-4", "ring-amber-400", "ring-offset-2");
-                    activeBtnRef.current = null;
-                  }
-
-                  const nextLedge = searchBtnLedge?.coord || { x: scanBtnLedge.coord.x + 120, y: scanBtnLedge.coord.y };
-                  setPose("walking");
-                  setPos({
-                    x: nextLedge.x,
-                    y: nextLedge.y,
-                    visible: true,
-                    flipped: false,
-                  });
-                  setTransitionSpeed("0.9s");
-
-                  // =========================================================
-                  // STEP 9: CLIMB UP SURFACE TO SURFACE (HEADLINE LEDGE)
-                  // Monkey reaches UP and pulls himself up onto the Headline!
-                  // =========================================================
-                  const t8 = setTimeout(() => {
-                    if (!isRunningRef.current) return;
-                    setPose("climbing-up");
-                    const target = headlineLedge?.coord || badgeLedge?.coord || logoLedge.coord;
-                    setPos({
-                      x: target.x,
-                      y: target.y,
-                      visible: true,
-                      flipped: true,
-                    });
-                    setTransitionSpeed("0.65s");
-
-                    // =========================================================
-                    // STEP 10: CLIMB UP TO BADGE LEDGE
-                    // Monkey reaches UP and pulls onto Hero Badge
-                    // =========================================================
-                    const t9 = setTimeout(() => {
-                      if (!isRunningRef.current) return;
-                      setPose("climbing-up");
-                      const target = badgeLedge?.coord || brandLedge?.coord || logoLedge.coord;
-                      setPos({
-                        x: target.x,
-                        y: target.y,
-                        visible: true,
-                        flipped: true,
-                      });
-                      setTransitionSpeed("0.65s");
-
-                      // =========================================================
-                      // STEP 11: CLIMB UP TO HEADER BAR / BRAND TEXT
-                      // Monkey reaches UP to header bar
-                      // =========================================================
-                      const t10 = setTimeout(() => {
-                        if (!isRunningRef.current) return;
-                        setPose("climbing-up");
-                        const target = brandLedge?.coord || logoLedge.coord;
-                        setPos({
-                          x: target.x,
-                          y: target.y,
-                          visible: true,
-                          flipped: true,
-                        });
-                        setTransitionSpeed("0.6s");
-
-                        // =========================================================
-                        // STEP 12: SWING ALONG HEADER & CATCH LOGO HANDLE!
-                        // Monkey traverses to #site-logo handle, catches it & hangs!
-                        // =========================================================
-                        const t11 = setTimeout(() => {
-                          if (!isRunningRef.current) return;
-                          setPose("hanging");
-                          const freshLogoGrip = getLogoGripPos();
-                          setPos({
-                            x: freshLogoGrip?.x ?? logoLedge.coord.x,
-                            y: freshLogoGrip?.y ?? logoLedge.coord.y,
-                            visible: true,
-                            flipped: false,
-                          });
-                          setTransitionSpeed("0.45s");
-
-                          // Hang at the logo for 3.5s, then start next monkey cycle!
-                          const nextLoop = setTimeout(runMonkeyCycle, 3500);
-                          timersRef.current.push(nextLoop);
-                        }, 600);
-                        timersRef.current.push(t11);
-                      }, 650);
-                      timersRef.current.push(t10);
-                    }, 650);
-                    timersRef.current.push(t9);
-                  }, 950);
-                  timersRef.current.push(t8);
-                }, 3600); // 3.6s pointing duration
-                timersRef.current.push(t7);
-              }, 1200);
-              timersRef.current.push(t6);
-            }, 550);
-            timersRef.current.push(t5);
-          }, 550);
-          timersRef.current.push(t4);
-        }, 550);
-        timersRef.current.push(t3);
-      }, 550);
-      timersRef.current.push(t2);
-    }, 2600); // 2.6s initial hanging at logo
-    timersRef.current.push(t1);
-  }, [getPhysicalLedges, getLogoGripPos]);
+  const getScanBtnTop = useCallback(
+    (xOffset = 16, yOffset = -36): TargetResult | null => {
+      return (
+        getElementTop("#hero-scan-btn", xOffset, yOffset) ||
+        getElementTop("#recent-scan-btn", xOffset, yOffset) ||
+        getElementTop("#header-scan-btn", xOffset, yOffset) ||
+        getElementTop(".btn-scan", xOffset, yOffset)
+      );
+    },
+    [getElementTop]
+  );
 
   useEffect(() => {
     if (pathname !== "/") {
-      clearAll();
-      isRunningRef.current = false;
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (limbIntervalRef.current) clearInterval(limbIntervalRef.current);
+      if (activeHighlightedElRef.current) {
+        activeHighlightedElRef.current.classList.remove("ring-4", "ring-amber-400", "ring-offset-2");
+        activeHighlightedElRef.current = null;
+      }
       return;
     }
 
-    // Align to logo on mount
-    const initTimer = setTimeout(() => {
-      const grip = getLogoGripPos();
-      if (grip) {
-        setPos({ x: grip.x, y: grip.y, visible: true, flipped: false });
-      }
-      runMonkeyCycle();
-    }, 150);
-    timersRef.current.push(initTimer);
+    mountedRef.current = true;
 
-    function handleResizeOrScroll() {
-      if (pose === "hanging") {
-        const grip = getLogoGripPos();
-        if (grip) {
-          setPos((prev) => ({ ...prev, x: grip.x, y: grip.y }));
-        }
+    // Toggle limb strides for natural walking/climbing
+    limbIntervalRef.current = setInterval(() => {
+      setWalkLegStep((s) => (s === 0 ? 1 : 0));
+      setClimbStep((s) => (s === 0 ? 1 : 0));
+    }, 170);
+
+    // Sequence of physical ledges from logo down to scan button and back up
+    const STEPS = [
+      // 0. Hang on Logo Handle
+      {
+        name: "hang-logo",
+        pose: "hanging" as Pose,
+        duration: 2500,
+        transitionMs: 400,
+        flipped: false,
+        getTarget: () => getLogoGrip(),
+      },
+      // 1. Step to Header Brand Text
+      {
+        name: "step-brand",
+        pose: "stepping-down" as Pose,
+        duration: 500,
+        transitionMs: 450,
+        flipped: false,
+        getTarget: () => {
+          const grip = getLogoGrip();
+          return getElementTop("#site-brand", 10, -20) || (grip ? { x: grip.x + 40, y: grip.y + 10 } : null);
+        },
+      },
+      // 2. Step down to Hero Transparency Badge
+      {
+        name: "step-badge",
+        pose: "stepping-down" as Pose,
+        duration: 550,
+        transitionMs: 500,
+        flipped: false,
+        getTarget: () =>
+          getElementTop("#hero-transparency-badge", 25, -36) ||
+          getElementTop("#hero-headline", 35, -34) ||
+          getScanBtnTop(16, -36),
+      },
+      // 3. Step down to Hero Headline Ledge
+      {
+        name: "step-headline",
+        pose: "perched" as Pose,
+        duration: 550,
+        transitionMs: 500,
+        flipped: false,
+        getTarget: () =>
+          getElementTop("#hero-headline, #recent-scans-headline", 35, -34) ||
+          getScanBtnTop(16, -36),
+      },
+      // 4. Step down directly onto Scan Button Ledge
+      {
+        name: "step-scan-btn",
+        pose: "perched" as Pose,
+        duration: 550,
+        transitionMs: 500,
+        flipped: false,
+        getTarget: () => getScanBtnTop(16, -36),
+      },
+      // 5. Walk across top of Scan Button
+      {
+        name: "walk-scan-btn",
+        pose: "walking" as Pose,
+        duration: 1000,
+        transitionMs: 900,
+        flipped: false,
+        getTarget: () => getScanBtnTop(52, -36),
+      },
+      // 6. Point at Scan Button with HIS OWN HAND (no emojis)
+      {
+        name: "point-scan-btn",
+        pose: "pointing-hand" as Pose,
+        duration: 3600,
+        transitionMs: 200,
+        flipped: false,
+        getTarget: () => getScanBtnTop(52, -36),
+        onEnter: (el?: HTMLElement) => {
+          if (el) {
+            el.classList.add("ring-4", "ring-amber-400", "ring-offset-2", "transition-all");
+            activeHighlightedElRef.current = el;
+          }
+        },
+        onLeave: (el?: HTMLElement) => {
+          if (el) {
+            el.classList.remove("ring-4", "ring-amber-400", "ring-offset-2");
+          }
+          if (activeHighlightedElRef.current) {
+            activeHighlightedElRef.current.classList.remove("ring-4", "ring-amber-400", "ring-offset-2");
+            activeHighlightedElRef.current = null;
+          }
+        },
+      },
+      // 7. Hop over to Search Button (surface-to-surface)
+      {
+        name: "hop-search-btn",
+        pose: "walking" as Pose,
+        duration: 850,
+        transitionMs: 750,
+        flipped: false,
+        getTarget: () =>
+          getElementTop("#hero-search-btn", 28, -36) ||
+          getElementTop("#hero-search-box", 28, -36) ||
+          getScanBtnTop(120, -36),
+      },
+      // 8. Climb up to Headline Ledge
+      {
+        name: "climb-headline",
+        pose: "climbing-up" as Pose,
+        duration: 650,
+        transitionMs: 600,
+        flipped: true,
+        getTarget: () =>
+          getElementTop("#hero-headline, #recent-scans-headline", 55, -34) ||
+          getLogoGrip(),
+      },
+      // 9. Climb up to Transparency Badge Ledge
+      {
+        name: "climb-badge",
+        pose: "climbing-up" as Pose,
+        duration: 650,
+        transitionMs: 600,
+        flipped: true,
+        getTarget: () =>
+          getElementTop("#hero-transparency-badge", 35, -36) ||
+          getElementTop("#site-brand", 15, -20) ||
+          getLogoGrip(),
+      },
+      // 10. Climb up to Header Brand Text Ledge
+      {
+        name: "climb-brand",
+        pose: "climbing-up" as Pose,
+        duration: 550,
+        transitionMs: 500,
+        flipped: true,
+        getTarget: () =>
+          getElementTop("#site-brand", 20, -20) ||
+          getLogoGrip(),
+      },
+      // 11. Catch Logo Handle and Hang
+      {
+        name: "catch-logo",
+        pose: "hanging" as Pose,
+        duration: 500,
+        transitionMs: 450,
+        flipped: false,
+        getTarget: () => getLogoGrip(),
+      },
+    ];
+
+    function executeStep(stepIndex: number) {
+      if (!mountedRef.current) return;
+
+      const step = STEPS[stepIndex];
+      const target = step.getTarget();
+
+      if (target) {
+        setPos({
+          x: target.x,
+          y: target.y,
+          visible: true,
+          flipped: step.flipped,
+        });
+        setPose(step.pose);
+        setTransitionMs(step.transitionMs);
+        step.onEnter?.(target.el);
       }
+
+      timerRef.current = setTimeout(() => {
+        if (!mountedRef.current) return;
+        step.onLeave?.(target?.el);
+        const nextIndex = (stepIndex + 1) % STEPS.length;
+        executeStep(nextIndex);
+      }, step.duration);
     }
 
-    window.addEventListener("resize", handleResizeOrScroll, { passive: true });
-    window.addEventListener("scroll", handleResizeOrScroll, { passive: true });
+    // Initialize alignment to logo, then start loop
+    const initTimer = setTimeout(() => {
+      const grip = getLogoGrip();
+      if (grip) {
+        setPos({ x: grip.x, y: grip.y, visible: true, flipped: false });
+        executeStep(0);
+      } else {
+        // Retry shortly if DOM elements are still settling
+        timerRef.current = setTimeout(() => executeStep(0), 200);
+      }
+    }, 100);
 
     return () => {
-      clearAll();
-      isRunningRef.current = false;
-      window.removeEventListener("resize", handleResizeOrScroll);
-      window.removeEventListener("scroll", handleResizeOrScroll);
+      mountedRef.current = false;
+      clearTimeout(initTimer);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (limbIntervalRef.current) clearInterval(limbIntervalRef.current);
+      if (activeHighlightedElRef.current) {
+        activeHighlightedElRef.current.classList.remove("ring-4", "ring-amber-400", "ring-offset-2");
+        activeHighlightedElRef.current = null;
+      }
     };
-  }, [pathname, getLogoGripPos, runMonkeyCycle, pose]);
+  }, [pathname, getLogoGrip, getElementTop, getScanBtnTop]);
 
   if (pathname !== "/" || !pos.visible) return null;
 
   return (
     <div
       aria-label="JeevanReport Mascot Monkey"
-      title="JeevanReport Mascot Monkey climbing ledges to the scan button!"
-      onClick={() => runMonkeyCycle()}
+      title="JeevanReport Mascot Monkey climbing ledges to point at the scan button!"
       style={{
         position: "fixed",
         left: pos.x,
@@ -433,7 +303,7 @@ export default function AnimatedMascot() {
         zIndex: 9999,
         pointerEvents: "auto",
         cursor: "pointer",
-        transition: `left ${transitionSpeed} ease-out, top ${transitionSpeed} cubic-bezier(0.25, 1, 0.5, 1)`,
+        transition: `left ${transitionMs}ms ease-out, top ${transitionMs}ms cubic-bezier(0.25, 1, 0.5, 1)`,
         transform: pos.flipped ? "scaleX(-1)" : "scaleX(1)",
       }}
     >
@@ -680,9 +550,7 @@ export default function AnimatedMascot() {
             {/* ========================================================== */}
             {/* RIGHT ARM FULLY EXTENDED DOWN POINTING DIRECTLY AT BUTTON  */}
             {/* ========================================================== */}
-            {/* Shoulder to elbow */}
             <path d="M 20 18 L 24 24" stroke="#2563eb" strokeWidth={3.6} strokeLinecap="round" />
-            {/* Elbow to wrist */}
             <path d="M 24 24 L 26 31" stroke="#2563eb" strokeWidth={3.4} strokeLinecap="round" />
 
             {/* Hand Palm */}
@@ -735,42 +603,34 @@ export default function AnimatedMascot() {
             {/* Alternating Hand-over-hand Climbing Arms & Legs */}
             {climbStep === 0 ? (
               <>
-                {/* Left Arm extended HIGH UP overhead grasping next hold */}
                 <path d="M 11 18 L 8 4" stroke="#2563eb" strokeWidth={3.4} strokeLinecap="round" />
                 <circle cx="7.8" cy="2.8" r="2.4" fill="#fed7aa" stroke="#d97706" strokeWidth={0.7} />
                 <line x1="6.8" y1="2" x2="6.8" y2="0.5" stroke="#d97706" strokeWidth={0.7} strokeLinecap="round" />
                 <line x1="8.2" y1="1.8" x2="8.2" y2="0.3" stroke="#d97706" strokeWidth={0.7} strokeLinecap="round" />
 
-                {/* Right Arm bent sharply at chest level pulling up */}
                 <path d="M 21 18 Q 24 16 23 11" stroke="#2563eb" strokeWidth={3.4} strokeLinecap="round" />
                 <circle cx="23" cy="9.5" r="2.4" fill="#fed7aa" stroke="#d97706" strokeWidth={0.7} />
 
-                {/* Left Leg: Knee bent high near waist */}
                 <path d="M 12 26 L 8 29 L 9 33" stroke="#1d4ed8" strokeWidth={3} strokeLinecap="round" />
                 <ellipse cx="9" cy="34" rx="2.4" ry="1.4" fill="#0f172a" />
 
-                {/* Right Leg: Extended downward pushing off */}
                 <path d="M 19 26 L 22 34" stroke="#1d4ed8" strokeWidth={3} strokeLinecap="round" />
                 <ellipse cx="22" cy="35" rx="2.4" ry="1.4" fill="#0f172a" />
                 <circle cx="8" cy="1" r="1.2" fill="#ffffff" opacity={0.7} />
               </>
             ) : (
               <>
-                {/* Left Arm bent sharply at chest level pulling up */}
                 <path d="M 11 18 Q 8 16 9 11" stroke="#2563eb" strokeWidth={3.4} strokeLinecap="round" />
                 <circle cx="9" cy="9.5" r="2.4" fill="#fed7aa" stroke="#d97706" strokeWidth={0.7} />
 
-                {/* Right Arm extended HIGH UP overhead grasping next hold */}
                 <path d="M 21 18 L 24 4" stroke="#2563eb" strokeWidth={3.4} strokeLinecap="round" />
                 <circle cx="24.2" cy="2.8" r="2.4" fill="#fed7aa" stroke="#d97706" strokeWidth={0.7} />
                 <line x1="23.8" y1="2" x2="23.8" y2="0.5" stroke="#d97706" strokeWidth={0.7} strokeLinecap="round" />
                 <line x1="25.2" y1="1.8" x2="25.2" y2="0.3" stroke="#d97706" strokeWidth={0.7} strokeLinecap="round" />
 
-                {/* Left Leg: Extended downward pushing off */}
                 <path d="M 13 26 L 10 34" stroke="#1d4ed8" strokeWidth={3} strokeLinecap="round" />
                 <ellipse cx="10" cy="35" rx="2.4" ry="1.4" fill="#0f172a" />
 
-                {/* Right Leg: Knee bent high near waist */}
                 <path d="M 20 26 L 24 29 L 23 33" stroke="#1d4ed8" strokeWidth={3} strokeLinecap="round" />
                 <ellipse cx="23" cy="34" rx="2.4" ry="1.4" fill="#0f172a" />
                 <circle cx="24" cy="1" r="1.2" fill="#ffffff" opacity={0.7} />
