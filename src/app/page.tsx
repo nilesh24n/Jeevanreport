@@ -5,6 +5,7 @@ import Link from "next/link";
 import TabbedBrowseHubClient from "@/components/TabbedBrowseHub";
 import FloatingScanButton from "@/components/FloatingScanButton";
 import DailyFoodTruth from "@/components/DailyFoodTruth";
+import AnimatedMascot from "@/components/AnimatedMascot";
 import { changeFeed } from "@/lib/data/products";
 import { getScanHistory, clearScanHistory, type ScanHistoryEntry } from "@/lib/storage";
 import { useLang } from "@/components/LanguageContext";
@@ -170,6 +171,7 @@ export default function HomePage() {
 
   return (
     <>
+      <AnimatedMascot />
       <DailyFoodTruth />
       {/* Hero */}
       <section className="border-b border-latte bg-brand-50">
@@ -210,7 +212,7 @@ export default function HomePage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-4">
-                <Link href="/scan" className="btn-scan min-h-[48px]">Scan new product</Link>
+                <Link href="/scan" id="recent-scan-btn" className="btn-scan min-h-[48px]">Scan new product</Link>
                 <button
                   onClick={handleClearHistory}
                   className="min-h-[44px] px-2 text-xs font-medium text-espresso/40 hover:text-rose-600"

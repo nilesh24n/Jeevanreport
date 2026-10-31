@@ -56,8 +56,17 @@ export function dataStatusToneClass(tone: DataStatusTone): string {
 }
 
 export function getEverydayOneLiner(status: ProductStatus, body: BodyImpactSummary): string {
-  if (body.summaryText && body.summaryText.length > 20) {
-    return body.summaryText.replace(/\.\s*Educational only.*$/i, ".").trim();
+  if (body.summaryText && body.summaryText.trim().length > 0) {
+    const cleaned = body.summaryText
+      .replace(/\s*from\s+Open\s+Food\s+Facts\s+data\.?/gi, ".")
+      .replace(/Open\s*Food\s*Facts/gi, "")
+      .replace(/Food\s*Facts/gi, "")
+      .replace(/\.\s*Educational only.*$/i, ".")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (cleaned.length > 0) {
+      return cleaned;
+    }
   }
   if (status.rating === "Good") {
     return "Balanced enough for regular use in normal portions — still read the label.";

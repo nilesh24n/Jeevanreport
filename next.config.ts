@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "placehold.co" },
       { protocol: "https", hostname: "images.unsplash.com" },
-      // Open Food Facts product images
+      // External product images
       { protocol: "https", hostname: "static.openfoodfacts.org" },
       { protocol: "https", hostname: "images.openfoodfacts.org" },
       { protocol: "https", hostname: "world.openfoodfacts.org" },

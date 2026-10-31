@@ -151,6 +151,7 @@ export default function Header() {
           {nav.primaryAction && (
             <Link
               href={nav.primaryAction.href}
+              id="header-scan-btn"
               className="hidden sm:inline-flex btn-scan !px-4 !py-2 text-sm min-h-[40px] shadow-sm"
             >
               <svg className="h-4 w-4 text-espresso" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>

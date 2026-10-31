@@ -172,7 +172,7 @@ export function isConsumableProduct(product: Product | null): boolean {
     return true;
   }
 
-  // 5. Open Food Facts and imports often use generic food slugs
+  // 5. External databases and imports often use generic food slugs
   if (category.includes("food") || category.includes("drink") || category.includes("beverage")) {
     return true;
   }

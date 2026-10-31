@@ -104,7 +104,7 @@ async function rawGetProductById(id: string): Promise<Product | null> {
   const jsonResult = jsonProducts.getProductById(id);
   if (jsonResult) return jsonResult;
 
-  // 5. Try Open Food Facts API (real-time global database fallback)
+  // 5. Try real-time global database fallback
   const offResult = await fetchProductFromOpenFoodFacts(id);
   if (offResult) return offResult;
 
@@ -188,7 +188,7 @@ async function rawGetProductByBarcode(barcode: string): Promise<Product | null> 
     if (jsonResult) return jsonResult;
   }
 
-  // 5. Try Open Food Facts API (real-time global database fallback)
+  // 5. Try real-time global database fallback
   for (const key of keys) {
     const offResult = await fetchProductFromOpenFoodFacts(key);
     if (offResult) return offResult;

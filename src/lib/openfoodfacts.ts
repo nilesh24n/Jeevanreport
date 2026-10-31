@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Product, ProductVersion, TrustLevel, SatietyLabel, NutritionLevel, BalanceLabel, OccasionLabel } from "./types";
+import { MEDICAL_DISCLAIMER } from "./types";
 
 function computeBodyImpact(nutrition: any) {
   const sugar = nutrition.addedSugar ?? nutrition.sugar ?? 0;
@@ -16,8 +17,8 @@ function computeBodyImpact(nutrition: any) {
     fiberFlag: 'Moderate' as NutritionLevel,
     balanceLabel: 'Moderately balanced' as BalanceLabel,
     occasionLabel: (calories > 200 ? 'Better occasional treat' : 'Moderate frequency') as OccasionLabel,
-    summaryText: "Computed in real-time from Open Food Facts data.",
-    disclaimerText: "Data source: Open Food Facts."
+    summaryText: "Computed in real-time.",
+    disclaimerText: MEDICAL_DISCLAIMER
   };
 }
 
@@ -80,7 +81,7 @@ function mapCategory(raw: {
     return BARCODE_CATEGORY_OVERRIDES[raw.barcode];
   }
 
-  // 1. Use pnns_groups_1 — Open Food Facts' most reliable category field
+  // 1. Use pnns_groups_1 category field
   if (raw.pnns_groups_1) {
     const pnns = raw.pnns_groups_1.toLowerCase().trim();
     if (pnns && pnns !== "unknown") {
@@ -283,7 +284,7 @@ export async function fetchProductFromOpenFoodFacts(barcode: string): Promise<Pr
 
     return product;
   } catch (err) {
-    console.error("Open Food Facts fetch error:", err);
+    console.error("Product lookup fetch error:", err);
     return null;
   }
 }
