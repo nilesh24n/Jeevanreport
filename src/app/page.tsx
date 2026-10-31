@@ -224,17 +224,17 @@ export default function HomePage() {
           ) : (
             <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
               <div className="space-y-7">
-                <div className="inline-flex items-center gap-2 rounded-full border border-brand-300 bg-white px-3.5 py-1.5">
+                <div id="hero-transparency-badge" className="inline-flex items-center gap-2 rounded-full border border-brand-300 bg-white px-3.5 py-1.5">
                   <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
                   <span className="text-xs font-medium text-brand-700">India&apos;s product transparency platform</span>
                 </div>
 
-                <h1 className="text-3xl font-semibold leading-tight text-espresso sm:text-4xl lg:text-5xl">
+                <h1 id="hero-headline" className="text-3xl font-semibold leading-tight text-espresso sm:text-4xl lg:text-5xl">
                   {t("hero.headline_1") || "Scan any product."}{" "}
                   <span className="text-brand-600">{t("hero.headline_2") || "Know what's really inside."}</span>
                 </h1>
 
-                <p className="max-w-lg text-base leading-relaxed text-espresso/60 sm:text-lg">
+                <p id="hero-subheading" className="max-w-lg text-base leading-relaxed text-espresso/60 sm:text-lg">
                   {t("hero.subheading") || "Nutrition, ingredients, and shrinkflation — verified from barcode data and community evidence."}
                 </p>
 
@@ -250,7 +250,7 @@ export default function HomePage() {
                   </Link>
                 </div>
 
-                <div className="flex max-w-md gap-2 rounded-2xl border border-latte bg-white p-2 shadow-card">
+                <div id="hero-search-box" className="flex max-w-md gap-2 rounded-2xl border border-latte bg-white p-2 shadow-card">
                   <input
                     type="text"
                     placeholder="Search by product name..."

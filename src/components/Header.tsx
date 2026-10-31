@@ -55,7 +55,7 @@ export default function Header() {
             className="transition-transform duration-150 group-hover:scale-105"
             priority
           />
-          <span className="text-base font-bold text-espresso transition-colors group-hover:text-brand-600 tracking-tight sm:text-lg">
+          <span id="site-brand" className="text-base font-bold text-espresso transition-colors group-hover:text-brand-600 tracking-tight sm:text-lg">
             Jeevan<span className="text-amber-500">Report</span>
           </span>
         </Link>
